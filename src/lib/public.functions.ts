@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createPublicSupabase } from "./supabase-public";
 
+type SettingValue = Record<string, string | number | boolean | null>;
+
 const CASE_CARD =
   "slug, title, subtitle, location, year, hero_image, summary, space_type, style, area_sqft, featured, published_at";
 
@@ -86,8 +88,8 @@ export const getSiteSettings = createServerFn({ method: "GET" }).handler(async (
   const supabase = createPublicSupabase();
   const { data, error } = await supabase.from("site_settings").select("key, value");
   if (error) throw new Error(error.message);
-  const map: Record<string, Record<string, unknown>> = {};
-  for (const row of data ?? []) map[row.key] = (row.value ?? {}) as Record<string, unknown>;
+  const map: Record<string, SettingValue> = {};
+  for (const row of data ?? []) map[row.key] = (row.value ?? {}) as SettingValue;
   return map;
 });
 
@@ -110,9 +112,9 @@ export const getHomeContent = createServerFn({ method: "GET" }).handler(async ()
     supabase.from("site_settings").select("key, value"),
   ]);
 
-  const settingsMap: Record<string, Record<string, unknown>> = {};
+  const settingsMap: Record<string, SettingValue> = {};
   for (const row of settings.data ?? [])
-    settingsMap[row.key] = (row.value ?? {}) as Record<string, unknown>;
+    settingsMap[row.key] = (row.value ?? {}) as SettingValue;
 
   return {
     studies: (studies.data ?? []) as CaseCard[],
