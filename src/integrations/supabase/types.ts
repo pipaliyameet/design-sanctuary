@@ -1218,11 +1218,59 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_summaries: {
+        Row: {
+          created_at: string
+          delivery_note: string | null
+          delivery_status: string
+          generated_at: string
+          id: string
+          payload: Json
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_note?: string | null
+          delivery_status?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          delivery_note?: string | null
+          delivery_status?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_weekly_summary: {
+        Args: never
+        Returns: {
+          created_at: string
+          delivery_note: string | null
+          delivery_status: string
+          generated_at: string
+          id: string
+          payload: Json
+          week_start: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "weekly_summaries"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
