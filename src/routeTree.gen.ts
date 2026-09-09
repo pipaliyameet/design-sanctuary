@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -18,10 +19,17 @@ import { Route as JournalIndexRouteImport } from './routes/journal/index'
 import { Route as JournalSlugRouteImport } from './routes/journal/$slug'
 import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
+import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
+import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
+import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -64,6 +72,24 @@ const PortfolioSlugRoute = PortfolioSlugRouteImport.update({
   path: '/portfolio/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedStudioIndexRoute =
+  AuthenticatedStudioIndexRouteImport.update({
+    id: '/studio/',
+    path: '/studio/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioLeadsIndexRoute =
+  AuthenticatedStudioLeadsIndexRouteImport.update({
+    id: '/studio/leads/',
+    path: '/studio/leads/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioLeadsIdRoute =
+  AuthenticatedStudioLeadsIdRouteImport.update({
+    id: '/studio/leads/$id',
+    path: '/studio/leads/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +101,9 @@ export interface FileRoutesByFullPath {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/studio/': typeof AuthenticatedStudioIndexRoute
+  '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
+  '/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,10 +115,14 @@ export interface FileRoutesByTo {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal': typeof JournalIndexRoute
   '/portfolio': typeof PortfolioIndexRoute
+  '/studio': typeof AuthenticatedStudioIndexRoute
+  '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
+  '/studio/leads': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -98,6 +131,9 @@ export interface FileRoutesById {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
+  '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
+  '/_authenticated/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +147,9 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/studio/'
+    | '/studio/leads/$id'
+    | '/studio/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,9 +161,13 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal'
     | '/portfolio'
+    | '/studio'
+    | '/studio/leads/$id'
+    | '/studio/leads'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/auth'
     | '/contact'
@@ -133,10 +176,14 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/_authenticated/studio/'
+    | '/_authenticated/studio/leads/$id'
+    | '/_authenticated/studio/leads/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
@@ -154,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -212,11 +266,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortfolioSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/studio/': {
+      id: '/_authenticated/studio/'
+      path: '/studio'
+      fullPath: '/studio/'
+      preLoaderRoute: typeof AuthenticatedStudioIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/leads/': {
+      id: '/_authenticated/studio/leads/'
+      path: '/studio/leads'
+      fullPath: '/studio/leads/'
+      preLoaderRoute: typeof AuthenticatedStudioLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/leads/$id': {
+      id: '/_authenticated/studio/leads/$id'
+      path: '/studio/leads/$id'
+      fullPath: '/studio/leads/$id'
+      preLoaderRoute: typeof AuthenticatedStudioLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
+  AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
+  AuthenticatedStudioLeadsIndexRoute: typeof AuthenticatedStudioLeadsIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
+  AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
+  AuthenticatedStudioLeadsIndexRoute: AuthenticatedStudioLeadsIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
