@@ -20,6 +20,7 @@ import { Route as JournalSlugRouteImport } from './routes/journal/$slug'
 import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
+import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,12 @@ const AuthenticatedStudioIndexRoute =
     path: '/studio/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioLeadsIndexRoute =
+  AuthenticatedStudioLeadsIndexRouteImport.update({
+    id: '/studio/leads/',
+    path: '/studio/leads/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
   '/studio/': typeof AuthenticatedStudioIndexRoute
+  '/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
   '/journal': typeof JournalIndexRoute
   '/portfolio': typeof PortfolioIndexRoute
   '/studio': typeof AuthenticatedStudioIndexRoute
+  '/studio/leads': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,6 +123,7 @@ export interface FileRoutesById {
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
+  '/_authenticated/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/journal/'
     | '/portfolio/'
     | '/studio/'
+    | '/studio/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/portfolio'
     | '/studio'
+    | '/studio/leads'
   id:
     | '__root__'
     | '/'
@@ -153,6 +165,7 @@ export interface FileRouteTypes {
     | '/journal/'
     | '/portfolio/'
     | '/_authenticated/studio/'
+    | '/_authenticated/studio/leads/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -247,15 +260,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/leads/': {
+      id: '/_authenticated/studio/leads/'
+      path: '/studio/leads'
+      fullPath: '/studio/leads/'
+      preLoaderRoute: typeof AuthenticatedStudioLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
+  AuthenticatedStudioLeadsIndexRoute: typeof AuthenticatedStudioLeadsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
+  AuthenticatedStudioLeadsIndexRoute: AuthenticatedStudioLeadsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
