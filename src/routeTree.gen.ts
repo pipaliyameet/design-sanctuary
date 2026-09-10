@@ -22,6 +22,7 @@ import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
 import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
+import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_authenticated/studio/projects/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -90,6 +91,12 @@ const AuthenticatedStudioLeadsIdRoute =
     path: '/studio/leads/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioProjectsIndexRoute =
+  AuthenticatedStudioProjectsIndexRouteImport.update({
+    id: '/studio/projects/',
+    path: '/studio/projects/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/studio/': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
+  '/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/studio': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/leads': typeof AuthenticatedStudioLeadsIndexRoute
+  '/studio/projects': typeof AuthenticatedStudioProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
   '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/_authenticated/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
+  '/_authenticated/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/studio/'
     | '/studio/leads/$id'
     | '/studio/leads/'
+    | '/studio/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/studio/leads/$id'
     | '/studio/leads'
+    | '/studio/projects'
   id:
     | '__root__'
     | '/'
@@ -179,6 +191,7 @@ export interface FileRouteTypes {
     | '/_authenticated/studio/'
     | '/_authenticated/studio/leads/$id'
     | '/_authenticated/studio/leads/'
+    | '/_authenticated/studio/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -287,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioLeadsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/projects/': {
+      id: '/_authenticated/studio/projects/'
+      path: '/studio/projects'
+      fullPath: '/studio/projects/'
+      preLoaderRoute: typeof AuthenticatedStudioProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -294,12 +314,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
   AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
   AuthenticatedStudioLeadsIndexRoute: typeof AuthenticatedStudioLeadsIndexRoute
+  AuthenticatedStudioProjectsIndexRoute: typeof AuthenticatedStudioProjectsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
   AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
   AuthenticatedStudioLeadsIndexRoute: AuthenticatedStudioLeadsIndexRoute,
+  AuthenticatedStudioProjectsIndexRoute: AuthenticatedStudioProjectsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
