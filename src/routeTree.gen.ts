@@ -20,6 +20,7 @@ import { Route as JournalSlugRouteImport } from './routes/journal/$slug'
 import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
+import { Route as AuthenticatedStudioApprovalsRouteImport } from './routes/_authenticated/studio/approvals'
 import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
 import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_authenticated/studio/projects/index'
@@ -80,6 +81,12 @@ const AuthenticatedStudioIndexRoute =
     path: '/studio/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioApprovalsRoute =
+  AuthenticatedStudioApprovalsRouteImport.update({
+    id: '/studio/approvals',
+    path: '/studio/approvals',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioLeadsIndexRoute =
   AuthenticatedStudioLeadsIndexRouteImport.update({
     id: '/studio/leads/',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
   '/studio/': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal': typeof JournalIndexRoute
   '/portfolio': typeof PortfolioIndexRoute
+  '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
   '/studio': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -149,6 +158,7 @@ export interface FileRoutesById {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/_authenticated/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
   '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/_authenticated/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/studio/approvals'
     | '/studio/'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal'
     | '/portfolio'
+    | '/studio/approvals'
     | '/studio'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -200,6 +212,7 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/_authenticated/studio/approvals'
     | '/_authenticated/studio/'
     | '/_authenticated/studio/leads/$id'
     | '/_authenticated/studio/projects/$id'
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/approvals': {
+      id: '/_authenticated/studio/approvals'
+      path: '/studio/approvals'
+      fullPath: '/studio/approvals'
+      preLoaderRoute: typeof AuthenticatedStudioApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio/leads/': {
       id: '/_authenticated/studio/leads/'
       path: '/studio/leads'
@@ -331,6 +351,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedStudioApprovalsRoute: typeof AuthenticatedStudioApprovalsRoute
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
   AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
   AuthenticatedStudioProjectsIdRoute: typeof AuthenticatedStudioProjectsIdRoute
@@ -339,6 +360,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedStudioApprovalsRoute: AuthenticatedStudioApprovalsRoute,
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
   AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
   AuthenticatedStudioProjectsIdRoute: AuthenticatedStudioProjectsIdRoute,
