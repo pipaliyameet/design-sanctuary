@@ -21,6 +21,7 @@ import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
 import { Route as AuthenticatedStudioApprovalsRouteImport } from './routes/_authenticated/studio/approvals'
+import { Route as AuthenticatedStudioWeeklyRouteImport } from './routes/_authenticated/studio/weekly'
 import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
 import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_authenticated/studio/projects/index'
@@ -87,6 +88,12 @@ const AuthenticatedStudioApprovalsRoute =
     path: '/studio/approvals',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioWeeklyRoute =
+  AuthenticatedStudioWeeklyRouteImport.update({
+    id: '/studio/weekly',
+    path: '/studio/weekly',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioLeadsIndexRoute =
   AuthenticatedStudioLeadsIndexRouteImport.update({
     id: '/studio/leads/',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
   '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
   '/studio/': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -140,6 +148,7 @@ export interface FileRoutesByTo {
   '/journal': typeof JournalIndexRoute
   '/portfolio': typeof PortfolioIndexRoute
   '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
   '/studio': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -159,6 +168,7 @@ export interface FileRoutesById {
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
   '/_authenticated/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/_authenticated/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
   '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/_authenticated/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/journal/'
     | '/portfolio/'
     | '/studio/approvals'
+    | '/studio/weekly'
     | '/studio/'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/portfolio'
     | '/studio/approvals'
+    | '/studio/weekly'
     | '/studio'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/journal/'
     | '/portfolio/'
     | '/_authenticated/studio/approvals'
+    | '/_authenticated/studio/weekly'
     | '/_authenticated/studio/'
     | '/_authenticated/studio/leads/$id'
     | '/_authenticated/studio/projects/$id'
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioApprovalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/weekly': {
+      id: '/_authenticated/studio/weekly'
+      path: '/studio/weekly'
+      fullPath: '/studio/weekly'
+      preLoaderRoute: typeof AuthenticatedStudioWeeklyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio/leads/': {
       id: '/_authenticated/studio/leads/'
       path: '/studio/leads'
@@ -352,6 +372,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudioApprovalsRoute: typeof AuthenticatedStudioApprovalsRoute
+  AuthenticatedStudioWeeklyRoute: typeof AuthenticatedStudioWeeklyRoute
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
   AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
   AuthenticatedStudioProjectsIdRoute: typeof AuthenticatedStudioProjectsIdRoute
@@ -361,6 +382,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudioApprovalsRoute: AuthenticatedStudioApprovalsRoute,
+  AuthenticatedStudioWeeklyRoute: AuthenticatedStudioWeeklyRoute,
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
   AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
   AuthenticatedStudioProjectsIdRoute: AuthenticatedStudioProjectsIdRoute,
