@@ -19,8 +19,11 @@ import { Route as JournalIndexRouteImport } from './routes/journal/index'
 import { Route as JournalSlugRouteImport } from './routes/journal/$slug'
 import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PortfolioSlugRouteImport } from './routes/portfolio/$slug'
+import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal/index'
+import { Route as AuthenticatedPortalIdRouteImport } from './routes/_authenticated/portal/$id'
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
 import { Route as AuthenticatedStudioApprovalsRouteImport } from './routes/_authenticated/studio/approvals'
+import { Route as AuthenticatedStudioWeeklyRouteImport } from './routes/_authenticated/studio/weekly'
 import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
 import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_authenticated/studio/projects/index'
@@ -75,6 +78,17 @@ const PortfolioSlugRoute = PortfolioSlugRouteImport.update({
   path: '/portfolio/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPortalIndexRoute =
+  AuthenticatedPortalIndexRouteImport.update({
+    id: '/portal/',
+    path: '/portal/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPortalIdRoute = AuthenticatedPortalIdRouteImport.update({
+  id: '/portal/$id',
+  path: '/portal/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudioIndexRoute =
   AuthenticatedStudioIndexRouteImport.update({
     id: '/studio/',
@@ -85,6 +99,12 @@ const AuthenticatedStudioApprovalsRoute =
   AuthenticatedStudioApprovalsRouteImport.update({
     id: '/studio/approvals',
     path: '/studio/approvals',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioWeeklyRoute =
+  AuthenticatedStudioWeeklyRouteImport.update({
+    id: '/studio/weekly',
+    path: '/studio/weekly',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudioLeadsIndexRoute =
@@ -122,7 +142,10 @@ export interface FileRoutesByFullPath {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/portal/$id': typeof AuthenticatedPortalIdRoute
   '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
+  '/portal/': typeof AuthenticatedPortalIndexRoute
   '/studio/': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -139,7 +162,10 @@ export interface FileRoutesByTo {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal': typeof JournalIndexRoute
   '/portfolio': typeof PortfolioIndexRoute
+  '/portal/$id': typeof AuthenticatedPortalIdRoute
   '/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
+  '/portal': typeof AuthenticatedPortalIndexRoute
   '/studio': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -158,7 +184,10 @@ export interface FileRoutesById {
   '/portfolio/$slug': typeof PortfolioSlugRoute
   '/journal/': typeof JournalIndexRoute
   '/portfolio/': typeof PortfolioIndexRoute
+  '/_authenticated/portal/$id': typeof AuthenticatedPortalIdRoute
   '/_authenticated/studio/approvals': typeof AuthenticatedStudioApprovalsRoute
+  '/_authenticated/studio/weekly': typeof AuthenticatedStudioWeeklyRoute
+  '/_authenticated/portal/': typeof AuthenticatedPortalIndexRoute
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
   '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/_authenticated/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
@@ -177,7 +206,10 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/portal/$id'
     | '/studio/approvals'
+    | '/studio/weekly'
+    | '/portal/'
     | '/studio/'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -194,7 +226,10 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal'
     | '/portfolio'
+    | '/portal/$id'
     | '/studio/approvals'
+    | '/studio/weekly'
+    | '/portal'
     | '/studio'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
@@ -212,7 +247,10 @@ export interface FileRouteTypes {
     | '/portfolio/$slug'
     | '/journal/'
     | '/portfolio/'
+    | '/_authenticated/portal/$id'
     | '/_authenticated/studio/approvals'
+    | '/_authenticated/studio/weekly'
+    | '/_authenticated/portal/'
     | '/_authenticated/studio/'
     | '/_authenticated/studio/leads/$id'
     | '/_authenticated/studio/projects/$id'
@@ -305,6 +343,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortfolioSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/portal/': {
+      id: '/_authenticated/portal/'
+      path: '/portal'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof AuthenticatedPortalIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal/$id': {
+      id: '/_authenticated/portal/$id'
+      path: '/portal/$id'
+      fullPath: '/portal/$id'
+      preLoaderRoute: typeof AuthenticatedPortalIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio/': {
       id: '/_authenticated/studio/'
       path: '/studio'
@@ -317,6 +369,13 @@ declare module '@tanstack/react-router' {
       path: '/studio/approvals'
       fullPath: '/studio/approvals'
       preLoaderRoute: typeof AuthenticatedStudioApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/weekly': {
+      id: '/_authenticated/studio/weekly'
+      path: '/studio/weekly'
+      fullPath: '/studio/weekly'
+      preLoaderRoute: typeof AuthenticatedStudioWeeklyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio/leads/': {
@@ -351,7 +410,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortalIdRoute: typeof AuthenticatedPortalIdRoute
   AuthenticatedStudioApprovalsRoute: typeof AuthenticatedStudioApprovalsRoute
+  AuthenticatedStudioWeeklyRoute: typeof AuthenticatedStudioWeeklyRoute
+  AuthenticatedPortalIndexRoute: typeof AuthenticatedPortalIndexRoute
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
   AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
   AuthenticatedStudioProjectsIdRoute: typeof AuthenticatedStudioProjectsIdRoute
@@ -360,7 +422,10 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortalIdRoute: AuthenticatedPortalIdRoute,
   AuthenticatedStudioApprovalsRoute: AuthenticatedStudioApprovalsRoute,
+  AuthenticatedStudioWeeklyRoute: AuthenticatedStudioWeeklyRoute,
+  AuthenticatedPortalIndexRoute: AuthenticatedPortalIndexRoute,
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
   AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
   AuthenticatedStudioProjectsIdRoute: AuthenticatedStudioProjectsIdRoute,
