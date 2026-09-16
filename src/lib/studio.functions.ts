@@ -121,7 +121,7 @@ export const listLeadsBoard = createServerFn({ method: "GET" })
 
 export const getLead = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
@@ -161,7 +161,7 @@ export const getLead = createServerFn({ method: "GET" })
 
 export const createLeadFromEnquiry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { enquiryId: string }) => z.object({ enquiryId: z.string().uuid() }).parse(i))
+  .validator((i: { enquiryId: string }) => z.object({ enquiryId: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
@@ -198,7 +198,7 @@ export const createLeadFromEnquiry = createServerFn({ method: "POST" })
 
 export const updateLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -231,7 +231,7 @@ export const updateLead = createServerFn({ method: "POST" })
 
 export const convertLeadToProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         leadId: z.string().uuid(),
@@ -315,7 +315,7 @@ export const convertLeadToProject = createServerFn({ method: "POST" })
 
 export const createFollowUpTask = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         title: z.string().trim().min(3).max(200),
@@ -400,7 +400,7 @@ export const listProjects = createServerFn({ method: "GET" })
 
 export const getProjectWorkspace = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
@@ -461,7 +461,7 @@ export const getProjectWorkspace = createServerFn({ method: "GET" })
 
 export const updateTask = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -483,7 +483,7 @@ export const updateTask = createServerFn({ method: "POST" })
 
 export const updateProjectStage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -506,7 +506,7 @@ export const updateProjectStage = createServerFn({ method: "POST" })
 
 export const setDesignVisibility = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), visible_to_client: z.boolean() }).parse(i),
   )
   .handler(async ({ context, data }) => {
@@ -522,7 +522,7 @@ export const setDesignVisibility = createServerFn({ method: "POST" })
 
 export const requestApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         project_id: z.string().uuid(),

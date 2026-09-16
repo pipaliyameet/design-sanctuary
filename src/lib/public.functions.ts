@@ -35,7 +35,7 @@ export const listCaseStudies = createServerFn({ method: "GET" }).handler(async (
 });
 
 export const getCaseStudy = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = createPublicSupabase();
     const { data, error } = await supabase
@@ -71,7 +71,7 @@ export const listJournal = createServerFn({ method: "GET" }).handler(async () =>
 });
 
 export const getJournalPost = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = createPublicSupabase();
     const { data, error } = await supabase
@@ -134,7 +134,7 @@ const enquirySchema = z.object({
 });
 
 export const submitEnquiry = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => enquirySchema.parse(input))
+  .validator((input: unknown) => enquirySchema.parse(input))
   .handler(async ({ data: input }) => {
     const supabase = createPublicSupabase();
     const { error } = await supabase.from("enquiries").insert({

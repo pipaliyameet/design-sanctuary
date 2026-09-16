@@ -52,7 +52,7 @@ export const getMyPortal = createServerFn({ method: "GET" })
 
 export const getPortalProject = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: { id: string }) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
     const id = data.id;
@@ -119,7 +119,7 @@ export const getPortalProject = createServerFn({ method: "GET" })
 
 export const respondToApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -166,7 +166,7 @@ export const respondToApproval = createServerFn({ method: "POST" })
 
 export const addApprovalComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ approvalId: z.string().uuid(), body: z.string().trim().min(1).max(2000) }).parse(i),
   )
   .handler(async ({ context, data }) => {
