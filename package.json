@@ -1,11 +1,8 @@
 {
   "name": "interior-studio-platform",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
-    "dev": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build"
+    "build": "cd frontend && npm install && NITRO_PRESET=vercel npm run build && cd .. && rm -rf .vercel/output && mkdir -p .vercel && cp -R frontend/.vercel/output .vercel/",
+    "dev": "cd frontend && npm run dev"
   }
 }
