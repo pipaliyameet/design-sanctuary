@@ -1,4 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd frontend && npm install && NITRO_PRESET=vercel npm run build && cd .. && rm -rf .vercel/output && mkdir -p .vercel && cp -R frontend/.vercel/output .vercel/"
-}
