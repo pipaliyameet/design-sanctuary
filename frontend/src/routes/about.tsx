@@ -1,20 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PublicShell, PageHeader } from "@/components/site/PublicShell";
+import { ArrowRight, Compass, Layers, ShieldCheck, Award } from "lucide-react";
+import { PublicShell } from "@/components/site/PublicShell";
 
 export const Route = createFileRoute("/about")({
-  component: About,
+  component: AboutPage,
   head: () => ({
     meta: [
-      { title: "The Studio — About Atelier Vermilion Interior Designers" },
+      { title: "About The Studio & Team | Atelier Vermilion" },
       {
         name: "description",
         content:
-          "Atelier Vermilion is an interior design studio in Mumbai and Bengaluru, practising since 2011 across residences, villas and hospitality interiors.",
+          "Atelier Vermilion is an architectural interior design practice founded in 2011 by Ira Kapoor. Practicing in Mumbai and Bengaluru across bespoke residences, villas, and hospitality commissions.",
       },
-      { property: "og:title", content: "The Studio — Atelier Vermilion" },
+      { property: "og:title", content: "About Atelier Vermilion — Architecture & Interiors" },
       {
         property: "og:description",
-        content: "An interior design practice built on daylight, material honesty and held schedules.",
+        content: "A focused practice built on daylight, natural stone, and held execution schedules.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -22,82 +23,204 @@ export const Route = createFileRoute("/about")({
   }),
 });
 
-const TEAM = [
-  ["Ira Kapoor", "Founder & Principal Designer", "Fifteen years detailing residences across India; leads concept and material direction."],
-  ["Devanshi Rao", "Design Director", "Runs design development and the drawing sets that make sites predictable."],
-  ["Nikhil Menon", "Project Director", "Holds execution: contractors, sequencing, quality checkpoints and handover."],
-  ["Sara Qureshi", "Senior Designer", "Joinery, lighting and the small details that decide whether a room works."],
+const TEAM_MEMBERS = [
+  {
+    name: "Ira Kapoor",
+    role: "Founder & Principal Designer",
+    image: "/portfolio/p6.jpg",
+    bio: "Graduated from CEPT Ahmedabad and Architectural Association, London. Fifteen years detailing residential and hospitality sanctuaries across India; leads conceptual vision and tactile material curation.",
+  },
+  {
+    name: "Devanshi Rao",
+    role: "Design Director",
+    image: "/portfolio/p2.jpg",
+    bio: "Specializes in spatial re-planning and daylight engineering. Leads the studio drawing sets, joinery specifications, and 3D visualization team to ensure sites are completely predictable.",
+  },
+  {
+    name: "Nikhil Menon",
+    role: "Project Director",
+    image: "/portfolio/p7.jpg",
+    bio: "Civil engineer with twenty years of luxury construction management. Holds on-site contractors, MEP coordination, material sequencing, and single-source schedule guarantees.",
+  },
+  {
+    name: "Sara Qureshi",
+    role: "Senior Associate, Detailing",
+    image: "/portfolio/p4.jpg",
+    bio: "Focuses on micro-tolerances: bespoke joinery shadow gaps, architectural hardware casting, custom lighting fixtures, and natural stone book-matching.",
+  },
 ];
 
-function About() {
+const STATISTICS = [
+  { value: "15+", label: "Years in Practice", desc: "Founded in 2011 with continuous independent studio leadership." },
+  { value: "148+", label: "Projects Completed", desc: "Private residences, coastal villas, penthouses, and bespoke venues." },
+  { value: "11", label: "Cities Commissioned", desc: "Mumbai, Bengaluru, Ahmedabad, Goa, Alibaug, Delhi NCR, and London." },
+  { value: "9", label: "National Design Awards", desc: "Recognized for excellence in residential detailing and heritage restoration." },
+];
+
+function AboutPage() {
   return (
     <PublicShell>
-      <PageHeader
-        eyebrow="The studio · Est. 2011"
-        title="A small practice, deliberately."
-        intro="Fifteen years, eleven cities, 148 delivered projects — and a team that still walks every site."
-      />
+      {/* Editorial Header */}
+      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <p className="eyebrow">Studio Origin · Established 2011</p>
+          <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
+            A small, senior practice by deliberate intention.
+          </h1>
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+            We limit the number of commissions we accept each year so that our principal designers
+            personally walk every site, inspect every stone slab, and detail every joint.
+          </p>
+        </div>
+      </div>
 
-      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
-        <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
-          <img
-            src="/portfolio/p5.jpg"
-            alt="The studio's Mumbai workspace with material samples and drawing boards"
-            loading="lazy"
-            className="aspect-[4/5] w-full object-cover"
-          />
-          <div>
-            <p className="font-display text-2xl leading-snug sm:text-3xl">
-              We were founded on a simple frustration: beautiful renders that fall apart on site.
+      {/* Story & Manifesto */}
+      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:py-28 sm:px-8">
+        <div className="grid gap-14 lg:grid-cols-12 items-center">
+          <div className="lg:col-span-6 overflow-hidden bg-secondary/30 aspect-[4/5]">
+            <img
+              src="/portfolio/p5.jpg"
+              alt="Atelier Vermilion studio atmosphere with architectural drawings and stone samples"
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          </div>
+
+          <div className="lg:col-span-6 space-y-6">
+            <p className="eyebrow">Our Beginning</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-foreground font-light leading-snug">
+              Founded on a simple frustration: beautiful digital renderings that disappoint on site.
+            </h2>
+
+            <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light">
+              In 2011, principal designer Ira Kapoor established Atelier Vermilion to build a studio
+              backwards from the site. We believe that an interior is only as good as its executed
+              reality: the weight of a solid timber door, the flush alignment of a stone threshold,
+              and the acoustic calm of a well-proportioned room.
             </p>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-              So we built the studio backwards from the site. Drawings are made to be built,
-              quantities are frozen before work begins, and every client can see progress, approvals
-              and money in one place. The result is calmer projects and interiors that age well.
+
+            <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light">
+              By combining rigorous architectural drawings with in-house turnkey project management,
+              we ensure that our clients never experience contractor friction, surprise costs, or
+              compromised finishes.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Our work runs from 700 sq ft apartments to 12,000 sq ft hospitality interiors. The
-              scale changes; the discipline does not.
-            </p>
+
+            <div className="pt-4 border-t border-border">
+              <p className="font-editorial text-xl italic text-foreground">
+                “We do not decorate rooms. We sculpt volumes that welcome daylight and age with
+                quiet grace.”
+              </p>
+              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
+                — Ira Kapoor, Principal
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-secondary/40">
-        <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
-          <p className="eyebrow">The team</p>
-          <h2 className="mt-4 text-3xl sm:text-5xl">Who you will actually work with.</h2>
-          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {TEAM.map(([name, role, bio]) => (
-              <div key={name} className="border-t border-border pt-6">
-                <h3 className="text-xl">{name}</h3>
-                <p className="eyebrow mt-2">{role}</p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{bio}</p>
+      {/* Verified Statistics */}
+      <section className="border-y border-border bg-card/60 py-16 sm:py-24">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {STATISTICS.map((s) => (
+              <div key={s.label} className="border-l border-border/80 pl-6 py-2">
+                <span className="font-display text-4xl sm:text-5xl font-light text-foreground">
+                  {s.value}
+                </span>
+                <p className="font-display text-lg text-foreground mt-1">{s.label}</p>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
-        <div className="grid gap-10 sm:grid-cols-3">
-          {[
-            ["Recognition", "Nine national design awards, including three for hospitality interiors."],
-            ["Press", "Featured in Architectural Digest India, Elle Decor and Design Pataki."],
-            ["Practice", "Studios in Mumbai and Bengaluru; projects delivered in eleven cities."],
-          ].map(([t, b]) => (
-            <div key={t}>
-              <p className="eyebrow">{t}</p>
-              <p className="mt-3 text-base leading-relaxed">{b}</p>
-            </div>
-          ))}
+      {/* Leadership Team */}
+      <section className="py-24 sm:py-36 bg-background">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <div className="max-w-2xl pb-16">
+            <p className="eyebrow">Studio Leadership</p>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
+              The Architects & Directors on Your Commission
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              You work directly with experienced partners who maintain personal accountability from
+              initial sketch through to key handover.
+            </p>
+          </div>
+
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {TEAM_MEMBERS.map((member) => (
+              <div key={member.name} className="group flex flex-col">
+                <div className="aspect-[3/4] w-full overflow-hidden bg-secondary/30 mb-5">
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    loading="lazy"
+                    className="size-full object-cover grayscale contrast-105 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+                  />
+                </div>
+                <h3 className="font-display text-xl text-foreground">{member.name}</h3>
+                <p className="text-xs uppercase tracking-widest text-accent font-medium mt-1">
+                  {member.role}
+                </p>
+                <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground font-light">
+                  {member.bio}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-        <Link
-          to="/contact"
-          className="mt-14 inline-block bg-primary px-7 py-4 text-xs tracking-[0.2em] text-primary-foreground uppercase"
-        >
-          Work with the studio
-        </Link>
+      </section>
+
+      {/* Studio Locations */}
+      <section className="border-t border-border bg-secondary/30 py-20 sm:py-28">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <p className="eyebrow">Our Physical Studios</p>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-light text-foreground mb-12">
+            Where We Draw, Prototype & Collaborate
+          </h2>
+
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div className="border border-border/80 bg-background p-8 sm:p-10 space-y-4">
+              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+                Headquarters
+              </span>
+              <h3 className="font-display text-2xl text-foreground">Mumbai Studio</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                14 Sun Mill Compound, Tulsi Pipe Road, Lower Parel, Mumbai 400013
+              </p>
+              <div className="pt-2 text-xs space-y-1 text-muted-foreground">
+                <p>Phone: +91 98200 41100</p>
+                <p>Email: mumbai@ateliervermilion.com</p>
+              </div>
+            </div>
+
+            <div className="border border-border/80 bg-background p-8 sm:p-10 space-y-4">
+              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+                Southern Practice
+              </span>
+              <h3 className="font-display text-2xl text-foreground">Bengaluru Studio</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                84 Lavelle Road, Shanthala Nagar, Ashok Nagar, Bengaluru 560001
+              </p>
+              <div className="pt-2 text-xs space-y-1 text-muted-foreground">
+                <p>Phone: +91 80 4120 7800</p>
+                <p>Email: blr@ateliervermilion.com</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-14 text-center">
+            <Link
+              to="/contact"
+              hash="consultation"
+              className="inline-flex items-center gap-2 bg-foreground px-8 py-4 text-xs uppercase tracking-[0.2em] text-background font-semibold hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              Start an Architectural Consultation <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+        </div>
       </section>
     </PublicShell>
   );

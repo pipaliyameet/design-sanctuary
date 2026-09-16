@@ -12,6 +12,7 @@ dist-ssr/
 .vinxi/
 .tanstack/
 .nitro/
+.vercel/
 *.local
 
 # Environment variables

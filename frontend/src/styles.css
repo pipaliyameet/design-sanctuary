@@ -20,6 +20,7 @@
 
 @theme inline {
   --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-editorial: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -200,6 +201,10 @@
   color: var(--muted-foreground);
 }
 
+@utility font-editorial {
+  font-family: var(--font-editorial);
+}
+
 @utility reveal {
   animation: reveal-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -226,5 +231,10 @@
 
 @utility slow-zoom {
   animation: slow-zoom 12s ease-out both;
+}
+
+/* Draggable Before & After Slider helpers */
+.comparison-slider-clip {
+  clip-path: inset(0 calc(100% - var(--slider-pos, 50%)) 0 0);
 }
 

@@ -1,221 +1,151 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
-import { submitEnquiry } from "@/lib/public.functions";
-import { PublicShell, PageHeader } from "@/components/site/PublicShell";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { PublicShell } from "@/components/site/PublicShell";
+import { ConsultationForm } from "@/components/site/ConsultationForm";
+import { STUDIO_DETAILS } from "@/lib/public.functions";
+import { Phone, Mail, MapPin, Clock, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
-  component: Contact,
+  component: ContactPage,
   head: () => ({
     meta: [
-      { title: "Contact — Start an Interior Design Project | Atelier Vermilion" },
+      { title: "Contact & Book a Consultation | Atelier Vermilion" },
       {
         name: "description",
         content:
-          "Tell us about your space, city and budget band. Atelier Vermilion replies to every enquiry within two working days.",
+          "Book an architectural consultation with Atelier Vermilion. Offices in Lower Parel Mumbai and Lavelle Road Bengaluru. Inquiries reviewed by senior partners within two business days.",
       },
-      { property: "og:title", content: "Contact — Atelier Vermilion" },
-      { property: "og:description", content: "Start an interior design enquiry with the studio." },
+      { property: "og:title", content: "Contact Studio — Atelier Vermilion" },
+      {
+        property: "og:description",
+        content: "Initiate an interior architecture commission with our senior design partners.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });
 
-const SPACES = ["Apartment", "Villa", "Penthouse", "Office", "Hospitality", "Retail", "Other"];
-const BUDGETS = ["Under ₹25L", "₹25L – ₹75L", "₹75L – ₹1.5Cr", "₹1.5Cr – ₹3Cr", "Above ₹3Cr"];
+const FAQS = [
+  {
+    q: "At what stage of our property purchase should we contact the studio?",
+    a: "Ideally, before architectural partition walls are built or during structural shell handover. Early engagement allows us to optimize daylight angles, plumbing locations, and AC ducting without costly demolition.",
+  },
+  {
+    q: "Do you undertake turnkey execution or only design drawings?",
+    a: "We offer both. However, 85% of our commissions are delivered as complete turnkey design-and-build projects, where we hold single-point accountability for contractors, procurement, and handover.",
+  },
+  {
+    q: "Do you take up projects outside Mumbai and Bengaluru?",
+    a: "Yes. We have completed residential and hospitality commissions in Ahmedabad, Goa, Alibaug, Delhi NCR, and internationally. Our project directors manage regular site rotations pan-India.",
+  },
+  {
+    q: "What is your typical project timeline?",
+    a: "A comprehensive residential interior (3,000–6,000 sq ft) typically requires 10 to 14 months from initial conceptual sketches through to white-glove styling and handover.",
+  },
+];
 
-function Contact() {
-  const send = useServerFn(submitEnquiry);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    city: "",
-    space_type: "",
-    budget_band: "",
-    message: "",
-  });
-  const [done, setDone] = useState(false);
-
-  const mutation = useMutation({
-    mutationFn: () => send({ data: form }),
-    onSuccess: () => {
-      setDone(true);
-      toast.success("Enquiry received — we'll be in touch within two working days.");
-    },
-    onError: () => toast.error("Please check the form and try again."),
-  });
-
-  const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
-
+function ContactPage() {
   return (
     <PublicShell>
-      <PageHeader
-        eyebrow="Contact"
-        title="Start a project."
-        intro="Share the brief, the city and a rough budget band. Every enquiry is read by a senior designer."
-      />
+      {/* Editorial Header */}
+      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <p className="eyebrow">Initiate a Commission</p>
+          <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
+            Let’s discuss your space.
+          </h1>
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+            Whether you are commissioning a new villa, a sky penthouse, or an executive workplace,
+            share your parameters below. Every brief is reviewed personally by our principal team.
+          </p>
+        </div>
+      </div>
 
-      <section className="mx-auto grid max-w-[1400px] gap-16 px-5 py-16 pb-24 sm:px-8 lg:grid-cols-[1.3fr_1fr]">
-        {done ? (
-          <div className="border border-border bg-card p-10">
-            <h2 className="text-3xl">Thank you — your enquiry is with us.</h2>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              A senior designer will reply within two working days. If it's urgent, call
-              +91 98200 41100.
-            </p>
-          </div>
-        ) : (
-          <form
-            className="space-y-6"
-            onSubmit={(e) => {
-              e.preventDefault();
-              mutation.mutate();
-            }}
-          >
-            <div className="grid gap-6 sm:grid-cols-2">
-              <Field label="Your name" required>
-                <Input
-                  required
-                  value={form.name}
-                  onChange={(e) => set("name")(e.target.value)}
-                  placeholder="Aarav Mehta"
-                />
-              </Field>
-              <Field label="Email" required>
-                <Input
-                  required
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => set("email")(e.target.value)}
-                  placeholder="you@example.com"
-                />
-              </Field>
-              <Field label="Phone">
-                <Input
-                  value={form.phone}
-                  onChange={(e) => set("phone")(e.target.value)}
-                  placeholder="+91 98200 00000"
-                />
-              </Field>
-              <Field label="City">
-                <Input
-                  value={form.city}
-                  onChange={(e) => set("city")(e.target.value)}
-                  placeholder="Mumbai"
-                />
-              </Field>
-            </div>
+      {/* Main Consultation Section */}
+      <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
+        <ConsultationForm />
+      </div>
 
-            <div>
-              <Label className="eyebrow">Type of space</Label>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {SPACES.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => set("space_type")(s)}
-                    className={
-                      form.space_type === s
-                        ? "border border-accent bg-accent px-3 py-1.5 text-xs text-accent-foreground"
-                        : "border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-foreground/40"
-                    }
-                  >
-                    {s}
-                  </button>
-                ))}
+      {/* Studio Locations Grid */}
+      <section className="border-t border-border bg-card/40 py-20 sm:py-28">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <p className="eyebrow">Studio Addresses</p>
+          <h2 className="mt-3 font-display text-2xl sm:text-4xl font-light text-foreground mb-12">
+            Visit Our Studios in Mumbai & Bengaluru
+          </h2>
+
+          <div className="grid gap-8 sm:grid-cols-2">
+            {/* Mumbai Studio */}
+            <div className="border border-border/80 bg-background p-8 space-y-5">
+              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+                Mumbai Practice
+              </span>
+              <h3 className="font-display text-2xl text-foreground">Lower Parel Studio</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                14 Sun Mill Compound, Tulsi Pipe Road, Lower Parel, Mumbai, Maharashtra 400013
+              </p>
+
+              <div className="space-y-2 text-xs text-muted-foreground border-t border-border/60 pt-4">
+                <div className="flex items-center gap-2">
+                  <Phone className="size-3.5 text-accent" /> +91 98200 41100
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="size-3.5 text-accent" /> mumbai@ateliervermilion.com
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-3.5 text-accent" /> Monday – Saturday, 10:00 AM – 7:00 PM
+                </div>
               </div>
             </div>
 
-            <div>
-              <Label className="eyebrow">Budget band</Label>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {BUDGETS.map((b) => (
-                  <button
-                    key={b}
-                    type="button"
-                    onClick={() => set("budget_band")(b)}
-                    className={
-                      form.budget_band === b
-                        ? "border border-accent bg-accent px-3 py-1.5 text-xs text-accent-foreground"
-                        : "border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-foreground/40"
-                    }
-                  >
-                    {b}
-                  </button>
-                ))}
+            {/* Bengaluru Studio */}
+            <div className="border border-border/80 bg-background p-8 space-y-5">
+              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+                Bengaluru Practice
+              </span>
+              <h3 className="font-display text-2xl text-foreground">Lavelle Road Studio</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                84 Lavelle Road, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka 560001
+              </p>
+
+              <div className="space-y-2 text-xs text-muted-foreground border-t border-border/60 pt-4">
+                <div className="flex items-center gap-2">
+                  <Phone className="size-3.5 text-accent" /> +91 80 4120 7800
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="size-3.5 text-accent" /> blr@ateliervermilion.com
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-3.5 text-accent" /> Monday – Saturday, 10:00 AM – 7:00 PM
+                </div>
               </div>
             </div>
-
-            <Field label="About the project">
-              <Textarea
-                rows={5}
-                value={form.message}
-                onChange={(e) => set("message")(e.target.value)}
-                placeholder="Carpet area, rooms in scope, timelines, anything you already know you want."
-              />
-            </Field>
-
-            <Button
-              type="submit"
-              disabled={mutation.isPending}
-              className="px-8 py-6 text-xs tracking-[0.2em] uppercase"
-            >
-              {mutation.isPending ? "Sending…" : "Send enquiry"}
-            </Button>
-          </form>
-        )}
-
-        <aside className="space-y-8 border-t border-border pt-8 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12">
-          <div>
-            <p className="eyebrow">Studio</p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              studio@ateliervermilion.example
-              <br />
-              +91 98200 41100
-              <br />
-              Mumbai · Bengaluru
-            </p>
           </div>
-          <div>
-            <p className="eyebrow">Working hours</p>
-            <p className="mt-3 text-sm text-muted-foreground">Monday – Saturday, 10am – 7pm IST</p>
+        </div>
+      </section>
+
+      {/* Consultation FAQ */}
+      <section className="border-t border-border bg-background py-20 sm:py-28">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <div className="max-w-2xl pb-12">
+            <p className="eyebrow">Frequently Addressed Questions</p>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl font-light text-foreground">
+              What to Expect During Your Engagement
+            </h2>
           </div>
-          <div>
-            <p className="eyebrow">Already a client?</p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Sign in to your portal for approvals, documents and payment status.
-            </p>
+
+          <div className="grid gap-8 md:grid-cols-2">
+            {FAQS.map((faq, idx) => (
+              <div key={idx} className="border border-border/80 p-8 bg-card/30">
+                <h3 className="font-display text-lg text-foreground mb-3">{faq.q}</h3>
+                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground font-light">
+                  {faq.a}
+                </p>
+              </div>
+            ))}
           </div>
-        </aside>
+        </div>
       </section>
     </PublicShell>
-  );
-}
-
-function Field({
-  label,
-  children,
-  required,
-}: {
-  label: string;
-  children: React.ReactNode;
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <Label className="eyebrow">
-        {label}
-        {required ? " *" : ""}
-      </Label>
-      <div className="mt-2">{children}</div>
-    </div>
   );
 }

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && NITRO_PRESET=vercel npm run build",
+  "outputDirectory": "frontend/.vercel/output"
+}

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ProcessRouteImport } from './routes/process'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as JournalIndexRouteImport } from './routes/journal/index'
 import { Route as JournalSlugRouteImport } from './routes/journal/$slug'
@@ -51,6 +52,11 @@ const AuthRoute = AuthRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessRoute = ProcessRouteImport.update({
+  id: '/process',
+  path: '/process',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/portfolio/$slug': typeof PortfolioSlugRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/portfolio/$slug': typeof PortfolioSlugRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/portfolio/$slug': typeof PortfolioSlugRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/process'
     | '/services'
     | '/journal/$slug'
     | '/portfolio/$slug'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/process'
     | '/services'
     | '/journal/$slug'
     | '/portfolio/$slug'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/process'
     | '/services'
     | '/journal/$slug'
     | '/portfolio/$slug'
@@ -264,6 +276,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  ProcessRoute: typeof ProcessRoute
   ServicesRoute: typeof ServicesRoute
   JournalSlugRoute: typeof JournalSlugRoute
   PortfolioSlugRoute: typeof PortfolioSlugRoute
@@ -306,6 +319,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/process': {
+      id: '/process'
+      path: '/process'
+      fullPath: '/process'
+      preLoaderRoute: typeof ProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -442,6 +462,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  ProcessRoute: ProcessRoute,
   ServicesRoute: ServicesRoute,
   JournalSlugRoute: JournalSlugRoute,
   PortfolioSlugRoute: PortfolioSlugRoute,
