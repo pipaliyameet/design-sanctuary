@@ -212,11 +212,44 @@ export async function getPublicGalleryPhotos(params?: PhotoFilterParams): Promis
 
 export async function getHomeContent() {
   try {
-    return await publicService.getHomeContent();
+    const res: any = await publicService.getHomeContent();
+    const rawData = res?.data || res || {};
+    const rawProjects = rawData.featuredProjects || rawData.studies || [];
+    const studies: CaseCard[] = Array.isArray(rawProjects) && rawProjects.length > 0
+      ? rawProjects.map((d: any, idx: number) => ({
+          ...d,
+          slug: d.slug,
+          title: d.title,
+          subtitle: d.subtitle || "",
+          location: d.location || "Mumbai",
+          year: d.year || 2026,
+          hero_image: d.heroImage || d.hero_image || GOOGLE_DRIVE_PHOTOS[idx % GOOGLE_DRIVE_PHOTOS.length]?.url,
+          summary: d.summary || "",
+          space_type: d.spaceType || d.space_type || "Residential",
+          style: d.style || "Warm Contemporary",
+          area_sqft: d.areaSqft || d.area_sqft || 3500,
+          featured: d.featured ?? true,
+          published_at: d.publishedAt || d.published_at || "2026-01-01",
+          tags: d.tags || [d.spaceType || "Residential"],
+        }))
+      : FALLBACK_CASE_STUDIES;
+
+    return {
+      heroTitle: rawData.heroTitle || "Architecture & Interior Sanctuary",
+      heroSubtitle:
+        rawData.heroSubtitle ||
+        "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India.",
+      studies,
+      featuredProjects: studies,
+      recentJournal: rawData.recentJournal || FALLBACK_JOURNAL_POSTS,
+      heroMedia: rawData.heroMedia || [],
+    };
   } catch (err) {
     return {
       heroTitle: "Architecture & Interior Sanctuary",
-      heroSubtitle: "Curated residential, hospitality, and bespoke spatial design with an unwavering devotion to material craft.",
+      heroSubtitle:
+        "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India.",
+      studies: FALLBACK_CASE_STUDIES,
       featuredProjects: FALLBACK_CASE_STUDIES,
       recentJournal: FALLBACK_JOURNAL_POSTS,
       heroMedia: [],
