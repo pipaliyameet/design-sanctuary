@@ -7,7 +7,9 @@ let dbConnected = false;
 export default async function handler(req: Request, res: Response) {
   try {
     if (!dbConnected) {
-      await connectToDatabase();
+      await connectToDatabase().catch((err) => {
+        console.warn("[MongoDB] Serverless initial connection attempt:", err?.message || err);
+      });
       dbConnected = true;
     }
     return app(req, res);
@@ -15,7 +17,7 @@ export default async function handler(req: Request, res: Response) {
     console.error("[Vercel Root Serverless Function Error]:", error);
     return res.status(500).json({
       success: false,
-      message: "Database connection or serverless error",
+      message: "Serverless execution error",
       error: error instanceof Error ? error.message : String(error),
       code: "INTERNAL_SERVER_ERROR",
     });

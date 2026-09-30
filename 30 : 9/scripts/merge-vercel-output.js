@@ -133,6 +133,9 @@ const mergedConfig = {
       dest: "/api/index"
     },
     {
+      handle: "filesystem"
+    },
+    {
       src: "^/(.*)$",
       dest: "/__server"
     }

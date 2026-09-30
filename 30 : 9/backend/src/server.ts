@@ -8,8 +8,12 @@ async function startServer() {
     console.log("🏛️ Atelier Vermilion / Interior Studio Backend");
     console.log("--------------------------------------------------");
 
-    // Connect to MongoDB Atlas
-    await connectToDatabase();
+    // Connect to MongoDB Atlas (Graceful non-fatal start)
+    try {
+      await connectToDatabase();
+    } catch (dbErr) {
+      console.warn("⚠️ [MongoDB] Could not establish immediate connection. API running with resilient fallback.");
+    }
 
     let currentPort = env.PORT;
     const maxRetries = 5;

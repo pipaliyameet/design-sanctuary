@@ -4,13 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "NITRO_PRESET=vercel vite build",
-    "build:dev": "vite build --mode development",
-    "preview": "vite preview",
-    "lint": "npx eslint .",
-    "check": "npx tsc --noEmit",
-    "format": "npx prettier --write ."
+    "dev": "node ../node_modules/vite/bin/vite.js dev",
+    "build": "NITRO_PRESET=vercel node ../node_modules/vite/bin/vite.js build",
+    "build:dev": "node ../node_modules/vite/bin/vite.js build --mode development",
+    "preview": "node ../node_modules/vite/bin/vite.js preview",
+    "check": "node ../node_modules/typescript/bin/tsc --noEmit"
   },
   "overrides": {
     "rolldown": "1.2.1"
