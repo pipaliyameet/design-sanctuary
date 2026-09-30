@@ -72,7 +72,12 @@ const mergedConfig = {
       src: "^/assets/(.*)$"
     },
     {
-      handle: "filesystem"
+      src: "^/favicon\\.ico$",
+      dest: "/favicon.ico"
+    },
+    {
+      src: "^/robots\\.txt$",
+      dest: "/robots.txt"
     },
     {
       src: "^/api/(.*)$",

@@ -19,13 +19,11 @@
     "check": "node ./node_modules/typescript/bin/tsc -p backend/tsconfig.json --noEmit && node ./node_modules/typescript/bin/tsc -p frontend/tsconfig.json --noEmit"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "mongodb": "^7.6.0"
-  },
-  "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.16.5",
     "concurrently": "^9.1.2",
+    "express": "^4.21.2",
+    "mongodb": "^7.6.0",
     "typescript": "^5.8.3",
     "vite": "8.1.5"
   }
