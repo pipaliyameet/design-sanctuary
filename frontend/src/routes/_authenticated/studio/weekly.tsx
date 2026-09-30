@@ -79,8 +79,8 @@ function WeeklyPage() {
             {data.email.configured ? (
               <p className="text-sm text-muted-foreground">
                 Digests are emailed from your verified sending domain{" "}
-                <span className="text-foreground">{data.email.domain}</span> every Monday at
-                8:00 am (Asia/Kolkata).
+                <span className="text-foreground">{data.email.domain}</span> every Monday at 8:00 am
+                (Asia/Kolkata).
               </p>
             ) : (
               <div className="space-y-3">
@@ -112,7 +112,11 @@ function WeeklyPage() {
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 <StatCard label="Active projects" value={latest.payload.active_projects ?? 0} />
-                <StatCard label="New enquiries" value={latest.payload.new_enquiries ?? 0} tone="accent" />
+                <StatCard
+                  label="New enquiries"
+                  value={latest.payload.new_enquiries ?? 0}
+                  tone="accent"
+                />
                 <StatCard label="New leads" value={latest.payload.new_leads ?? 0} />
                 <StatCard
                   label="Pending approvals"
@@ -141,7 +145,7 @@ function WeeklyPage() {
                       {Object.entries(latest.payload.projects_by_stage ?? {}).map(([k, v]) => (
                         <li key={k} className="flex justify-between">
                           <span>{STAGE_LABELS[k] ?? k}</span>
-                          <span className="text-muted-foreground">{v}</span>
+                          <span className="text-muted-foreground">{String(v)}</span>
                         </li>
                       ))}
                     </ul>
@@ -153,7 +157,7 @@ function WeeklyPage() {
                     <EmptyState message="No new enquiries." />
                   ) : (
                     <ul className="divide-y divide-border">
-                      {(latest.payload.enquiry_list ?? []).map((e) => (
+                      {(latest.payload.enquiry_list ?? []).map((e: any) => (
                         <li key={e.id} className="py-3">
                           <p className="text-sm">{e.name}</p>
                           <p className="mt-1 text-xs text-muted-foreground">
@@ -172,7 +176,7 @@ function WeeklyPage() {
                     <EmptyState message="Nothing waiting on a client." />
                   ) : (
                     <ul className="divide-y divide-border">
-                      {(latest.payload.approval_projects ?? []).map((p) => (
+                      {(latest.payload.approval_projects ?? []).map((p: any) => (
                         <li key={p.project_id} className="py-3">
                           <Link
                             to="/studio/projects/$id"
@@ -196,13 +200,15 @@ function WeeklyPage() {
           {data.summaries.length > 1 && (
             <Panel title="Earlier weeks">
               <ul className="divide-y divide-border">
-                {data.summaries.slice(1).map((s) => (
+                {data.summaries.slice(1).map((s: any) => (
                   <li key={s.id} className="flex flex-wrap items-baseline gap-x-4 py-3 text-sm">
                     <span className="w-40 text-muted-foreground">{shortDate(s.week_start)}</span>
                     <span>{s.payload.active_projects ?? 0} active</span>
                     <span>{s.payload.new_enquiries ?? 0} enquiries</span>
                     <span>{s.payload.pending_approvals ?? 0} approvals pending</span>
-                    <span className="text-xs text-muted-foreground">{inr(s.payload.receivables)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {inr(s.payload.receivables)}
+                    </span>
                   </li>
                 ))}
               </ul>

@@ -93,7 +93,8 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
                 <div>
                   <p className="font-medium text-foreground">Instant WhatsApp Consultation</p>
                   <p className="text-muted-foreground mb-2">
-                    Prefer direct chat? Share brief parameters instantly with our design coordinator.
+                    Prefer direct chat? Share brief parameters instantly with our design
+                    coordinator.
                   </p>
                   <a
                     href={generateWhatsAppLink()}

@@ -3,10 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMySession, type SessionInfo } from "@/lib/session.functions";
 
 export function useSession() {
-  const fetchSession = useServerFn(getMySession);
-  return useQuery<SessionInfo>({
+  return useQuery<SessionInfo | null>({
     queryKey: ["session"],
-    queryFn: () => fetchSession(),
+    queryFn: () => getMySession(),
     staleTime: 60_000,
   });
 }

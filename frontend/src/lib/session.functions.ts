@@ -1,39 +1,44 @@
-import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { authService } from "../services/auth.service";
+import { SessionUser, AppRole } from "../types/api";
 
-export type AppRole = "admin" | "designer" | "project_manager" | "accounts" | "client";
+export type { AppRole };
 
-export type SessionInfo = {
-  userId: string;
-  fullName: string;
-  email: string;
-  title: string | null;
-  roles: AppRole[];
-  isStaff: boolean;
-  clientIds: string[];
-};
+export type SessionInfo = SessionUser;
 
-export const getMySession = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<SessionInfo> => {
-    const { supabase, userId } = context;
+export async function getMySession(): Promise<SessionInfo | null> {
+  return authService.getMe();
+}
 
-    const [profileRes, rolesRes, clientRes] = await Promise.all([
-      supabase.from("profiles").select("full_name, email, title").eq("id", userId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId),
-      supabase.from("clients").select("id").eq("user_id", userId),
-    ]);
+export async function loginUser({ data }: { data: { email: string; password: string } }) {
+  const res = await authService.login(data);
+  return {
+    success: true,
+    user: res.user,
+    session: res.user,
+    token: res.token,
+  };
+}
 
-    const roles = (rolesRes.data ?? []).map((r) => r.role as AppRole);
-    const isStaff = roles.some((r) => r !== "client");
+export async function signupUser({ data }: {
+  data: {
+    email: string;
+    password: string;
+    fullName: string;
+    phone?: string;
+    title?: string;
+    role?: AppRole;
+  };
+}) {
+  const res = await authService.signup(data);
+  return {
+    success: true,
+    user: res.user,
+    session: res.user,
+    token: res.token,
+  };
+}
 
-    return {
-      userId,
-      fullName: profileRes.data?.full_name ?? "",
-      email: profileRes.data?.email ?? "",
-      title: profileRes.data?.title ?? null,
-      roles,
-      isStaff,
-      clientIds: (clientRes.data ?? []).map((c) => c.id),
-    };
-  });
+export async function logoutUser() {
+  return authService.logout();
+}
+

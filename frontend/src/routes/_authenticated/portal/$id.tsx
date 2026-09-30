@@ -29,7 +29,8 @@ export const Route = createFileRoute("/_authenticated/portal/$id")({
       { title: "Project progress — Atelier Vermilion" },
       {
         name: "description",
-        content: "Your project in detail: progress, design sets to approve, documents, BOQ and payments.",
+        content:
+          "Your project in detail: progress, design sets to approve, documents, BOQ and payments.",
       },
       { property: "og:title", content: "Project progress — Atelier Vermilion" },
       { property: "og:description", content: "Your private project detail." },
@@ -63,7 +64,9 @@ function PortalProject() {
     }) => respond({ data: input }),
     onSuccess: (_r, vars) => {
       toast.success(
-        vars.decision === "approved" ? "Approved — thank you." : "Change request sent to the studio.",
+        vars.decision === "approved"
+          ? "Approved — thank you."
+          : "Change request sent to the studio.",
       );
       setNotes((n) => ({ ...n, [vars.id]: "" }));
       invalidate();
@@ -81,7 +84,16 @@ function PortalProject() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const boqCsv = (rows: { category: string; description: string; unit: string; quantity: number; rate: number; amount: number | null }[]) => {
+  const boqCsv = (
+    rows: {
+      category: string;
+      description: string;
+      unit: string;
+      quantity: number;
+      rate: number;
+      amount: number | null;
+    }[],
+  ) => {
     const header = "Category,Description,Unit,Quantity,Rate,Amount\n";
     const body = rows
       .map((r) =>
@@ -102,9 +114,7 @@ function PortalProject() {
     <AppShell variant="portal">
       {isLoading && <LoadingBlock label="Loading your project…" />}
       {error && <ErrorBlock error={error} onRetry={() => refetch()} />}
-      {data === null && (
-        <EmptyState message="We couldn’t find this project on your account." />
-      )}
+      {data === null && <EmptyState message="We couldn’t find this project on your account." />}
 
       {data && (
         <>
@@ -121,7 +131,7 @@ function PortalProject() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Stage"
-              value={STAGE_LABELS[data.project.stage] ?? data.project.stage}
+              value={STAGE_LABELS[data.project.stage as any] ?? data.project.stage ?? "In Progress"}
               hint={`Handover ${shortDate(data.project.target_date)}`}
             />
             <StatCard label="Progress" value={`${data.project.progress}%`} />
@@ -160,7 +170,9 @@ function PortalProject() {
                         <p className="eyebrow">{shortDate(u.created_at)}</p>
                         <h3 className="mt-2 font-display text-xl leading-tight">{u.title}</h3>
                         {u.body && (
-                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{u.body}</p>
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            {u.body}
+                          </p>
                         )}
                         {u.image_url && (
                           <img
@@ -259,13 +271,11 @@ function PortalProject() {
                           Shared {shortDate(a.requested_at)}
                           {a.decided_at ? ` · you responded ${shortDate(a.decided_at)}` : ""}
                         </p>
-                        {a.notes && (
-                          <p className="mt-2 text-sm text-muted-foreground">{a.notes}</p>
-                        )}
+                        {a.notes && <p className="mt-2 text-sm text-muted-foreground">{a.notes}</p>}
 
                         {a.approval_comments?.length > 0 && (
                           <ul className="mt-4 space-y-2 border-l border-border pl-4">
-                            {a.approval_comments.map((c) => (
+                            {a.approval_comments.map((c: any) => (
                               <li key={c.id} className="text-xs text-muted-foreground">
                                 <span className="text-foreground">{c.author_name}</span>: {c.body}
                               </li>

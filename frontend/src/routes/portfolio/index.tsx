@@ -17,16 +17,17 @@ export const Route = createFileRoute("/portfolio/")({
   component: PortfolioPage,
   head: () => ({
     meta: [
-      { title: "Completed Architectural Projects & Interiors | Atelier Vermilion" },
+      { title: "Architectural Portfolio & Selected Works | Atelier Vermilion" },
       {
         name: "description",
         content:
-          "Explore completed luxury interior architecture projects by Atelier Vermilion: penthouses, villas, heritage restorations, and commercial workspaces across India.",
+          "Explore 28+ completed interior architecture commissions by Atelier Vermilion: private residences, villas, commercial workspaces, and heritage restorations across India.",
       },
       { property: "og:title", content: "Projects Archive — Atelier Vermilion" },
       {
         property: "og:description",
-        content: "Completed residential and commercial interiors, resolved room by room.",
+        content:
+          "Completed residential, commercial and turnkey commissions, resolved room by room.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -39,16 +40,16 @@ export const Route = createFileRoute("/portfolio/")({
   ),
 });
 
+// Section 6 Required Categories
 const PRIMARY_CATEGORIES = [
   "All",
   "Residential",
-  "Villa",
-  "Penthouse",
   "Commercial",
-  "Hospitality",
   "Office",
-  "Heritage",
-];
+  "Hospitality",
+  "Renovation",
+  "Other",
+] as const;
 
 function PortfolioPage() {
   const { data } = useSuspenseQuery(portfolioQuery);
@@ -74,7 +75,10 @@ function PortfolioPage() {
         const style = (study.style ?? "").toLowerCase();
         const tags = (study.tags ?? []).map((t) => t.toLowerCase());
         matchesCat =
-          space.includes(cat) || style.includes(cat) || tags.some((t) => t.includes(cat));
+          space === cat ||
+          space.includes(cat) ||
+          style.includes(cat) ||
+          tags.some((t) => t.includes(cat));
       }
 
       // Match City
@@ -91,52 +95,59 @@ function PortfolioPage() {
 
   return (
     <PublicShell>
-      {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+      {/* Editorial Header with controlled vertical breathing room */}
+      <div className="border-b border-border bg-background pt-28 pb-12 sm:pt-36 sm:pb-16">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <p className="eyebrow">Architectural Archives</p>
-          <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
+          <p className="eyebrow">PORTFOLIO ARCHIVE</p>
+          <h1 className="mt-3 font-display text-3xl sm:text-5xl lg:text-6xl font-light text-foreground tracking-tight max-w-4xl leading-[1.12]">
             Selected Works & Interior Commissions.
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
-            Every project detailed room by room. Filter by typology or city to examine the brief,
-            material selections, and final built spaces.
+          <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed font-light">
+            Every project detailed room by room around daylight, stone and quiet craft. Filter by
+            typology or city to examine completed built spaces.
           </p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8">
-        {/* Filter Toolbar */}
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-8">
-          {/* Typology Pills */}
-          <div className="flex flex-wrap items-center gap-2">
-            {PRIMARY_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(cat)}
-                className={cn(
-                  "px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors border",
-                  activeCategory === cat
-                    ? "border-foreground bg-foreground text-background font-medium"
-                    : "border-border/80 bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground",
-                )}
-              >
-                {cat}
-              </button>
-            ))}
+      <div className="mx-auto max-w-[1400px] px-5 py-8 sm:px-8">
+        {/* Filter Toolbar (Section 6 & 20 Requirements) */}
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-6">
+          {/* Desktop & Mobile Category Filters: horizontally scrollable on mobile without wrapping */}
+          <div className="no-scrollbar overflow-x-auto flex items-center gap-6 sm:gap-8 pb-2 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
+            {PRIMARY_CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={cn(
+                    "relative py-1 text-xs uppercase tracking-[0.2em] whitespace-nowrap transition-colors cursor-pointer",
+                    isActive
+                      ? "text-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <span>{cat}</span>
+                  {/* Subtle architectural active indicator underline */}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent" />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-          {/* City Dropdown & Reset */}
-          <div className="flex items-center gap-4">
+          {/* City Dropdown & Reset Filter */}
+          <div className="flex items-center gap-4 shrink-0 pt-2 sm:pt-0">
             <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
               <SlidersHorizontal className="size-3.5 text-accent" />
-              <span>City:</span>
+              <span>Location:</span>
             </div>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:border-accent focus:outline-none"
+              className="border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:border-accent focus:outline-none cursor-pointer"
             >
               {cities.map((city) => (
                 <option key={city} value={city}>
@@ -152,7 +163,7 @@ function PortfolioPage() {
                   setActiveCategory("All");
                   setSelectedCity("All");
                 }}
-                className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline cursor-pointer"
               >
                 <RotateCcw className="size-3" /> Reset
               </button>
@@ -161,93 +172,67 @@ function PortfolioPage() {
         </div>
 
         {/* Counter Info */}
-        <div className="py-6 flex items-center justify-between text-xs text-muted-foreground uppercase tracking-wider">
+        <div className="py-5 flex items-center justify-between text-[11px] text-muted-foreground uppercase tracking-wider">
           <span>
             Showing {filtered.length} of {studies.length} Commissions
           </span>
           <span>Room-by-Room Documentation</span>
         </div>
 
-        {/* Editorial Project Grid */}
-        <div className="pb-28">
+        {/* Editorial Project Showcase: Varied visual rhythm (Sections 5 & 19) */}
+        <div className="pb-20">
           {filtered.length > 0 ? (
-            <div className="space-y-16">
-              {/* Asymmetric Alternating Layout */}
-              {filtered.map((study, idx) => {
-                const isEven = idx % 2 === 0;
+            <div className="space-y-16 sm:space-y-20">
+              {/* Render in editorial groups to produce varied visual rhythm */}
+              {Array.from({ length: Math.ceil(filtered.length / 5) }).map((_, groupIdx) => {
+                const group = filtered.slice(groupIdx * 5, (groupIdx + 1) * 5);
+                const [first, second, third, fourth, fifth] = group;
+
                 return (
-                  <div
-                    key={study.slug}
-                    className="border-b border-border/60 pb-16 transition-opacity duration-300"
-                  >
-                    <div className="grid gap-8 md:grid-cols-12 items-center">
-                      <div className={cn("md:col-span-7", isEven ? "md:order-1" : "md:order-2")}>
-                        <Link
-                          to="/portfolio/$slug"
-                          params={{ slug: study.slug }}
-                          className="group block overflow-hidden bg-secondary/30 aspect-[16/10]"
-                        >
-                          <img
-                            src={study.hero_image ?? "/portfolio/hero.jpg"}
-                            alt={study.title}
-                            loading="lazy"
-                            className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  <div key={groupIdx} className="space-y-12 sm:space-y-16">
+                    {/* Item 1: Wide or Heroic Feature */}
+                    {first && <CaseCardItem study={first} layoutVariant="heroic" showSummary />}
+
+                    {/* Items 2 & 3: Asymmetric 2-Column Pairing (7 cols wide + 5 cols tall) */}
+                    {(second || third) && (
+                      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12 items-start">
+                        {second && (
+                          <CaseCardItem
+                            study={second}
+                            layoutVariant="wide"
+                            className="lg:col-span-7"
+                            showSummary
                           />
-                        </Link>
-                      </div>
-
-                      <div
-                        className={cn(
-                          "md:col-span-5 flex flex-col justify-center",
-                          isEven ? "md:order-2 md:pl-6" : "md:order-1 md:pr-6",
                         )}
-                      >
-                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-accent font-medium">
-                          <span>{study.space_type}</span>
-                          <span>·</span>
-                          <span>{study.year}</span>
-                          {study.area_sqft && (
-                            <>
-                              <span>·</span>
-                              <span>{study.area_sqft} sq ft</span>
-                            </>
-                          )}
-                        </div>
-
-                        <h2 className="mt-3 font-display text-2xl sm:text-4xl text-foreground font-light tracking-tight hover:text-accent transition-colors">
-                          <Link to="/portfolio/$slug" params={{ slug: study.slug }}>
-                            {study.title}
-                          </Link>
-                        </h2>
-
-                        <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
-                          {study.location}
-                        </p>
-
-                        <p className="mt-4 text-sm leading-relaxed text-muted-foreground font-light line-clamp-3">
-                          {study.summary}
-                        </p>
-
-                        <div className="mt-8 flex items-center gap-4">
-                          <Link
-                            to="/portfolio/$slug"
-                            params={{ slug: study.slug }}
-                            className="inline-flex items-center gap-2 bg-foreground px-6 py-3 text-xs tracking-[0.2em] uppercase text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                          >
-                            Explore Project <ArrowRight className="size-3" />
-                          </Link>
-                        </div>
+                        {third && (
+                          <CaseCardItem
+                            study={third}
+                            layoutVariant="tall"
+                            className="lg:col-span-5 md:mt-10"
+                            showSummary
+                          />
+                        )}
                       </div>
-                    </div>
+                    )}
+
+                    {/* Items 4 & 5: Balanced 2-Column or 3-Column */}
+                    {(fourth || fifth) && (
+                      <div className="grid gap-8 sm:grid-cols-2">
+                        {fourth && <CaseCardItem study={fourth} layoutVariant="standard" />}
+                        {fifth && <CaseCardItem study={fifth} layoutVariant="standard" />}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="border border-dashed border-border py-32 text-center">
-              <p className="font-display text-2xl text-foreground">No projects match the selected filters.</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Try selecting a different typology or clearing your filters.
+            <div className="border border-border/80 bg-card/30 py-20 text-center">
+              <p className="font-display text-xl sm:text-2xl text-foreground font-light">
+                No projects match the selected filter.
+              </p>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+                Try selecting a different typology or resetting your filters.
               </p>
               <button
                 type="button"
@@ -255,7 +240,7 @@ function PortfolioPage() {
                   setActiveCategory("All");
                   setSelectedCity("All");
                 }}
-                className="mt-6 inline-flex items-center gap-2 border border-border px-6 py-2.5 text-xs uppercase tracking-widest text-foreground hover:bg-secondary/40"
+                className="mt-6 inline-flex items-center gap-2 border border-foreground/30 px-6 py-2.5 text-xs uppercase tracking-widest text-foreground hover:bg-foreground hover:text-background transition-colors"
               >
                 Clear All Filters
               </button>
@@ -264,19 +249,19 @@ function PortfolioPage() {
         </div>
 
         {/* Bottom Consultation Banner */}
-        <div className="border-t border-border pt-16 pb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="border-t border-border pt-12 pb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <h3 className="font-display text-2xl sm:text-3xl text-foreground font-light">
-              Interested in a tailored commission for your space?
+              Interested in a bespoke commission for your space?
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              We review architectural drawings and site briefs pan-India.
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+              We review architectural floorplans and site parameters across India.
             </p>
           </div>
           <Link
             to="/contact"
             hash="consultation"
-            className="inline-flex items-center gap-2 bg-foreground px-8 py-4 text-xs uppercase tracking-[0.2em] text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
+            className="inline-flex items-center gap-2 bg-foreground px-7 py-3.5 text-xs uppercase tracking-[0.2em] text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
           >
             Book a Consultation <ArrowRight className="size-3.5" />
           </Link>

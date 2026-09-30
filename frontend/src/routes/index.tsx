@@ -1,13 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowRight, Sparkles, Compass, Layers, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Maximize2 } from "lucide-react";
 import { getHomeContent, FALLBACK_CASE_STUDIES } from "@/lib/public.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { EditorialProjectGrid } from "@/components/site/CaseCardGrid";
+import { EditorialServicesSection } from "@/components/site/EditorialServices";
+import { ProcessTimeline } from "@/components/site/ProcessTimeline";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
-import { MaterialGallery } from "@/components/site/MaterialGallery";
 import { ConsultationForm } from "@/components/site/ConsultationForm";
 import { InstagramFeedSection } from "@/components/site/InstagramFeedSection";
+import { GOOGLE_DRIVE_PHOTOS, type GoogleDrivePhoto } from "@/lib/google-drive-photos";
+import { DriveImage } from "@/components/site/DriveImage";
+import { PhotoLightboxModal } from "@/components/site/PhotoLightboxModal";
 
 const homeQuery = queryOptions({
   queryKey: ["home-content"],
@@ -19,17 +24,17 @@ export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: "Atelier Vermilion — Interior Design, Architecture & Turnkey Execution" },
+      { title: "Atelier Vermilion — Architecture & Interior Design Studio" },
       {
         name: "description",
         content:
-          "Spaces designed around the way you live. Atelier Vermilion creates bespoke residential, villa, and hospitality interiors detailed around daylight, natural stone, and quiet craft in Mumbai & Bengaluru.",
+          "Spaces designed with intention. Atelier Vermilion crafts bespoke residential, commercial and turnkey interiors across India detailed around daylight, stone and quiet craft.",
       },
-      { property: "og:title", content: "Atelier Vermilion — Interior Design Studio" },
+      { property: "og:title", content: "Atelier Vermilion — Interior Architecture Studio" },
       {
         property: "og:description",
         content:
-          "Spaces designed around the way you live. Interior design, architecture and turnkey execution.",
+          "Spaces designed with intention. Residential and commercial interiors crafted from concept to execution.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -37,7 +42,7 @@ export const Route = createFileRoute("/")({
   }),
   errorComponent: () => (
     <PublicShell>
-      <div className="mx-auto max-w-xl px-5 py-32 text-center">
+      <div className="mx-auto max-w-xl px-5 py-24 text-center">
         <h1 className="text-3xl font-display">Atelier Vermilion</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           Refreshing studio parameters. Please reload to view our portfolio.
@@ -47,114 +52,79 @@ export const Route = createFileRoute("/")({
   ),
 });
 
-const PROCESS_STEPS = [
-  {
-    step: "01",
-    title: "Discovery",
-    body: "Site visit, comprehensive measured survey, solar daylight analysis, and structured lifestyle brief.",
-  },
-  {
-    step: "02",
-    title: "Consultation",
-    body: "Collaborative spatial strategy, timeline projection, and feasibility assessment with our principal team.",
-  },
-  {
-    step: "03",
-    title: "Concept Development",
-    body: "Atmospheric moodboards, volume articulation, circulation mapping, and primary material palette selection.",
-  },
-  {
-    step: "04",
-    title: "3D Design & Visualisation",
-    body: "Photorealistic spatial perspectives, lighting temperature studies, and full room-by-room walkthroughs.",
-  },
-  {
-    step: "05",
-    title: "Material Selection",
-    body: "Full physical flat-lay boards: natural stone slabs, veneer grain sequencing, hardware and textile hand-feel.",
-  },
-  {
-    step: "06",
-    title: "Execution",
-    body: "Strict on-site management, weekly quality audits, milestone checklists, and dedicated project manager oversight.",
-  },
-  {
-    step: "07",
-    title: "Final Handover",
-    body: "White-glove styling, operational care manual, warranties dossier, and scheduled 90-day post-settling review.",
-  },
-];
-
 const TESTIMONIALS = [
   {
+    text: "The team transformed our home into something that feels completely ours. Natural light now reaches corners we never knew existed.",
     client: "Rajesh & Priya Shah",
     project: "The Shah Residence",
     location: "Ahmedabad",
-    text: "Atelier Vermilion completely reimagined our relationship with natural light. The honed travertine courtyard feels like a private sanctuary in the middle of the city. Every single millwork joint aligns with absolute perfection.",
   },
   {
+    text: "As an art collector, I needed museum-grade acoustic calm and precise lighting. The studio’s turnkey discipline meant zero friction during the entire build.",
     client: "Sameer Nambiar",
-    project: "Koramangala Sky Penthouse",
+    project: "Koramangala Penthouse",
     location: "Bengaluru",
-    text: "As an art collector, I needed museum-grade acoustic calm and precise lighting. The studio’s architectural discipline and turnkey execution meant zero stress during the 11-month build. The result is pure understated luxury.",
-  },
-  {
-    client: "Tarun & Alisha Mehta",
-    project: "Alibaug Coastal Villa",
-    location: "Alibaug",
-    text: "Building by the coast is notorious for contractor delays and weathering issues. Ira and Nikhil held the site with total accountability. Two monsoons later, the teak and basalt have aged even more beautifully.",
   },
 ];
 
 function HomePage() {
   const { data } = useSuspenseQuery(homeQuery);
   const studies = data?.studies && data.studies.length > 0 ? data.studies : FALLBACK_CASE_STUDIES;
-  const posts = data?.posts ?? [];
+  const [activeLightboxPhoto, setActiveLightboxPhoto] = useState<GoogleDrivePhoto | null>(null);
 
   return (
     <PublicShell overlayHeader>
-      {/* 2. CINEMATIC HERO SECTION */}
-      <section className="relative isolate min-h-[95vh] overflow-hidden flex flex-col justify-end">
-        {/* Background Image with Slow Subtle Ambient Zoom */}
-        <img
-          src="/portfolio/hero.jpg"
-          alt="Architectural sunlit living room detailed in honed travertine, fumed oak and antique brass"
+      {/* 1. HERO SECTION (Requirement 7) */}
+      <section className="relative isolate min-h-[85vh] sm:min-h-[92vh] overflow-hidden flex flex-col justify-end pt-24">
+        {/* Background Architectural Photography */}
+        <DriveImage
+          src={GOOGLE_DRIVE_PHOTOS[10]?.url || "https://lh3.googleusercontent.com/d/1rd1eUwEnOsj4rWR5J5Hf6uCrX5FhTMQQ"}
+          driveId={GOOGLE_DRIVE_PHOTOS[10]?.id}
+          fallbackUrls={[GOOGLE_DRIVE_PHOTOS[10]?.thumbnailUrl || ""]}
+          alt="Architectural sunlit interior in honed travertine and fumed oak"
           className="absolute inset-0 size-full object-cover slow-zoom brightness-[0.88]"
+          wrapperClassName="absolute inset-0 size-full cursor-pointer"
+          onOpenZoom={() => setActiveLightboxPhoto(GOOGLE_DRIVE_PHOTOS[10] || null)}
         />
 
-        {/* Ambient Architectural Vignette Overlay */}
+        {/* Ambient Architectural Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-ink/20 to-transparent" />
 
-        {/* Content Box */}
-        <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-20 sm:px-8 sm:pb-28">
-          <div className="max-w-4xl">
-            <p className="eyebrow text-ink-foreground/80 flex items-center gap-2 mb-4">
+        {/* Hero Content Box with generous negative space */}
+        <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-12 sm:px-8 sm:pb-16">
+          <div className="max-w-3xl">
+            {/* Small eyebrow */}
+            <p className="eyebrow text-ink-foreground/80 flex items-center gap-2 mb-3">
               <span className="inline-block size-1.5 rounded-full bg-accent" />
-              Atelier Vermilion · Architecture & Interior Design
+              Architecture & Interior Design
             </p>
 
-            <h1 className="reveal font-display text-4xl leading-[1.04] sm:text-6xl lg:text-7xl xl:text-8xl text-ink-foreground tracking-tight font-light">
-              Spaces designed around the way{" "}
-              <span className="italic font-normal text-accent">you live.</span>
+            {/* Headline */}
+            <h1 className="reveal font-display text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-ink-foreground tracking-tight font-light leading-[1.08]">
+              Spaces designed with{" "}
+              <span className="italic font-normal text-accent">intention.</span>
             </h1>
 
-            <p className="reveal mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-ink-foreground/85 font-light">
-              Interior design, architecture and turnkey execution for thoughtful residential and
-              commercial spaces. Detailed room by room around daylight, stone and quiet craft.
+            {/* Supporting statement */}
+            <p className="reveal mt-4 max-w-xl text-sm sm:text-base lg:text-lg leading-relaxed text-ink-foreground/85 font-light">
+              Residential and commercial interiors crafted from concept to execution. Detailed
+              around daylight, stone and quiet craft.
             </p>
 
-            <div className="reveal mt-10 flex flex-wrap items-center gap-4 sm:gap-6">
+            {/* CTAs */}
+            <div className="reveal mt-8 flex flex-wrap items-center gap-4">
               <Link
                 to="/portfolio"
-                className="inline-flex items-center gap-2.5 bg-accent px-8 py-4 text-xs font-semibold tracking-[0.2em] text-accent-foreground uppercase transition-transform hover:scale-[1.02] shadow-lg"
+                className="group inline-flex items-center gap-2.5 bg-accent px-7 py-3.5 text-xs font-semibold tracking-[0.2em] text-accent-foreground uppercase transition-all duration-300 hover:bg-ink-foreground hover:text-ink"
               >
-                Explore Projects <ArrowRight className="size-3.5" />
+                <span>Explore Projects</span>
+                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/contact"
                 hash="consultation"
-                className="inline-flex items-center gap-2.5 border border-ink-foreground/50 bg-ink/30 backdrop-blur-md px-8 py-4 text-xs font-semibold tracking-[0.2em] text-ink-foreground uppercase transition-colors hover:border-accent hover:text-accent"
+                className="inline-flex items-center gap-2 border border-ink-foreground/40 bg-ink/20 backdrop-blur-md px-6 py-3.5 text-xs font-medium tracking-[0.18em] text-ink-foreground uppercase transition-colors hover:border-accent hover:text-accent"
               >
                 Book a Consultation
               </Link>
@@ -162,321 +132,233 @@ function HomePage() {
           </div>
         </div>
 
-        {/* Bottom Hero Ribbon */}
-        <div className="relative border-t border-ink-foreground/15 bg-ink/60 backdrop-blur-md py-4 text-ink-foreground/75 text-xs">
+        {/* Bottom Metadata Ribbon */}
+        <div className="relative border-t border-ink-foreground/15 bg-ink/65 backdrop-blur-md py-3 text-ink-foreground/75 text-[11px] sm:text-xs">
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-5 sm:px-8">
-            <div className="flex items-center gap-6">
-              <span>Mumbai · Bengaluru</span>
-              <span className="hidden sm:inline">|</span>
-              <span className="hidden sm:inline">15 Years in Practice</span>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span>Mumbai · Bengaluru · Pan India</span>
+              <span>·</span>
+              <span>12+ Years Practice</span>
             </div>
-            <div className="flex items-center gap-6">
-              <span>148+ Completed Residences & Villas</span>
-              <span className="hidden sm:inline">|</span>
-              <span className="hidden sm:inline">Turnkey Site Accountability</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. PHILOSOPHY & MANIFESTO */}
-      <section className="border-b border-border/80 bg-background py-20 sm:py-32">
-        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="grid gap-12 lg:grid-cols-12 items-center">
-            <div className="lg:col-span-7">
-              <p className="eyebrow">Design Philosophy</p>
-              <h2 className="mt-4 font-display text-3xl sm:text-5xl lg:text-6xl font-light text-foreground leading-[1.12]">
-                “Good interiors are not only beautiful.
-                <br />
-                <span className="italic text-accent font-normal">
-                  They should feel natural to live in.”
-                </span>
-              </h2>
-              <p className="mt-8 text-base sm:text-lg leading-relaxed text-muted-foreground font-light max-w-2xl">
-                Every project we undertake starts by stripping away the non-essential. We avoid
-                flashy trends and disposable materials in pursuit of architecture that breathes:
-                natural stone with tactile depth, hand-plastered surfaces that catch the changing sun,
-                and bespoke millwork resolved with millimeter precision.
-              </p>
-            </div>
-
-            <div className="lg:col-span-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="border border-border/80 p-6 bg-card/40">
-                <div className="flex items-center gap-3 text-accent mb-2">
-                  <Compass className="size-4" />
-                  <h4 className="font-display text-lg text-foreground">Daylight-First Geometry</h4>
-                </div>
-                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                  Solar mapping aligns living spaces with afternoon warmth and sleeping chambers
-                  with serene morning clarity.
-                </p>
-              </div>
-
-              <div className="border border-border/80 p-6 bg-card/40">
-                <div className="flex items-center gap-3 text-accent mb-2">
-                  <Layers className="size-4" />
-                  <h4 className="font-display text-lg text-foreground">Material Restraint</h4>
-                </div>
-                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                  Three foundational finishes detailed harder — no artificial plastic trims,
-                  imitation veneers, or cosmetic disguises.
-                </p>
-              </div>
-
-              <div className="border border-border/80 p-6 bg-card/40">
-                <div className="flex items-center gap-3 text-accent mb-2">
-                  <ShieldCheck className="size-4" />
-                  <h4 className="font-display text-lg text-foreground">Held Turnkey Execution</h4>
-                </div>
-                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                  Single accountable design-and-build delivery with weekly client walkthroughs and a
-                  frozen bill of quantities.
-                </p>
-              </div>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span>28+ Architectural Commissions</span>
+              <span>·</span>
+              <span>Single-Source Accountability</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. FEATURED PROJECTS (EDITORIAL ASYMMETRIC GRID) */}
-      <section className="py-24 sm:py-36 bg-background">
+      {/* 2. SELECTED PROJECTS (Requirement 10) */}
+      <section className="py-16 sm:py-24 bg-background">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-6 pb-14 border-b border-border">
+          <div className="flex flex-wrap items-end justify-between gap-6 pb-10 border-b border-border">
             <div>
-              <p className="eyebrow">Curated Portfolio</p>
-              <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-                Featured Architectural Commissions
+              <p className="eyebrow">SELECTED WORKS</p>
+              <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
+                Featured Architectural Projects
               </h2>
             </div>
             <Link
               to="/portfolio"
               className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-semibold transition-colors"
             >
-              View All Projects <ArrowRight className="size-3.5" />
+              View Full Portfolio ({studies.length}) <ArrowRight className="size-3.5" />
             </Link>
           </div>
 
-          <div className="pt-14">
-            <EditorialProjectGrid projects={studies} />
+          <div className="pt-12">
+            <EditorialProjectGrid projects={studies.slice(0, 6)} />
           </div>
 
-          <div className="mt-20 text-center">
+          <div className="mt-14 text-center">
             <Link
               to="/portfolio"
-              className="inline-flex items-center gap-3 border border-foreground/30 px-10 py-4 text-xs uppercase tracking-[0.22em] text-foreground hover:bg-foreground hover:text-background transition-colors"
+              className="inline-flex items-center gap-3 border border-foreground/30 px-8 py-3.5 text-xs uppercase tracking-[0.22em] text-foreground hover:bg-foreground hover:text-background transition-colors"
             >
-              Explore Full Projects Archive ({studies.length}+) <ArrowRight className="size-3.5" />
+              Explore Complete Archive ({studies.length}+ Works) <ArrowRight className="size-3.5" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 6. INTERACTIVE BEFORE & AFTER TRANSFORMATION */}
-      <section className="border-y border-border bg-card/40 py-24 sm:py-36">
+      {/* 3. STUDIO INTRODUCTION (Requirement 16) */}
+      <section className="border-t border-border bg-card/30 py-16 sm:py-24">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="max-w-2xl pb-12">
-            <p className="eyebrow">Transformation & Renovation</p>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-              Before & After: The Power of Architectural Execution
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Drag the divider below to reveal the metamorphosis of The Shah Residence from a bare
-              concrete shell into an acoustically cushioned, travertine-clad living pavilion.
-            </p>
-          </div>
+          <div className="grid gap-12 lg:grid-cols-12 items-center">
+            {/* Left Narrative */}
+            <div className="lg:col-span-7 space-y-6">
+              <p className="eyebrow">ABOUT THE STUDIO</p>
+              <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-light text-foreground leading-[1.15]">
+                We create interiors that balance{" "}
+                <span className="italic text-accent font-normal">
+                  material, proportion, light and life.
+                </span>
+              </h2>
+              <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light max-w-2xl">
+                Every project we undertake starts by stripping away the non-essential. We avoid
+                ephemeral trends and disposable finishes in pursuit of spaces that breathe: natural
+                stone with tactile depth, hand-plastered surfaces that catch the changing sun, and
+                bespoke millwork resolved with millimeter precision.
+              </p>
+              <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light max-w-2xl">
+                Operating across Mumbai and Bengaluru, our practice provides full turnkey accountability
+                from measured drawing sets to final white-glove styling.
+              </p>
 
-          <BeforeAfterSlider
-            beforeUrl="/portfolio/p8.jpg"
-            afterUrl="/portfolio/hero.jpg"
-            beforeLabel="Raw Concrete Site Shell"
-            afterLabel="Completed Living Pavilion"
-            caption="The Shah Residence, Ahmedabad · 6,400 sq ft transformation"
-            aspectRatio="aspect-[16/9] sm:aspect-[21/10]"
-          />
+              <div>
+                <Link
+                  to="/about"
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-semibold border-b border-foreground/40 pb-1"
+                >
+                  Discover Our Studio <ArrowRight className="size-3" />
+                </Link>
+              </div>
+
+              {/* Subtle architectural statistics (NOT SaaS cards) */}
+              <div className="pt-8 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div>
+                  <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
+                    28+
+                  </span>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    Projects
+                  </p>
+                </div>
+                <div>
+                  <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
+                    12+
+                  </span>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    Years
+                  </p>
+                </div>
+                <div>
+                  <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
+                    04
+                  </span>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    Disciplines
+                  </p>
+                </div>
+                <div>
+                  <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
+                    11
+                  </span>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    Cities
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Studio Photography */}
+            <div
+              onClick={() => setActiveLightboxPhoto(GOOGLE_DRIVE_PHOTOS[6] || null)}
+              className="group relative lg:col-span-5 overflow-hidden bg-secondary/30 aspect-[4/5] border border-border cursor-pointer"
+            >
+              <DriveImage
+                src={GOOGLE_DRIVE_PHOTOS[6]?.url}
+                driveId={GOOGLE_DRIVE_PHOTOS[6]?.id}
+                fallbackUrls={[GOOGLE_DRIVE_PHOTOS[6]?.thumbnailUrl || ""]}
+                alt="Atelier Vermilion studio atmosphere with drawings, stone samples and models"
+                className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                wrapperClassName="size-full"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="flex items-center gap-1.5 rounded-full bg-black/80 px-3.5 py-1.5 text-xs text-white backdrop-blur-md">
+                  <Maximize2 className="size-3.5 text-accent" />
+                  <span>Inspect Studio Detail</span>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 7. SERVICES SUMMARY */}
-      <section className="py-24 sm:py-36 bg-background">
+      {/* 4. SERVICES (Requirement 17 - 6 Clean Categories) */}
+      <section className="py-16 sm:py-24 bg-background border-t border-border">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-6 pb-12 border-b border-border">
+          <div className="flex flex-wrap items-end justify-between gap-6 pb-10 border-b border-border">
             <div>
-              <p className="eyebrow">Studio Capabilities</p>
-              <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-                Disciplines & Scope of Work
+              <p className="eyebrow">PRACTICE DISCIPLINES</p>
+              <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
+                Disciplines & Scope of Practice
               </h2>
             </div>
             <Link
               to="/services"
               className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-semibold transition-colors"
             >
-              Detailed Service Specifications <ArrowRight className="size-3.5" />
+              Full Service Overview <ArrowRight className="size-3.5" />
             </Link>
           </div>
 
-          <div className="mt-12 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                title: "Residential Interior Architecture",
-                desc: "Full bespoke interiors for penthouses, luxury villas, and expansive apartments. Comprehensive space re-planning, joinery, and lighting.",
-                image: "/portfolio/p1.jpg",
-                link: "/services",
-              },
-              {
-                title: "Turnkey Interior Execution",
-                desc: "We take total site custody: vetted MEP contractors, procurement, factory shop-drawing verification, and single-source schedule guarantees.",
-                image: "/portfolio/p6.jpg",
-                link: "/services",
-              },
-              {
-                title: "Modular Kitchens & Wardrobes",
-                desc: "Engineered German & Austrian hardware, 2mm solid wood lippings, fumed veneers, and bespoke quartzite island counters.",
-                image: "/portfolio/p7.jpg",
-                link: "/services",
-              },
-              {
-                title: "Boutique Commercial & Offices",
-                desc: "Workplaces and executive suites designed with residential acoustic calm, indirect glare-free illumination, and bespoke conference tables.",
-                image: "/portfolio/p4.jpg",
-                link: "/services",
-              },
-              {
-                title: "Heritage Restoration & Adaptive Reuse",
-                desc: "Authentic lime-wash masonry, terrazzo restoration, and vintage hardware casting for period residences and historic properties.",
-                image: "/portfolio/p2.jpg",
-                link: "/services",
-              },
-              {
-                title: "Bespoke Furniture & Art Curation",
-                desc: "Custom dining tables, hand-knotted wool rugs, sculptural brass hardware, and fine art placement in dialogue with spatial geometry.",
-                image: "/portfolio/p5.jpg",
-                link: "/services",
-              },
-            ].map((s) => (
-              <div
-                key={s.title}
-                className="group flex flex-col justify-between bg-background p-8 transition-colors hover:bg-secondary/20"
-              >
-                <div>
-                  <div className="aspect-[16/10] w-full overflow-hidden mb-6 bg-secondary/30">
-                    <img
-                      src={s.image}
-                      alt={s.title}
-                      loading="lazy"
-                      className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="font-display text-xl text-foreground group-hover:text-accent transition-colors">
-                    {s.title}
-                  </h3>
-                  <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                    {s.desc}
-                  </p>
-                </div>
-                <Link
-                  to={s.link}
-                  className="mt-6 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-accent font-medium"
-                >
-                  Learn More <ArrowRight className="size-3" />
-                </Link>
-              </div>
-            ))}
+          <div className="pt-10">
+            <EditorialServicesSection />
           </div>
         </div>
       </section>
 
-      {/* 8. DESIGN PROCESS (7 STAGES) */}
-      <section className="border-t border-border bg-card/40 py-24 sm:py-36">
+      {/* 5. PROCESS (Requirement 18 - 5 Stages, No Duplicates) */}
+      <section className="border-t border-border bg-card/40 py-16 sm:py-24">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="max-w-3xl pb-16">
-            <p className="eyebrow">Clear & Transparent Journey</p>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-              Our 7-Stage Architectural Process
+          <div className="max-w-2xl pb-10">
+            <p className="eyebrow">METHODOLOGY</p>
+            <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
+              Our 5-Stage Architectural Process
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              From your initial consultation through to white-glove handover, here is exactly how we
-              guide your commission with meticulous structure and complete accountability.
+            <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              From site survey through to final white-glove styling, our structured methodology
+              eliminates ambiguity.
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PROCESS_STEPS.map((p, idx) => (
-              <div
-                key={p.step}
-                className="relative flex flex-col justify-between border border-border/80 bg-background p-6 transition-all duration-300 hover:border-accent"
-              >
-                <div>
-                  <span className="font-display text-3xl font-light text-accent/80">{p.step}</span>
-                  <h4 className="mt-4 font-display text-lg font-normal text-foreground">
-                    {p.title}
-                  </h4>
-                  <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                    {p.body}
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-border/40 text-[11px] uppercase tracking-widest text-muted-foreground/80 flex items-center gap-1.5">
-                  <CheckCircle2 className="size-3 text-accent" /> Phase 0{idx + 1}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 flex justify-end">
-            <Link
-              to="/process"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent hover:underline font-semibold"
-            >
-              Detailed Step-by-Step Methodology <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
+          <ProcessTimeline />
         </div>
       </section>
 
-      {/* 10. MATERIALS & CRAFTSMANSHIP GALLERY */}
-      <section className="py-24 sm:py-36 bg-background">
+      {/* 6. BEFORE / AFTER (Requirement 19) */}
+      <section className="border-t border-border bg-background py-16 sm:py-24">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="max-w-2xl pb-12">
-            <p className="eyebrow">Tactile Honesty</p>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-              Materials, Finishes & Detailing
+          <div className="max-w-2xl pb-10">
+            <p className="eyebrow">TRANSFORMATION</p>
+            <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
+              From Shell to Sanctuary
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Explore the raw, natural finishes that define our signature interior language.
-              Click any finish to view completed projects featuring that material.
+            <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Drag the divider below to inspect the transformation of The Shah Residence living pavilion.
             </p>
           </div>
 
-          <MaterialGallery />
+          <BeforeAfterSlider
+            beforeUrl={GOOGLE_DRIVE_PHOTOS[13]?.url || GOOGLE_DRIVE_PHOTOS[12]?.url}
+            afterUrl={GOOGLE_DRIVE_PHOTOS[8]?.url}
+            beforeLabel="BEFORE"
+            afterLabel="AFTER"
+            caption="The Shah Residence, Ahmedabad · 6,400 sq ft transformation"
+            aspectRatio="aspect-[16/9] sm:aspect-[21/10]"
+          />
         </div>
       </section>
 
-      {/* 13. CLIENT TESTIMONIALS */}
-      <section className="border-y border-border bg-secondary/30 py-24 sm:py-36">
+      {/* 7. TESTIMONIALS (Requirement 21 - Minimalist Quotes, No Fake Stars) */}
+      <section className="border-t border-border bg-secondary/30 py-16 sm:py-20">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="max-w-2xl pb-14">
-            <p className="eyebrow">Client Endorsements</p>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-              Reflections on Working Together
-            </h2>
-          </div>
+          <p className="eyebrow text-center mb-10">CLIENT PERSPECTIVES</p>
 
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-10 md:grid-cols-2 max-w-4xl mx-auto">
             {TESTIMONIALS.map((t, idx) => (
               <div
                 key={idx}
-                className="flex flex-col justify-between border border-border/80 bg-background p-8 relative"
+                className="flex flex-col justify-between border-l border-accent/60 pl-6 py-2"
               >
-                <div>
-                  <div className="flex text-accent mb-4">
-                    <Sparkles className="size-4" />
-                  </div>
-                  <p className="text-sm sm:text-base leading-relaxed text-foreground/90 font-light italic font-editorial">
-                    “{t.text}”
-                  </p>
-                </div>
-                <div className="mt-8 pt-6 border-t border-border/60">
-                  <p className="font-display text-base text-foreground">{t.client}</p>
-                  <p className="text-xs text-muted-foreground tracking-wider uppercase mt-0.5">
+                <p className="font-editorial text-lg sm:text-xl font-light italic text-foreground leading-relaxed">
+                  “{t.text}”
+                </p>
+                <div className="mt-6">
+                  <p className="font-display text-sm text-foreground">{t.client}</p>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
                     {t.project} · {t.location}
                   </p>
                 </div>
@@ -486,70 +368,36 @@ function HomePage() {
         </div>
       </section>
 
-      {/* 14. JOURNAL & INSIGHTS */}
-      {posts.length > 0 && (
-        <section className="py-24 sm:py-36 bg-background">
-          <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-            <div className="flex flex-wrap items-end justify-between gap-6 pb-12 border-b border-border">
-              <div>
-                <p className="eyebrow">Design Authority & Insights</p>
-                <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
-                  From the Studio Journal
-                </h2>
-              </div>
-              <Link
-                to="/journal"
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-semibold transition-colors"
-              >
-                All Articles ({posts.length}) <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
-
-            <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.slice(0, 3).map((post) => (
-                <Link
-                  key={post.slug}
-                  to="/journal/$slug"
-                  params={{ slug: post.slug }}
-                  className="group flex flex-col"
-                >
-                  <div className="aspect-[16/10] w-full overflow-hidden bg-secondary/30">
-                    <img
-                      src={post.cover_image ?? "/portfolio/p6.jpg"}
-                      alt={post.title}
-                      loading="lazy"
-                      className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="mt-5 flex items-center justify-between text-[11px] uppercase tracking-widest text-muted-foreground">
-                    <span className="text-accent font-medium">{post.category}</span>
-                    <span>{post.read_minutes} min read</span>
-                  </div>
-                  <h3 className="mt-2.5 font-display text-xl text-foreground group-hover:text-accent transition-colors leading-snug">
-                    {post.title}
-                  </h3>
-                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground line-clamp-2">
-                    {post.excerpt}
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-foreground group-hover:text-accent font-medium">
-                    Read Essay <ArrowRight className="size-3" />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 15. INSTAGRAM FEED SECTION */}
+      {/* 8. STUDIO JOURNAL / INSTAGRAM (Requirement 22) */}
       <InstagramFeedSection />
 
-      {/* 16. CONSULTATION & CONTACT FORM SECTION */}
-      <section className="bg-card/70 py-24 sm:py-36 border-t border-border">
+      {/* 9. CONSULTATION & INQUIRY (Requirement 23) */}
+      <section id="consultation" className="bg-card/70 py-16 sm:py-24 border-t border-border">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="eyebrow">START A CONVERSATION</p>
+            <h2 className="mt-3 font-display text-3xl sm:text-5xl font-light text-foreground tracking-tight">
+              LET'S CREATE SOMETHING BEAUTIFUL.
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Tell us about your space. Every brief is reviewed by our senior design partners within two
+              business days.
+            </p>
+          </div>
+
           <ConsultationForm />
         </div>
       </section>
+
+      {/* Lightbox Modal */}
+      <PhotoLightboxModal
+        photo={activeLightboxPhoto}
+        photosList={GOOGLE_DRIVE_PHOTOS}
+        isOpen={!!activeLightboxPhoto}
+        onClose={() => setActiveLightboxPhoto(null)}
+        onSelectPhoto={(photo) => setActiveLightboxPhoto(photo)}
+      />
     </PublicShell>
   );
 }
+

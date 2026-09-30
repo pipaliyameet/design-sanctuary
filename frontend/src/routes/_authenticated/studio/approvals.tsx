@@ -47,8 +47,8 @@ function ApprovalsPage() {
   });
   const [status, setStatus] = useState("pending");
 
-  const rows = useMemo(
-    () => (data ?? []).filter((a) => status === "all" || a.status === status),
+  const rows: any[] = useMemo(
+    () => (data ?? []).filter((a: any) => status === "all" || a.status === status),
     [data, status],
   );
 
@@ -115,12 +115,10 @@ function ApprovalsPage() {
                       ? ` · decided ${shortDate(a.decided_at)} by ${a.decided_by_name ?? "client"}`
                       : ""}
                   </p>
-                  {a.notes && (
-                    <p className="mt-2 text-sm text-muted-foreground">{a.notes}</p>
-                  )}
-                  {a.approval_comments?.length > 0 && (
+                  {a.notes && <p className="mt-2 text-sm text-muted-foreground">{a.notes}</p>}
+                  {a.approval_comments && a.approval_comments.length > 0 && (
                     <ul className="mt-3 space-y-2 border-l border-border pl-4">
-                      {a.approval_comments.map((c) => (
+                      {a.approval_comments.map((c: any) => (
                         <li key={c.id} className="text-xs text-muted-foreground">
                           <span className="text-foreground">{c.author_name}</span>: {c.body}
                         </li>

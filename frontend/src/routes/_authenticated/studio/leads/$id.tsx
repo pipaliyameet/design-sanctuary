@@ -37,7 +37,10 @@ export const Route = createFileRoute("/_authenticated/studio/leads/$id")({
   head: () => ({
     meta: [
       { title: "Lead detail — Atelier Vermilion Studio" },
-      { name: "description", content: "Qualify a lead, assign an owner and convert it into a live project." },
+      {
+        name: "description",
+        content: "Qualify a lead, assign an owner and convert it into a live project.",
+      },
       { property: "og:title", content: "Lead detail — Atelier Vermilion Studio" },
       { property: "og:description", content: "Lead qualification and conversion." },
       { property: "og:type", content: "website" },
@@ -168,10 +171,7 @@ function LeadDetail() {
               <div className="space-y-4">
                 <div>
                   <Label className="eyebrow">Stage</Label>
-                  <Select
-                    value={data.lead.stage}
-                    onValueChange={(v) => save.mutate({ stage: v })}
-                  >
+                  <Select value={data.lead.stage} onValueChange={(v) => save.mutate({ stage: v })}>
                     <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>

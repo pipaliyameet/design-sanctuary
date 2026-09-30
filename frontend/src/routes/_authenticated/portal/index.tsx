@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/portal/")({
       { title: "Your project — Atelier Vermilion" },
       {
         name: "description",
-        content: "Follow your interior project: progress, designs to approve, documents and payments.",
+        content:
+          "Follow your interior project: progress, designs to approve, documents and payments.",
       },
       { property: "og:title", content: "Your project — Atelier Vermilion" },
       { property: "og:description", content: "Your private project portal." },
@@ -82,7 +83,7 @@ function PortalHome() {
                       {p.city} · with {p.lead_designer_name ?? "our studio team"}
                     </p>
                   </div>
-                  <Badge variant="secondary">{STAGE_LABELS[p.stage] ?? p.stage}</Badge>
+                  <Badge variant="secondary">{STAGE_LABELS[p.stage as any] ?? p.stage ?? "Active"}</Badge>
                 </div>
 
                 <Progress value={p.progress} className="mt-5 h-1" />

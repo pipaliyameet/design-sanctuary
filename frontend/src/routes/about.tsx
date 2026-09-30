@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, Layers, ShieldCheck, Award } from "lucide-react";
 import { PublicShell } from "@/components/site/PublicShell";
+import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { DriveImage } from "@/components/site/DriveImage";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -15,7 +17,8 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: "About Atelier Vermilion — Architecture & Interiors" },
       {
         property: "og:description",
-        content: "A focused practice built on daylight, natural stone, and held execution schedules.",
+        content:
+          "A focused practice built on daylight, natural stone, and held execution schedules.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -27,41 +30,58 @@ const TEAM_MEMBERS = [
   {
     name: "Ira Kapoor",
     role: "Founder & Principal Designer",
-    image: "/portfolio/p6.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[0]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     bio: "Graduated from CEPT Ahmedabad and Architectural Association, London. Fifteen years detailing residential and hospitality sanctuaries across India; leads conceptual vision and tactile material curation.",
   },
   {
     name: "Devanshi Rao",
     role: "Design Director",
-    image: "/portfolio/p2.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[1]?.url || "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     bio: "Specializes in spatial re-planning and daylight engineering. Leads the studio drawing sets, joinery specifications, and 3D visualization team to ensure sites are completely predictable.",
   },
   {
     name: "Nikhil Menon",
     role: "Project Director",
-    image: "/portfolio/p7.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[2]?.url || "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     bio: "Civil engineer with twenty years of luxury construction management. Holds on-site contractors, MEP coordination, material sequencing, and single-source schedule guarantees.",
   },
   {
     name: "Sara Qureshi",
     role: "Senior Associate, Detailing",
-    image: "/portfolio/p4.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[3]?.url || "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
     bio: "Focuses on micro-tolerances: bespoke joinery shadow gaps, architectural hardware casting, custom lighting fixtures, and natural stone book-matching.",
   },
 ];
 
+
 const STATISTICS = [
-  { value: "15+", label: "Years in Practice", desc: "Founded in 2011 with continuous independent studio leadership." },
-  { value: "148+", label: "Projects Completed", desc: "Private residences, coastal villas, penthouses, and bespoke venues." },
-  { value: "11", label: "Cities Commissioned", desc: "Mumbai, Bengaluru, Ahmedabad, Goa, Alibaug, Delhi NCR, and London." },
-  { value: "9", label: "National Design Awards", desc: "Recognized for excellence in residential detailing and heritage restoration." },
+  {
+    value: "15+",
+    label: "Years in Practice",
+    desc: "Founded in 2011 with continuous independent studio leadership.",
+  },
+  {
+    value: "148+",
+    label: "Projects Completed",
+    desc: "Private residences, coastal villas, penthouses, and bespoke venues.",
+  },
+  {
+    value: "11",
+    label: "Cities Commissioned",
+    desc: "Mumbai, Bengaluru, Ahmedabad, Goa, Alibaug, Delhi NCR, and London.",
+  },
+  {
+    value: "9",
+    label: "National Design Awards",
+    desc: "Recognized for excellence in residential detailing and heritage restoration.",
+  },
 ];
 
 function AboutPage() {
   return (
     <PublicShell>
       {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+      <div className="border-b border-border bg-background pt-28 pb-12 sm:pt-36 sm:pb-16">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <p className="eyebrow">Studio Origin · Established 2011</p>
           <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
@@ -75,16 +95,18 @@ function AboutPage() {
       </div>
 
       {/* Story & Manifesto */}
-      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:py-28 sm:px-8">
+      <section className="mx-auto max-w-[1400px] px-5 py-14 sm:py-20 sm:px-8">
         <div className="grid gap-14 lg:grid-cols-12 items-center">
-          <div className="lg:col-span-6 overflow-hidden bg-secondary/30 aspect-[4/5]">
-            <img
-              src="/portfolio/p5.jpg"
+          <div className="lg:col-span-6 overflow-hidden bg-secondary/30 aspect-[4/5] border border-border/80">
+            <DriveImage
+              src={GOOGLE_DRIVE_PHOTOS[4]?.url || "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz"}
               alt="Atelier Vermilion studio atmosphere with architectural drawings and stone samples"
-              loading="lazy"
               className="size-full object-cover"
+              wrapperClassName="size-full"
             />
           </div>
+
+
 
           <div className="lg:col-span-6 space-y-6">
             <p className="eyebrow">Our Beginning</p>
@@ -119,7 +141,7 @@ function AboutPage() {
       </section>
 
       {/* Verified Statistics */}
-      <section className="border-y border-border bg-card/60 py-16 sm:py-24">
+      <section className="border-y border-border bg-card/40 py-12 sm:py-16">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {STATISTICS.map((s) => (
@@ -136,9 +158,9 @@ function AboutPage() {
       </section>
 
       {/* Leadership Team */}
-      <section className="py-24 sm:py-36 bg-background">
+      <section className="py-16 sm:py-24 bg-background">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="max-w-2xl pb-16">
+          <div className="max-w-2xl pb-12 sm:pb-16">
             <p className="eyebrow">Studio Leadership</p>
             <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
               The Architects & Directors on Your Commission
@@ -153,11 +175,11 @@ function AboutPage() {
             {TEAM_MEMBERS.map((member) => (
               <div key={member.name} className="group flex flex-col">
                 <div className="aspect-[3/4] w-full overflow-hidden bg-secondary/30 mb-5">
-                  <img
+                  <DriveImage
                     src={member.image}
                     alt={member.name}
-                    loading="lazy"
-                    className="size-full object-cover grayscale contrast-105 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+                    className="size-full object-cover grayscale contrast-105 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-[1.025]"
+                    wrapperClassName="size-full"
                   />
                 </div>
                 <h3 className="font-display text-xl text-foreground">{member.name}</h3>
@@ -174,7 +196,7 @@ function AboutPage() {
       </section>
 
       {/* Studio Locations */}
-      <section className="border-t border-border bg-secondary/30 py-20 sm:py-28">
+      <section className="border-t border-border bg-secondary/30 py-14 sm:py-20">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <p className="eyebrow">Our Physical Studios</p>
           <h2 className="mt-3 text-3xl sm:text-4xl font-display font-light text-foreground mb-12">

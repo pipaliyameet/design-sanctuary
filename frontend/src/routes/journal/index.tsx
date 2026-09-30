@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { listJournal } from "@/lib/public.functions";
 import { PublicShell, PageHeader } from "@/components/site/PublicShell";
+import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { DriveImage } from "@/components/site/DriveImage";
 
 const journalQuery = queryOptions({ queryKey: ["journal"], queryFn: () => listJournal() });
 
@@ -17,7 +19,10 @@ export const Route = createFileRoute("/journal/")({
           "Essays on materials, daylight planning, joinery and the economics of premium interiors, written by the Atelier Vermilion studio.",
       },
       { property: "og:title", content: "Journal — Atelier Vermilion" },
-      { property: "og:description", content: "Notes on materials, process and craft from the studio." },
+      {
+        property: "og:description",
+        content: "Notes on materials, process and craft from the studio.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,16 +47,19 @@ function Journal() {
         <div className="grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((p) => (
             <Link key={p.slug} to="/journal/$slug" params={{ slug: p.slug }} className="group">
-              <img
-                src={p.cover_image ?? "/portfolio/p2.jpg"}
-                alt={p.title}
-                loading="lazy"
-                className="aspect-[3/2] w-full object-cover"
-              />
+              <div className="aspect-[3/2] w-full overflow-hidden bg-secondary/30">
+                <DriveImage
+                  src={p.cover_image || GOOGLE_DRIVE_PHOTOS[1]?.url}
+                  alt={p.title}
+                  className="arch-card-img size-full object-cover"
+                  wrapperClassName="size-full"
+                />
+              </div>
               <p className="eyebrow mt-4">
                 {p.category} · {p.read_minutes} min read
               </p>
-              <h2 className="mt-2 text-2xl group-hover:text-accent">{p.title}</h2>
+              <h2 className="mt-2 font-display text-2xl font-light group-hover:text-accent transition-colors">{p.title}</h2>
+
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.excerpt}</p>
             </Link>
           ))}

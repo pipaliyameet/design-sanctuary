@@ -1,11 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { loginUser, signupUser, getMySession } from "@/lib/session.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { DriveImage } from "@/components/site/DriveImage";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -27,42 +31,75 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const fetchLogin = useServerFn(loginUser);
+  const fetchSignup = useServerFn(signupUser);
+  const fetchSession = useServerFn(getMySession);
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
-    });
-  }, [navigate]);
+    fetchSession()
+      .then((session) => {
+        if (session) {
+          if (session.isStaff) {
+            navigate({ to: "/studio" });
+          } else if (session.roles.includes("client")) {
+            navigate({ to: "/portal" });
+          } else {
+            navigate({ to: "/" });
+          }
+        }
+      })
+      .catch(() => {
+        // Not logged in
+      });
+  }, [navigate, fetchSession]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: { full_name: fullName },
+        const res = await fetchSignup({
+          data: {
+            email,
+            password,
+            fullName,
           },
         });
-        if (error) throw error;
-        toast.success("Account created. Check your email to confirm, then sign in.");
-        setMode("signin");
+        if (!res.success) throw new Error("Registration failed.");
+        await queryClient.invalidateQueries({ queryKey: ["session"] });
+        toast.success("Account created successfully. Welcome to Atelier Vermilion!");
+        if (res.session.isStaff) {
+          navigate({ to: "/studio" });
+        } else {
+          navigate({ to: "/portal" });
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Signed in.");
-        navigate({ to: "/" });
+        const res = await fetchLogin({
+          data: {
+            email,
+            password,
+          },
+        });
+        if (!res.success) throw new Error("Invalid credentials.");
+        await queryClient.invalidateQueries({ queryKey: ["session"] });
+        toast.success("Signed in successfully.");
+        if (res.session.isStaff) {
+          navigate({ to: "/studio" });
+        } else if (res.session.roles.includes("client")) {
+          navigate({ to: "/portal" });
+        } else {
+          navigate({ to: "/" });
+        }
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong.");
+      toast.error(err instanceof Error ? err.message : "Authentication failed.");
     } finally {
       setBusy(false);
     }
@@ -117,14 +154,15 @@ function AuthPage() {
             <Button
               type="submit"
               disabled={busy}
-              className="w-full py-6 text-xs tracking-[0.2em] uppercase"
+              className="w-full py-6 text-xs tracking-[0.2em] uppercase cursor-pointer"
             >
               {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
             </Button>
+
             <button
               type="button"
               onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-              className="text-sm text-muted-foreground hover:text-accent"
+              className="text-sm text-muted-foreground hover:text-accent block text-center w-full cursor-pointer"
             >
               {mode === "signin"
                 ? "No account yet? Create one"
@@ -133,10 +171,11 @@ function AuthPage() {
           </form>
         </div>
 
-        <img
-          src="/portfolio/p3.jpg"
+        <DriveImage
+          src={GOOGLE_DRIVE_PHOTOS[2]?.url || "https://lh3.googleusercontent.com/d/1Xl45R4J6Rvhq8m7kL_wK3Wb1Z0d17_0_"}
           alt="A calm sunlit interior with stone flooring and oak joinery"
-          className="hidden aspect-[4/5] w-full object-cover lg:block"
+          className="aspect-[4/5] w-full object-cover"
+          wrapperClassName="hidden aspect-[4/5] w-full overflow-hidden lg:block"
         />
       </section>
     </PublicShell>

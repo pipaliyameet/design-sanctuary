@@ -1,16 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  createFollowUpTask,
-  getProjectWorkspace,
-  requestApproval,
-  setDesignVisibility,
-  updateProjectStage,
-  updateTask,
-} from "@/lib/studio.functions";
+  FolderKanban,
+  Calendar,
+  MapPin,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Plus,
+  Globe,
+  Share2,
+  FileText,
+  Image as ImageIcon,
+  HardHat,
+  Receipt,
+  CircleDollarSign,
+  Package,
+  Layers,
+  Sparkles,
+  ChevronRight,
+  ExternalLink,
+  Edit,
+  Sliders,
+} from "lucide-react";
+import {
+  getStudioProjectById,
+  updateProjectStageAndProgress,
+  updateMediaPublishStatus,
+} from "@/lib/studio-admin.functions";
 import {
   AppShell,
   EmptyState,
@@ -20,14 +40,10 @@ import {
   Panel,
   STAGE_LABELS,
   StatCard,
-  TASK_STATUSES,
-  TASK_STATUS_LABELS,
   inr,
   shortDate,
 } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,632 +57,802 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/studio/projects/$id")({
-  component: ProjectWorkspace,
+  component: SingleProjectWorkspace,
   head: () => ({
     meta: [
-      { title: "Project workspace — Atelier Vermilion Studio" },
+      { title: "Project Workspace — Atelier Vermilion Studio" },
       {
         name: "description",
-        content: "Rooms, tasks, design milestones, approvals, documents and money for a single project.",
+        content:
+          "Comprehensive project workspace covering rooms, 3D renders, BOQ, timeline, daily site logs, and finances.",
       },
-      { property: "og:title", content: "Project workspace — Atelier Vermilion Studio" },
-      { property: "og:description", content: "Single-project studio workspace." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex" },
     ],
   }),
 });
 
-function ProjectWorkspace() {
+const TIMELINE_STAGES = [
+  { key: "brief", label: "Client Brief" },
+  { key: "site_visit", label: "Site Survey" },
+  { key: "concept", label: "Concept & Mood" },
+  { key: "design_development", label: "Design Development" },
+  { key: "client_approval", label: "Client Approval" },
+  { key: "quotation", label: "Quotation & BOQ" },
+  { key: "execution", label: "On-Site Execution" },
+  { key: "installation", label: "Joinery & Installation" },
+  { key: "final_inspection", label: "Snagging & Inspection" },
+  { key: "handover", label: "Final Handover" },
+  { key: "completed", label: "Completed Project" },
+] as const;
+
+function SingleProjectWorkspace() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
-  const fetchWorkspace = useServerFn(getProjectWorkspace);
-  const patchTask = useServerFn(updateTask);
-  const patchProject = useServerFn(updateProjectStage);
-  const toggleVisibility = useServerFn(setDesignVisibility);
-  const askApproval = useServerFn(requestApproval);
-  const addTask = useServerFn(createFollowUpTask);
+  const fetchProject = useServerFn(getStudioProjectById);
+  const patchProject = useServerFn(updateProjectStageAndProgress);
+  const patchMedia = useServerFn(updateMediaPublishStatus);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["studio", "project", id],
-    queryFn: () => fetchWorkspace({ data: { id } }),
+    queryFn: () => fetchProject({ data: { id } }),
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["studio"] });
-  const onError = (e: Error) => toast.error(e.message);
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const taskStatus = useMutation({
-    mutationFn: (input: { id: string; status: (typeof TASK_STATUSES)[number] }) =>
-      patchTask({ data: input }),
-    onSuccess: () => {
-      toast.success("Task updated.");
-      invalidate();
-    },
-    onError,
-  });
-
-  const taskAssign = useMutation({
-    mutationFn: (input: { id: string; assignee_id: string | null; assignee_name: string | null }) =>
-      patchTask({ data: input }),
-    onSuccess: () => {
-      toast.success("Task reassigned.");
-      invalidate();
-    },
-    onError,
-  });
-
-  const stageChange = useMutation({
-    mutationFn: (input: { stage?: string; progress?: number }) =>
-      patchProject({ data: { id, ...input } as never }),
+  const stageMutation = useMutation({
+    mutationFn: (input: { stage?: string; progress?: number; is_featured_on_website?: boolean }) =>
+      patchProject({ data: { id, ...input } }),
     onSuccess: () => {
       toast.success("Project updated.");
-      invalidate();
+      queryClient.invalidateQueries({ queryKey: ["studio"] });
     },
-    onError,
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Update failed"),
   });
 
-  const visibility = useMutation({
-    mutationFn: (input: { id: string; visible_to_client: boolean }) =>
-      toggleVisibility({ data: input }),
-    onSuccess: () => {
-      toast.success("Client visibility updated.");
-      invalidate();
-    },
-    onError,
-  });
+  if (isLoading) {
+    return (
+      <AppShell>
+        <LoadingBlock label="Retrieving project workspace…" />
+      </AppShell>
+    );
+  }
 
-  const newApproval = useMutation({
-    mutationFn: (input: { title: string; design_file_id: string | null; room_id: string | null }) =>
-      askApproval({ data: { project_id: id, ...input } }),
-    onSuccess: () => {
-      toast.success("Approval requested from the client.");
-      invalidate();
-    },
-    onError,
-  });
+  if (error || !data || !data.project) {
+    return (
+      <AppShell>
+        <ErrorBlock error={error || new Error("Project not found")} onRetry={() => refetch()} />
+      </AppShell>
+    );
+  }
 
-  const [task, setTask] = useState({ title: "", due_date: "", assignee: "", room: "none" });
-  const createTask = useMutation({
-    mutationFn: () =>
-      addTask({
-        data: {
-          title: task.title,
-          due_date: task.due_date,
-          assignee_name: task.assignee || null,
-          priority: "medium" as const,
-          project_id: id,
-          room_id: task.room === "none" ? null : task.room,
-        },
-      }),
-    onSuccess: () => {
-      toast.success("Task added.");
-      setTask({ title: "", due_date: "", assignee: "", room: "none" });
-      invalidate();
-    },
-    onError,
-  });
+  const {
+    project,
+    rooms,
+    media,
+    documents,
+    quotations,
+    materials,
+    siteUpdates,
+    invoices,
+    expenses,
+    activity,
+    financials,
+  } = data;
 
-  const metrics = useMemo(() => {
-    if (!data) return null;
-    const today = new Date().toISOString().slice(0, 10);
-    const open = data.tasks.filter((t) => t.status !== "done");
-    return {
-      open: open.length,
-      overdue: open.filter((t) => t.due_date && t.due_date < today).length,
-      pending: data.approvals.filter((a) => a.status === "pending").length,
-      invoiced: data.invoices.reduce((s, i) => s + Number(i.total), 0),
-      paid: data.invoices.reduce((s, i) => s + Number(i.amount_paid), 0),
-      boq: data.boq.reduce((s, b) => s + Number(b.amount ?? 0), 0),
-    };
-  }, [data]);
+  const currentStageIndex = TIMELINE_STAGES.findIndex((s) => s.key === project.stage);
 
   return (
     <AppShell>
-      {isLoading && <LoadingBlock label="Opening project…" />}
-      {error && <ErrorBlock error={error} onRetry={() => refetch()} />}
-      {data === null && <EmptyState message="This project no longer exists." />}
-
-      {data && metrics && (
-        <>
-          <PageTitle
-            eyebrow={`${data.project.code} · ${data.project.clients?.name ?? "Client"}`}
-            title={data.project.title}
-            actions={
-              <Button asChild variant="outline" size="sm">
-                <Link to="/studio/projects">All projects</Link>
-              </Button>
-            }
+      {/* PROJECT HEADER BANNER */}
+      <div className="relative mb-8 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-muted">
+          <img
+            src={project.cover_image}
+            alt={project.title}
+            className="h-full w-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <StatCard label="Stage" value={STAGE_LABELS[data.project.stage] ?? data.project.stage} />
-            <StatCard label="Progress" value={`${data.project.progress}%`} />
-            <StatCard
-              label="Open tasks"
-              value={metrics.open}
-              hint={`${metrics.overdue} overdue`}
-              tone={metrics.overdue > 0 ? "warn" : "default"}
-            />
-            <StatCard
-              label="Approvals pending"
-              value={metrics.pending}
-              tone={metrics.pending > 0 ? "accent" : "default"}
-            />
-            <StatCard
-              label="Outstanding"
-              value={inr(metrics.invoiced - metrics.paid)}
-              hint={`${inr(metrics.invoiced)} invoiced`}
-            />
+          {/* Top floating metadata */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs uppercase tracking-wider bg-black/70 backdrop-blur-md px-2.5 py-1 rounded font-semibold">
+                {project.code}
+              </span>
+              <Badge variant="secondary" className="text-xs uppercase tracking-wider font-semibold">
+                {STAGE_LABELS[project.stage] ?? project.stage}
+              </Badge>
+              {project.is_featured_on_website && (
+                <span className="text-xs bg-accent text-accent-foreground px-2.5 py-0.5 rounded font-medium flex items-center gap-1">
+                  <Globe className="h-3 w-3" /> Published to Website
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="bg-black/50 backdrop-blur border-white/20 text-white hover:bg-white hover:text-black text-xs"
+                onClick={() =>
+                  stageMutation.mutate({
+                    is_featured_on_website: !project.is_featured_on_website,
+                  })
+                }
+              >
+                <Globe className="h-3.5 w-3.5 mr-1" />
+                {project.is_featured_on_website ? "Unpublish Website" : "Publish to Website"}
+              </Button>
+            </div>
           </div>
 
-          <Tabs defaultValue="overview" className="mt-8">
-            <TabsList className="flex h-auto flex-wrap justify-start">
-              {["overview", "tasks", "rooms", "designs", "approvals", "money", "activity"].map((t) => (
-                <TabsTrigger key={t} value={t} className="capitalize">
-                  {t}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          {/* Bottom Title & Details */}
+          <div className="absolute bottom-6 left-6 right-6 text-white flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-accent font-medium">
+                {project.space_type} · {project.style}
+              </p>
+              <h1 className="mt-1 font-display text-3xl sm:text-4xl font-normal tracking-tight">
+                {project.title}
+              </h1>
+              <p className="text-sm text-white/80 mt-1 flex items-center gap-3">
+                <span>
+                  Client: <strong>{project.client_name}</strong>
+                </span>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-accent" /> {project.city}
+                </span>
+                <span>·</span>
+                <span>{project.area_sqft} sq ft</span>
+              </p>
+            </div>
 
-            <TabsContent value="overview" className="mt-6 grid gap-6 lg:grid-cols-3">
-              <Panel title="Brief" className="lg:col-span-2">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {data.project.brief || "No brief recorded yet."}
-                </p>
-                <dl className="mt-6 grid gap-4 border-t border-border pt-4 sm:grid-cols-3">
-                  <Field label="City" value={data.project.city} />
-                  <Field label="Space" value={data.project.space_type} />
-                  <Field label="Style" value={data.project.style} />
-                  <Field label="Area" value={`${data.project.area_sqft} sq ft`} />
-                  <Field label="Budget" value={inr(data.project.budget_amount)} />
-                  <Field label="Lead designer" value={data.project.lead_designer_name ?? "—"} />
-                  <Field label="Start" value={shortDate(data.project.start_date)} />
-                  <Field label="Target handover" value={shortDate(data.project.target_date)} />
-                  <Field label="BOQ value" value={inr(metrics.boq)} />
-                </dl>
-              </Panel>
-
-              <div className="space-y-6">
-                <Panel title="Move the project">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="eyebrow">Stage</Label>
-                      <Select
-                        value={data.project.stage}
-                        onValueChange={(v) => stageChange.mutate({ stage: v })}
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(STAGE_LABELS).map(([k, v]) => (
-                            <SelectItem key={k} value={k}>
-                              {v}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <ProgressEditor
-                      initial={data.project.progress}
-                      pending={stageChange.isPending}
-                      onSave={(v) => stageChange.mutate({ progress: v })}
-                    />
-                  </div>
-                </Panel>
-                <Panel title="Client">
-                  <p className="text-sm">{data.project.clients?.name}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{data.project.clients?.email}</p>
-                  <p className="text-xs text-muted-foreground">{data.project.clients?.phone ?? "—"}</p>
-                </Panel>
-                <Panel title="Site updates">
-                  {data.updates.length === 0 ? (
-                    <EmptyState message="No site updates posted." />
-                  ) : (
-                    <ul className="space-y-3">
-                      {data.updates.slice(0, 5).map((u) => (
-                        <li key={u.id}>
-                          <p className="text-sm">{u.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {shortDate(u.created_at)} · {u.created_by_name ?? "Studio"}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </Panel>
+            {/* Stage Quick Changer */}
+            <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md p-2 rounded border border-white/10">
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-wider text-white/70">Stage</p>
+                <p className="text-xs font-semibold text-accent">{STAGE_LABELS[project.stage]}</p>
               </div>
-            </TabsContent>
+              <Select
+                value={project.stage}
+                onValueChange={(val) => stageMutation.mutate({ stage: val })}
+              >
+                <SelectTrigger className="w-[170px] h-8 bg-card text-foreground text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMELINE_STAGES.map((s) => (
+                    <SelectItem key={s.key} value={s.key}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
-            <TabsContent value="tasks" className="mt-6 space-y-6">
-              <Panel title="Add a task">
-                <form
-                  className="grid gap-4 sm:grid-cols-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (task.title.trim().length < 3 || !task.due_date) {
-                      toast.error("A task needs a title and a due date.");
-                      return;
-                    }
-                    createTask.mutate();
-                  }}
-                >
-                  <div className="sm:col-span-2">
-                    <Label htmlFor="nt-title" className="eyebrow">
-                      Task
-                    </Label>
-                    <Input
-                      id="nt-title"
-                      value={task.title}
-                      onChange={(e) => setTask({ ...task, title: e.target.value })}
-                      className="mt-2"
-                    />
+        {/* Header Stats Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border border-t border-border bg-card p-4 text-xs">
+          <div className="px-4 py-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Contract Budget
+            </span>
+            <p className="font-mono font-medium text-foreground text-base mt-0.5">
+              {inr(project.budget_amount)}
+            </p>
+          </div>
+          <div className="px-4 py-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Received / Paid
+            </span>
+            <p className="font-mono font-medium text-foreground text-base mt-0.5">
+              {inr(project.received_amount)}
+            </p>
+          </div>
+          <div className="px-4 py-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Pending Balance
+            </span>
+            <p className="font-mono font-medium text-accent text-base mt-0.5">
+              {inr(project.budget_amount - project.received_amount)}
+            </p>
+          </div>
+          <div className="px-4 py-1">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Target Handover
+            </span>
+            <p className="font-medium text-foreground text-base mt-0.5">
+              {shortDate(project.target_date)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 12-TAB PROJECT NAVIGATION */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 bg-card border border-border p-1.5 overflow-x-auto">
+          <TabsTrigger value="overview" className="text-xs">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="text-xs">
+            Timeline & Stages
+          </TabsTrigger>
+          <TabsTrigger value="rooms" className="text-xs">
+            Rooms ({rooms.length})
+          </TabsTrigger>
+          <TabsTrigger value="designs" className="text-xs">
+            Designs & 3D (
+            {
+              documents.filter((d) => d.category === "3D Designs" || d.category === "2D Drawings")
+                .length
+            }
+            )
+          </TabsTrigger>
+          <TabsTrigger value="media" className="text-xs">
+            Media Gallery ({media.length})
+          </TabsTrigger>
+          <TabsTrigger value="materials" className="text-xs">
+            Materials & BOQ ({materials.length})
+          </TabsTrigger>
+          <TabsTrigger value="sites" className="text-xs">
+            Site Execution ({siteUpdates.length})
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs">
+            Documents ({documents.length})
+          </TabsTrigger>
+          <TabsTrigger value="quotations" className="text-xs">
+            Quotations ({quotations.length})
+          </TabsTrigger>
+          <TabsTrigger value="finances" className="text-xs">
+            Profitability & Margins
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="text-xs">
+            Activity Trail
+          </TabsTrigger>
+        </TabsList>
+
+        {/* 1. OVERVIEW TAB */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Progress & Health */}
+            <Panel title="Execution Health & Milestones" className="lg:col-span-2">
+              <div className="space-y-5">
+                <div>
+                  <div className="flex justify-between text-sm font-medium mb-1.5">
+                    <span>Overall Project Completion</span>
+                    <span className="font-mono text-accent">{project.progress}%</span>
+                  </div>
+                  <Progress value={project.progress} className="h-2" />
+                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Current: {STAGE_LABELS[project.stage]}</span>
+                    <span>Started: {shortDate(project.start_date)}</span>
+                  </div>
+                </div>
+
+                <div className="rounded border border-border bg-muted/20 p-4 space-y-3">
+                  <h4 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                    Project Architectural Scope
+                  </h4>
+                  <p className="text-xs text-foreground leading-relaxed">{project.description}</p>
+                </div>
+
+                {/* Team on project */}
+                <div className="grid grid-cols-3 gap-3 border-t border-border pt-4 text-xs">
+                  <div>
+                    <span className="text-[10px] uppercase text-muted-foreground">
+                      Lead Architect
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {project.lead_designer_name}
+                    </p>
                   </div>
                   <div>
-                    <Label htmlFor="nt-due" className="eyebrow">
-                      Due
-                    </Label>
-                    <Input
-                      id="nt-due"
-                      type="date"
-                      value={task.due_date}
-                      onChange={(e) => setTask({ ...task, due_date: e.target.value })}
-                      className="mt-2"
-                    />
+                    <span className="text-[10px] uppercase text-muted-foreground">
+                      Project Director
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {project.project_manager_name}
+                    </p>
                   </div>
-                  <div className="flex items-end">
-                    <Button type="submit" size="sm" disabled={createTask.isPending}>
-                      Add task
-                    </Button>
+                  <div>
+                    <span className="text-[10px] uppercase text-muted-foreground">
+                      Site Supervisor
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {project.site_supervisor_name}
+                    </p>
                   </div>
-                </form>
-              </Panel>
+                </div>
+              </div>
+            </Panel>
 
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {TASK_STATUSES.map((status) => {
-                  const items = data.tasks.filter((t) => t.status === status);
-                  return (
-                    <section key={status} className="border border-border bg-card">
-                      <header className="flex items-center justify-between border-b border-border px-4 py-3">
-                        <h3 className="text-sm tracking-[0.14em] uppercase">
-                          {TASK_STATUS_LABELS[status]}
-                        </h3>
-                        <Badge variant="secondary">{items.length}</Badge>
-                      </header>
-                      <div className="space-y-3 p-4">
-                        {items.length === 0 && (
-                          <p className="text-xs text-muted-foreground">Nothing here.</p>
-                        )}
-                        {items.map((t) => (
-                          <article key={t.id} className="border border-border p-3">
-                            <p className="text-sm">{t.title}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {shortDate(t.due_date)} · {t.assignee_name ?? "Unassigned"} · {t.priority}
-                            </p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {TASK_STATUSES.filter((s) => s !== status).map((s) => (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  disabled={taskStatus.isPending}
-                                  onClick={() => taskStatus.mutate({ id: t.id, status: s })}
-                                  className="border border-border px-2 py-1 text-[10px] tracking-[0.1em] uppercase text-muted-foreground hover:border-accent hover:text-accent"
-                                >
-                                  {TASK_STATUS_LABELS[s]}
-                                </button>
-                              ))}
-                            </div>
-                            <Select
-                              value={t.assignee_id ?? "none"}
-                              onValueChange={(v) => {
-                                const staff = data.staff.find((s) => s.id === v);
-                                taskAssign.mutate({
-                                  id: t.id,
-                                  assignee_id: v === "none" ? null : v,
-                                  assignee_name: staff?.full_name ?? null,
-                                });
-                              }}
-                            >
-                              <SelectTrigger className="mt-3 h-8 text-xs">
-                                <SelectValue placeholder="Unassigned" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">Unassigned</SelectItem>
-                                {data.staff.map((s) => (
-                                  <SelectItem key={s.id} value={s.id}>
-                                    {s.full_name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </article>
-                        ))}
+            {/* Financial Overview Card */}
+            <Panel title="Executive Finance Summary">
+              <div className="space-y-4 text-xs">
+                <div className="flex justify-between py-1 border-b border-border">
+                  <span className="text-muted-foreground">Contract Value</span>
+                  <span className="font-mono font-medium">{inr(financials.budget)}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-border">
+                  <span className="text-muted-foreground">Invoiced to Client</span>
+                  <span className="font-mono font-medium">{inr(financials.invoiced)}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-border">
+                  <span className="text-muted-foreground">Collected</span>
+                  <span className="font-mono font-medium text-emerald-600">
+                    {inr(financials.collected)}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-border">
+                  <span className="text-muted-foreground">Pending Invoices</span>
+                  <span className="font-mono font-medium text-accent">
+                    {inr(financials.pendingReceivable)}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-border">
+                  <span className="text-muted-foreground">Recorded Expenses</span>
+                  <span className="font-mono font-medium">{inr(financials.expensesTotal)}</span>
+                </div>
+                <div className="flex justify-between py-2 bg-muted/40 px-2 rounded font-medium">
+                  <span>Gross Margin</span>
+                  <span className="font-mono text-accent">
+                    {financials.grossMarginPercent}% ({inr(financials.estimatedProfit)})
+                  </span>
+                </div>
+              </div>
+            </Panel>
+          </div>
+
+          {/* Recent Site Updates Snippet */}
+          <Panel
+            title="Recent Site Progress Snippet"
+            action={
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setActiveTab("sites")}
+                className="text-xs text-accent"
+              >
+                View all logs
+              </Button>
+            }
+          >
+            {siteUpdates.length === 0 ? (
+              <EmptyState message="No site execution logs recorded yet." />
+            ) : (
+              <div className="space-y-4">
+                {siteUpdates.slice(0, 2).map((site) => (
+                  <div
+                    key={site.id}
+                    className="flex flex-col sm:flex-row gap-4 border border-border p-4 rounded bg-background"
+                  >
+                    {site.photos.length > 0 && (
+                      <img
+                        src={site.photos[0]}
+                        alt={site.title}
+                        className="h-28 w-44 rounded object-cover border border-border shrink-0"
+                      />
+                    )}
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] text-muted-foreground">
+                          {shortDate(site.date)}
+                        </span>
+                        <span className="text-muted-foreground">{site.uploaded_by}</span>
                       </div>
-                    </section>
+                      <h4 className="font-display font-medium text-sm text-foreground">
+                        {site.title}
+                      </h4>
+                      <p className="text-muted-foreground leading-relaxed">{site.work_completed}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Panel>
+        </TabsContent>
+
+        {/* 2. TIMELINE & STAGES TAB */}
+        <TabsContent value="timeline" className="space-y-6">
+          <Panel title="Commission Milestone Stages">
+            <div className="space-y-6 py-4">
+              <div className="relative border-l-2 border-border ml-4 pl-6 space-y-8">
+                {TIMELINE_STAGES.map((s, idx) => {
+                  const isDone = idx < currentStageIndex;
+                  const isCurrent = idx === currentStageIndex;
+
+                  return (
+                    <div key={s.key} className="relative">
+                      {/* Circle Dot */}
+                      <span
+                        className={`absolute -left-[31px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
+                          isDone
+                            ? "border-emerald-500 bg-emerald-500 text-white"
+                            : isCurrent
+                              ? "border-accent bg-accent text-accent-foreground animate-pulse"
+                              : "border-border bg-card text-muted-foreground"
+                        }`}
+                      >
+                        {isDone ? "✓" : idx + 1}
+                      </span>
+
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3
+                            className={`font-display text-base font-medium ${isCurrent ? "text-accent" : "text-foreground"}`}
+                          >
+                            {s.label}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {isDone
+                              ? "Stage successfully executed and verified."
+                              : isCurrent
+                                ? "Currently active on-site / in-studio."
+                                : "Upcoming stage scheduled."}
+                          </p>
+                        </div>
+
+                        {!isCurrent && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-7"
+                            onClick={() => stageMutation.mutate({ stage: s.key })}
+                          >
+                            Set Active
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
+            </div>
+          </Panel>
+        </TabsContent>
 
-              <Panel title="Schedule — by due date">
-                {data.tasks.filter((t) => t.due_date).length === 0 ? (
-                  <EmptyState message="No dated tasks yet." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {[...data.tasks]
-                      .filter((t) => t.due_date)
-                      .sort((a, b) => (a.due_date! < b.due_date! ? -1 : 1))
-                      .map((t) => (
-                        <li key={t.id} className="flex flex-wrap items-baseline gap-x-3 py-2 text-sm">
-                          <span className="w-32 text-muted-foreground">{shortDate(t.due_date)}</span>
-                          <span>{t.title}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {TASK_STATUS_LABELS[t.status]} · {t.assignee_name ?? "Unassigned"}
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
+        {/* 3. ROOMS TAB */}
+        <TabsContent value="rooms" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {rooms.map((room) => (
+              <div
+                key={room.id}
+                className="rounded border border-border bg-card p-4 space-y-3 hover:border-accent/50 transition-colors"
+              >
+                {room.hero_image && (
+                  <img
+                    src={room.hero_image}
+                    alt={room.name}
+                    className="h-36 w-full rounded object-cover border border-border"
+                  />
                 )}
-              </Panel>
-            </TabsContent>
-
-            <TabsContent value="rooms" className="mt-6">
-              <Panel title={`Rooms (${data.rooms.length})`}>
-                {data.rooms.length === 0 ? (
-                  <EmptyState message="No rooms defined for this project." />
-                ) : (
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {data.rooms.map((r) => {
-                      const roomTasks = data.tasks.filter((t) => t.room_id === r.id);
-                      const done = roomTasks.filter((t) => t.status === "done").length;
-                      return (
-                        <article key={r.id} className="border border-border p-4">
-                          <p className="text-sm">{r.name}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {r.room_type} · {r.area_sqft} sq ft · {r.status}
-                          </p>
-                          <Progress
-                            value={roomTasks.length ? Math.round((done / roomTasks.length) * 100) : 0}
-                            className="mt-3 h-1"
-                          />
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            {done}/{roomTasks.length} tasks ·{" "}
-                            {data.designs.filter((d) => d.room_id === r.id).length} design files
-                          </p>
-                        </article>
-                      );
-                    })}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display text-base font-medium text-foreground">
+                      {room.name}
+                    </h3>
+                    <Badge variant="outline" className="text-[10px] uppercase">
+                      {room.status}
+                    </Badge>
                   </div>
-                )}
-              </Panel>
-            </TabsContent>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {room.area_sqft} sq ft · {room.items_count} joinery items
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-border flex justify-between text-xs font-mono">
+                  <span className="text-muted-foreground">Allocated Budget</span>
+                  <span className="font-medium text-foreground">{inr(room.budget)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
 
-            <TabsContent value="designs" className="mt-6 space-y-6">
-              <Panel title={`Design files (${data.designs.length})`}>
-                {data.designs.length === 0 ? (
-                  <EmptyState message="No design files uploaded yet." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.designs.map((d) => (
-                      <li key={d.id} className="flex flex-wrap items-center gap-4 py-3">
-                        <div className="min-w-[220px] flex-1">
-                          <a
-                            href={d.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-sm hover:text-accent"
+        {/* 4. DESIGNS & 3D TAB */}
+        <TabsContent value="designs" className="space-y-6">
+          <Panel title="Photorealistic Visualizations & Architectural Sets">
+            <div className="grid gap-6 md:grid-cols-2">
+              {media
+                .filter((m) => m.category === "3d_renders" || m.category === "floor_plans")
+                .map((asset) => (
+                  <div
+                    key={asset.id}
+                    className="rounded border border-border bg-background overflow-hidden group"
+                  >
+                    <img
+                      src={asset.url}
+                      alt={asset.title}
+                      className="h-60 w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="p-4 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-foreground text-sm">{asset.title}</span>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {asset.visibility}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed">{asset.description}</p>
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {asset.tags.map((t: string) => (
+                          <span
+                            key={t}
+                            className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
                           >
-                            {d.title}
-                          </a>
-                          <p className="text-xs text-muted-foreground">
-                            {d.kind} · v{d.version} · {shortDate(d.created_at)} ·{" "}
-                            {data.rooms.find((r) => r.id === d.room_id)?.name ?? "Whole project"}
-                          </p>
-                        </div>
-                        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Switch
-                            checked={d.visible_to_client}
-                            onCheckedChange={(v) =>
-                              visibility.mutate({ id: d.id, visible_to_client: v })
-                            }
-                          />
-                          Visible to client
-                        </label>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs"
-                          disabled={newApproval.isPending}
-                          onClick={() =>
-                            newApproval.mutate({
-                              title: `Approval: ${d.title}`,
-                              design_file_id: d.id,
-                              room_id: d.room_id ?? null,
-                            })
-                          }
-                        >
-                          Send for approval
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </Panel>
+        </TabsContent>
 
-              <Panel title={`Documents (${data.documents.length})`}>
-                {data.documents.length === 0 ? (
-                  <EmptyState message="No documents attached." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.documents.map((doc) => (
-                      <li key={doc.id} className="flex flex-wrap items-center gap-3 py-3 text-sm">
-                        <a
-                          href={doc.file_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex-1 hover:text-accent"
-                        >
-                          {doc.title}
-                        </a>
-                        <span className="text-xs text-muted-foreground">
-                          {doc.kind} · {doc.visible_to_client ? "Shared with client" : "Internal"}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
-            </TabsContent>
+        {/* 5. MEDIA GALLERY TAB */}
+        <TabsContent value="media" className="space-y-6">
+          <Panel
+            title="Project Media Vault"
+            action={
+              <Button asChild size="sm" variant="outline" className="text-xs">
+                <Link to="/studio/media">Open Media Library</Link>
+              </Button>
+            }
+          >
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {media.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded border border-border bg-background overflow-hidden"
+                >
+                  <img src={item.url} alt={item.title} className="h-44 w-full object-cover" />
+                  <div className="p-3 text-xs space-y-1">
+                    <p className="font-medium text-foreground truncate">{item.title}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {item.category.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </TabsContent>
 
-            <TabsContent value="approvals" className="mt-6">
-              <Panel title={`Approvals (${data.approvals.length})`}>
-                {data.approvals.length === 0 ? (
-                  <EmptyState message="No approvals raised for this project." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.approvals.map((a) => (
-                      <li key={a.id} className="py-4">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <p className="flex-1 text-sm">{a.title}</p>
-                          <Badge
-                            variant={
-                              a.status === "approved"
-                                ? "secondary"
-                                : a.status === "pending"
-                                  ? "outline"
-                                  : "destructive"
-                            }
-                          >
-                            {a.status.replace(/_/g, " ")}
-                          </Badge>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Sent {shortDate(a.requested_at)}
-                          {a.decided_at
-                            ? ` · decided ${shortDate(a.decided_at)} by ${a.decided_by_name ?? "client"}`
-                            : ""}
-                        </p>
-                        {a.approval_comments?.length > 0 && (
-                          <ul className="mt-3 space-y-2 border-l border-border pl-4">
-                            {a.approval_comments.map((c) => (
-                              <li key={c.id} className="text-xs text-muted-foreground">
-                                <span className="text-foreground">{c.author_name}</span>: {c.body}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
-            </TabsContent>
+        {/* 6. MATERIALS & BOQ TAB */}
+        <TabsContent value="materials" className="space-y-6">
+          <Panel title="Bill of Quantities (BOQ) & Procurement Specifications">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/20 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <th className="px-4 py-3">Material & Brand</th>
+                    <th className="px-4 py-3">Room</th>
+                    <th className="px-4 py-3">Vendor</th>
+                    <th className="px-4 py-3">Quantity</th>
+                    <th className="px-4 py-3 text-right">Total Cost</th>
+                    <th className="px-4 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {materials.map((m) => (
+                    <tr key={m.id} className="hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <span className="font-medium text-foreground">{m.name}</span>
+                        <div className="text-[10px] text-muted-foreground">{m.brand}</div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{m.room_name}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{m.vendor_name}</td>
+                      <td className="px-4 py-3 font-mono">
+                        {m.quantity} {m.unit}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono font-medium">
+                        {inr(m.total_cost)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className="text-[10px] uppercase font-semibold">
+                          {m.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        </TabsContent>
 
-            <TabsContent value="money" className="mt-6 grid gap-6 lg:grid-cols-2">
-              <Panel title="Invoices">
-                {data.invoices.length === 0 ? (
-                  <EmptyState message="No invoices raised." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.invoices.map((i) => (
-                      <li key={i.id} className="flex flex-wrap items-baseline gap-x-3 py-3 text-sm">
-                        <span className="w-28 text-muted-foreground">{i.number}</span>
-                        <span className="flex-1">{i.milestone}</span>
-                        <span>{inr(i.total)}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {inr(i.amount_paid)} paid · {i.status}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
-              <Panel title={`Bill of quantities — ${inr(metrics.boq)}`}>
-                {data.boq.length === 0 ? (
-                  <EmptyState message="No BOQ lines yet." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.boq.map((b) => (
-                      <li key={b.id} className="flex flex-wrap items-baseline gap-x-3 py-2 text-sm">
-                        <span className="w-32 text-muted-foreground">{b.category}</span>
-                        <span className="flex-1">{b.description}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {b.quantity} {b.unit} × {inr(b.rate)}
-                        </span>
-                        <span>{inr(b.amount)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
-            </TabsContent>
+        {/* 7. SITE EXECUTION TAB */}
+        <TabsContent value="sites" className="space-y-6">
+          <Panel title="Daily Photographic Site Feed">
+            <div className="space-y-6">
+              {siteUpdates.map((update) => (
+                <div
+                  key={update.id}
+                  className="rounded border border-border bg-background p-5 space-y-4"
+                >
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <div>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {shortDate(update.date)}
+                      </span>
+                      <h3 className="font-display text-base font-medium text-foreground mt-0.5">
+                        {update.title}
+                      </h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      — {update.uploaded_by}
+                    </span>
+                  </div>
 
-            <TabsContent value="activity" className="mt-6">
-              <Panel title="Project activity">
-                {data.activity.length === 0 ? (
-                  <EmptyState message="No activity recorded." />
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {data.activity.map((a) => (
-                      <li key={a.id} className="flex flex-wrap gap-x-3 py-2 text-sm">
-                        <span className="text-muted-foreground">{shortDate(a.created_at)}</span>
-                        <span>{a.detail || a.action.replace(/_/g, " ")}</span>
-                        <span className="text-muted-foreground">— {a.actor_label}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Panel>
-            </TabsContent>
-          </Tabs>
-        </>
-      )}
+                  <div className="grid gap-4 md:grid-cols-2 text-xs">
+                    <div>
+                      <h4 className="font-semibold text-foreground uppercase tracking-wider text-[10px]">
+                        Work Completed
+                      </h4>
+                      <p className="text-muted-foreground mt-1 leading-relaxed">
+                        {update.work_completed}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground uppercase tracking-wider text-[10px]">
+                        Next Scheduled Action
+                      </h4>
+                      <p className="text-muted-foreground mt-1 leading-relaxed">
+                        {update.next_action}
+                      </p>
+                    </div>
+                  </div>
+
+                  {update.photos.length > 0 && (
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      {update.photos.map((p: string, idx: number) => (
+                        <img
+                          key={idx}
+                          src={p}
+                          alt="Site snapshot"
+                          className="h-32 w-48 rounded object-cover border border-border"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </TabsContent>
+
+        {/* 8. DOCUMENTS TAB */}
+        <TabsContent value="documents" className="space-y-6">
+          <Panel title="Architectural Contracts & CAD Sets">
+            <div className="divide-y divide-border">
+              {documents.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between py-3 text-xs">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-accent" />
+                    <div>
+                      <p className="font-medium text-foreground">{doc.title}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {doc.category} · {doc.file_size} · Version {doc.version}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={doc.is_approved ? "default" : "outline"} className="text-[10px]">
+                    {doc.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </TabsContent>
+
+        {/* 9. QUOTATIONS TAB */}
+        <TabsContent value="quotations" className="space-y-6">
+          <Panel title="Project Cost Estimates & Quotations">
+            <div className="divide-y divide-border">
+              {quotations.map((q) => (
+                <div key={q.id} className="flex items-center justify-between py-4 text-xs">
+                  <div>
+                    <span className="font-mono text-[11px] text-muted-foreground">
+                      {q.number} · {q.version}
+                    </span>
+                    <h4 className="font-display font-medium text-base text-foreground mt-0.5">
+                      Client Estimate ({q.items.length} item lines)
+                    </h4>
+                    <p className="text-muted-foreground mt-0.5">{q.payment_terms}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-base font-semibold text-accent">
+                      {inr(q.grand_total)}
+                    </p>
+                    <Badge variant="secondary" className="mt-1 text-[10px] uppercase">
+                      {q.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </TabsContent>
+
+        {/* 10. FINANCES TAB */}
+        <TabsContent value="finances" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <StatCard label="Total Contract Value" value={inr(financials.budget)} tone="default" />
+            <StatCard label="Total Invoiced" value={inr(financials.invoiced)} tone="accent" />
+            <StatCard
+              label="Estimated Gross Margin"
+              value={`${financials.grossMarginPercent}%`}
+              hint={inr(financials.estimatedProfit)}
+              tone="success"
+            />
+          </div>
+
+          <Panel title="Invoices Issued">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-border bg-muted/20 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-2.5">Invoice #</th>
+                  <th className="px-4 py-2.5">Issued Date</th>
+                  <th className="px-4 py-2.5">Due Date</th>
+                  <th className="px-4 py-2.5 text-right">Amount</th>
+                  <th className="px-4 py-2.5 text-right">Paid</th>
+                  <th className="px-4 py-2.5">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {invoices.map((inv) => (
+                  <tr key={inv.id}>
+                    <td className="px-4 py-3 font-mono font-medium">{inv.number}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{shortDate(inv.issued_at)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{shortDate(inv.due_date)}</td>
+                    <td className="px-4 py-3 text-right font-mono font-medium">
+                      {inr(inv.amount)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-emerald-600 font-medium">
+                      {inr(inv.amount_paid)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant={inv.status === "paid" ? "default" : "outline"}
+                        className="text-[10px] uppercase"
+                      >
+                        {inv.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Panel>
+        </TabsContent>
+
+        {/* 11. ACTIVITY TAB */}
+        <TabsContent value="activity" className="space-y-6">
+          <Panel title="Project Audit Trail">
+            <div className="space-y-3">
+              {activity.map((act) => (
+                <div
+                  key={act.id}
+                  className="flex items-start gap-3 text-xs border-b border-border/50 pb-2.5"
+                >
+                  <div className="mt-1 h-2 w-2 rounded-full bg-accent shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">{act.action}</span>
+                      <span className="text-[10px] text-muted-foreground">{act.timestamp}</span>
+                    </div>
+                    <p className="text-muted-foreground mt-0.5">{act.detail}</p>
+                    <span className="text-[10px] text-muted-foreground/80 font-mono">
+                      — {act.user_name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </TabsContent>
+      </Tabs>
     </AppShell>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="eyebrow">{label}</dt>
-      <dd className="mt-1 text-sm">{value}</dd>
-    </div>
-  );
-}
-
-function ProgressEditor({
-  initial,
-  onSave,
-  pending,
-}: {
-  initial: number;
-  onSave: (v: number) => void;
-  pending: boolean;
-}) {
-  const [value, setValue] = useState(String(initial));
-  return (
-    <div>
-      <Label htmlFor="progress" className="eyebrow">
-        Progress (%)
-      </Label>
-      <div className="mt-2 flex gap-2">
-        <Input
-          id="progress"
-          type="number"
-          min={0}
-          max={100}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={pending}
-          onClick={() => onSave(Math.max(0, Math.min(100, Number(value || 0))))}
-        >
-          Save
-        </Button>
-      </div>
-    </div>
   );
 }

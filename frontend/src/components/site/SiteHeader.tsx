@@ -1,21 +1,23 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, ArrowRight, MessageSquare, Phone, Mail } from "lucide-react";
+import { Menu, X, ArrowRight, MessageSquare, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STUDIO_DETAILS } from "@/lib/public.functions";
 
-const NAV = [
+// Refined Primary Navigation (Requirement 3)
+const PRIMARY_NAV = [
   { to: "/portfolio", label: "Projects" },
   { to: "/services", label: "Services" },
   { to: "/about", label: "About" },
   { to: "/process", label: "Process" },
-  { to: "/journal", label: "Journal" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const routerState = useRouterState();
+  const currentPath = routerState.location.pathname;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 28);
@@ -24,7 +26,12 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Prevent background scroll when mobile menu is open
+  // Close menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [currentPath]);
+
+  // Prevent background scroll when mobile menu is open (Requirement 8)
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -43,15 +50,15 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         solid
-          ? "bg-background/90 border-b border-border/70 backdrop-blur-md shadow-xs py-0"
-          : "bg-gradient-to-b from-ink/70 via-ink/30 to-transparent py-2",
+          ? "bg-background/95 border-b border-border/70 backdrop-blur-md shadow-xs py-0"
+          : "bg-gradient-to-b from-ink/75 via-ink/30 to-transparent py-2",
       )}
     >
       <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-5 sm:px-8">
         {/* Brand Logo */}
         <Link
           to="/"
-          className="group flex flex-col items-start leading-none tracking-tight transition-transform hover:opacity-90"
+          className="group flex flex-col items-start leading-none tracking-tight transition-opacity hover:opacity-90"
         >
           <span
             className={cn(
@@ -64,22 +71,22 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           <span
             className={cn(
               "text-[9px] uppercase tracking-[0.26em] transition-colors mt-1 font-sans",
-              solid ? "text-muted-foreground" : "text-ink-foreground/70",
+              solid ? "text-muted-foreground" : "text-ink-foreground/75",
             )}
           >
             Architecture & Interiors
           </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links (Clean 5-Item IA) */}
         <nav className="hidden items-center gap-7 lg:gap-9 md:flex">
-          {NAV.map((item) => (
+          {PRIMARY_NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               className={cn(
                 "text-xs uppercase tracking-[0.18em] transition-colors hover:text-accent font-medium relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-accent after:scale-x-0 after:transition-transform hover:after:scale-x-100",
-                solid ? "text-foreground/80" : "text-ink-foreground/90",
+                solid ? "text-foreground/85" : "text-ink-foreground/90",
               )}
               activeProps={{ className: "text-accent after:scale-x-100 font-semibold" }}
             >
@@ -88,22 +95,13 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           ))}
         </nav>
 
-        {/* Desktop Action CTAs */}
+        {/* Desktop Action CTA (No Studio Command in Public Nav - Requirement 4) */}
         <div className="hidden md:flex items-center gap-4">
-          <Link
-            to="/auth"
-            className={cn(
-              "text-xs tracking-wider transition-colors hover:text-accent px-2",
-              solid ? "text-muted-foreground" : "text-ink-foreground/70",
-            )}
-          >
-            Portal
-          </Link>
           <Link
             to="/contact"
             hash="consultation"
             className={cn(
-              "inline-flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.18em] uppercase transition-all duration-300 font-medium",
+              "inline-flex items-center gap-2 px-6 py-2.5 text-xs tracking-[0.18em] uppercase transition-all duration-300 font-medium",
               solid
                 ? "bg-foreground text-background hover:bg-accent hover:text-accent-foreground"
                 : "bg-accent text-accent-foreground hover:bg-ink-foreground hover:text-ink",
@@ -119,7 +117,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
           onClick={() => setOpen((v) => !v)}
           className={cn(
-            "p-2 md:hidden transition-colors focus:outline-none",
+            "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center md:hidden transition-colors focus:outline-none cursor-pointer",
             solid ? "text-foreground" : "text-ink-foreground",
           )}
         >
@@ -127,56 +125,62 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         </button>
       </div>
 
-      {/* Mobile Fullscreen Slide-out Menu */}
+      {/* Mobile Fullscreen Slide-out Menu (Requirement 8) */}
       {open && (
-        <div className="fixed inset-x-0 top-20 bottom-0 z-40 bg-background/98 backdrop-blur-2xl flex flex-col justify-between px-6 py-8 md:hidden overflow-y-auto border-t border-border">
-          <nav className="flex flex-col space-y-5 pt-2">
-            {NAV.map((item, idx) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between border-b border-border/50 pb-4 text-2xl font-display text-foreground hover:text-accent transition-colors"
-              >
-                <span>{item.label}</span>
-                <span className="text-xs font-sans tracking-widest text-muted-foreground">
-                  0{idx + 1}
-                </span>
-              </Link>
-            ))}
+        <div className="fixed inset-x-0 top-20 bottom-0 z-40 bg-background/98 backdrop-blur-2xl flex flex-col justify-between px-6 py-8 md:hidden overflow-y-auto border-t border-border animate-in fade-in slide-in-from-top-4 duration-300">
+          <nav className="flex flex-col space-y-4 pt-2">
+            {PRIMARY_NAV.map((item, idx) => {
+              const isActive = currentPath.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex items-center justify-between border-b border-border/50 pb-4 text-2xl font-display transition-colors min-h-[48px]",
+                    isActive ? "text-accent font-normal" : "text-foreground hover:text-accent font-light",
+                  )}
+                >
+                  <span>{item.label}</span>
+                  <span className="text-xs font-sans tracking-widest text-muted-foreground">
+                    0{idx + 1}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="space-y-6 pt-8 border-t border-border">
+          <div className="space-y-5 pt-6 border-t border-border">
             <Link
               to="/contact"
               hash="consultation"
               onClick={() => setOpen(false)}
-              className="w-full inline-flex items-center justify-center gap-2 bg-foreground px-6 py-4 text-xs tracking-[0.2em] uppercase text-background font-medium"
+              className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-foreground px-6 py-4 text-xs tracking-[0.2em] uppercase text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               Book a Consultation <ArrowRight className="size-3.5" />
             </Link>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <a
-                href={`https://wa.me/${STUDIO_DETAILS.whatsappNumber}`}
+                href={`https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent("Hello Atelier Vermilion, I would like to discuss an interior design project.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                className="min-h-[44px] flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
               >
                 <MessageSquare className="size-3.5 text-accent" /> WhatsApp
               </a>
               <a
                 href="tel:+919820041100"
-                className="flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                className="min-h-[44px] flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
               >
                 <Phone className="size-3.5 text-accent" /> Call Studio
               </a>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-              <span>Mumbai · Bengaluru</span>
-              <Link to="/auth" onClick={() => setOpen(false)} className="hover:text-accent">
-                Client / Studio Portal →
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/40">
+              <span>Mumbai · Bengaluru · Pan-India</span>
+              <Link to="/auth" onClick={() => setOpen(false)} className="hover:text-accent text-[11px] underline">
+                Client / Studio Login →
               </Link>
             </div>
           </div>
@@ -185,3 +189,4 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     </header>
   );
 }
+

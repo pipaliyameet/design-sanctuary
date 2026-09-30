@@ -1,4 +1,7 @@
+process.env.NITRO_PRESET = process.env.NITRO_PRESET || (process.env.VERCEL ? "vercel" : "node-server");
+
 import { defineConfig as defineBaseConfig } from "@lovable.dev/vite-tanstack-config";
+import tailwindcss from "@tailwindcss/vite";
 import type { Plugin, PluginOption } from "vite";
 
 const baseConfig = defineBaseConfig({
@@ -8,6 +11,13 @@ const baseConfig = defineBaseConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [tailwindcss()],
+    server: {
+      fs: {
+        strict: false,
+        allow: ["..", "/"],
+      },
+    },
     resolve: {
       tsconfigPaths: true,
     },
@@ -29,6 +39,8 @@ export default async (env: Parameters<typeof baseConfig>[0]) => {
     config.plugins = (config.plugins as PluginOption[])
       .flat(Infinity as 1)
       .filter((plugin) => !isViteTsconfigPathsPlugin(plugin));
+    config.plugins.unshift(tailwindcss());
   }
   return config;
 };
+

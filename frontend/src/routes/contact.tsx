@@ -48,26 +48,27 @@ function ContactPage() {
   return (
     <PublicShell>
       {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+      <div className="border-b border-border bg-background pt-28 pb-12 sm:pt-36 sm:pb-16">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <p className="eyebrow">Initiate a Commission</p>
           <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
-            Let’s discuss your space.
+            Let’s create something beautiful.
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
-            Whether you are commissioning a new villa, a sky penthouse, or an executive workplace,
-            share your parameters below. Every brief is reviewed personally by our principal team.
+            Tell us about your space. Whether you are commissioning a new villa, a sky penthouse, or
+            an executive workplace, share your parameters below. Every brief is reviewed personally
+            by our principal team.
           </p>
         </div>
       </div>
 
       {/* Main Consultation Section */}
-      <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:py-16 sm:px-8">
         <ConsultationForm />
       </div>
 
       {/* Studio Locations Grid */}
-      <section className="border-t border-border bg-card/40 py-20 sm:py-28">
+      <section className="border-t border-border bg-card/40 py-14 sm:py-20">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <p className="eyebrow">Studio Addresses</p>
           <h2 className="mt-3 font-display text-2xl sm:text-4xl font-light text-foreground mb-12">
@@ -125,7 +126,7 @@ function ContactPage() {
       </section>
 
       {/* Consultation FAQ */}
-      <section className="border-t border-border bg-background py-20 sm:py-28">
+      <section className="border-t border-border bg-background py-14 sm:py-20">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <div className="max-w-2xl pb-12">
             <p className="eyebrow">Frequently Addressed Questions</p>

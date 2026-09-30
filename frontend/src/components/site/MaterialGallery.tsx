@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { DriveImage } from "./DriveImage";
 
 export interface MaterialItem {
   id: string;
@@ -19,62 +21,62 @@ export const MATERIALS_DATA: MaterialItem[] = [
     id: "travertine",
     name: "Honed Roman Travertine",
     category: "Stone",
-    image: "/portfolio/p1.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[20]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     description:
       "Unfilled, soft-honed surface that absorbs harsh glare and records footsteps into a natural living patina.",
     provenance: "Tivoli quarries, Italy",
-    projectSlug: "shah-residence-ahmedabad",
-    projectTitle: "The Shah Residence",
+    projectSlug: "altamount-penthouse",
+    projectTitle: "The Altamount Penthouse",
   },
   {
     id: "white-oak",
     name: "Fumed European Oak",
     category: "Wood",
-    image: "/portfolio/p6.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[21]?.url || "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     description:
       "Ammonia-fumed heartwood with deep, warm taupe undertones and 2mm solid wood lippings for lifelong durability.",
     provenance: "Spessart Forest, Germany",
-    projectSlug: "koramangala-minimalist-penthouse",
-    projectTitle: "Koramangala Sky Penthouse",
+    projectSlug: "alibaug-coastal-villa",
+    projectTitle: "Alibaug Coastal Villa",
   },
   {
     id: "antique-brass",
     name: "Unlacquered Antique Brass",
     category: "Metal",
-    image: "/portfolio/hero.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[22]?.url || "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     description:
       "Hand-rubbed architectural bronze and brass that oxidizes gradually with handling, celebrating the passage of time.",
     provenance: "Bespoke Sand-Casting Foundry, Moradabad",
-    projectSlug: "shah-residence-ahmedabad",
-    projectTitle: "The Shah Residence",
+    projectSlug: "shah-villa",
+    projectTitle: "Shah Courtyard Residence",
   },
   {
     id: "lime-plaster",
     name: "Hand-Trowelled Lime Plaster",
     category: "Stone",
-    image: "/portfolio/p4.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[23]?.url || "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
     description:
       "Breathable, non-toxic mineral lime wash with undulating soft texture that dances with morning and evening daylight.",
     provenance: "Rajasthan mineral limestone slaked 24 months",
-    projectSlug: "bandra-heritage-loft",
-    projectTitle: "Bandra Heritage Apartment",
+    projectSlug: "mehta-executive-suite",
+    projectTitle: "Mehta Executive Suite",
   },
   {
     id: "fluted-glass",
     name: "Low-Iron Fluted Reeded Glass",
     category: "Glass",
-    image: "/portfolio/p7.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[24]?.url || "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz",
     description:
       "Diffuses visual clutter into soft architectural silhouettes while allowing pure, unhindered daylight to traverse rooms.",
     provenance: "Precision annealed architectural glass",
-    projectSlug: "ochre-stone-studio-workspace",
-    projectTitle: "Ochre & Stone Studio",
+    projectSlug: "altamount-penthouse",
+    projectTitle: "The Altamount Penthouse",
   },
   {
     id: "belgian-linen",
     name: "Pure Washed Belgian Linen",
     category: "Fabric",
-    image: "/portfolio/p2.jpg",
+    image: GOOGLE_DRIVE_PHOTOS[25]?.url || "https://lh3.googleusercontent.com/d/1xU2lFKRsSmMckhy3W_hGC9h8jL0jcgz5",
     description:
       "Heavyweight raw flax weave providing acoustic dampening, tactile warmth, and graceful, effortless drape.",
     provenance: "Flanders Flax Mills, Belgium",
@@ -83,9 +85,10 @@ export const MATERIALS_DATA: MaterialItem[] = [
   },
 ];
 
+
 export function MaterialGallery() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [selectedMaterial, setSelectedMaterial] = useState<MaterialItem>(MATERIALS_DATA[0]);
+  const [selectedMaterial, setSelectedMaterial] = useState<MaterialItem>(MATERIALS_DATA[0]!);
 
   const categories = ["All", "Stone", "Wood", "Metal", "Glass", "Fabric"];
 
@@ -130,11 +133,11 @@ export function MaterialGallery() {
               )}
             >
               <div className="aspect-[4/3] w-full overflow-hidden">
-                <img
+                <DriveImage
                   src={item.image}
                   alt={item.name}
-                  loading="lazy"
                   className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  wrapperClassName="size-full"
                 />
               </div>
               <div className="mt-4 flex items-start justify-between">

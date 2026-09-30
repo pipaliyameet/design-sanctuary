@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getJournalPost } from "@/lib/public.functions";
 import { PublicShell, PageHeader } from "@/components/site/PublicShell";
+import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { DriveImage } from "@/components/site/DriveImage";
 
 const postQuery = (slug: string) =>
   queryOptions({ queryKey: ["journal", slug], queryFn: () => getJournalPost({ data: { slug } }) });
@@ -56,11 +58,15 @@ function Post() {
           {post.author}
           {post.published_at ? ` · ${new Date(post.published_at).toLocaleDateString()}` : ""}
         </p>
-        <img
-          src={post.cover_image ?? "/portfolio/p2.jpg"}
-          alt={post.title}
-          className="mt-10 aspect-[16/9] w-full object-cover"
-        />
+        <div className="mt-10 aspect-[16/9] w-full overflow-hidden bg-secondary/30">
+          <DriveImage
+            src={post.cover_image || GOOGLE_DRIVE_PHOTOS[1]?.url}
+            alt={post.title}
+            className="size-full object-cover"
+            wrapperClassName="size-full"
+          />
+        </div>
+
         <div className="mt-10 space-y-6 text-base leading-relaxed text-muted-foreground">
           {(post.body ?? post.excerpt ?? "").split("\n\n").map((para, i) => (
             <p key={i}>{para}</p>

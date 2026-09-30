@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import "../styles.css";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -78,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "referrer", content: "no-referrer" },
       { title: "Atelier Vermilion — Interior Design Studio" },
       {
         name: "description",
@@ -139,4 +141,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

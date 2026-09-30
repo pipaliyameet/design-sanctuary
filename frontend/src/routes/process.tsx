@@ -26,11 +26,12 @@ export const Route = createFileRoute("/process")({
 const DETAILED_STAGES = [
   {
     step: "01",
-    title: "Discovery & Site Analysis",
+    title: "Discover & Site Analysis",
+    phase: "Phase 1: Discovery",
     timeline: "Weeks 1 – 2",
     icon: Clock,
     summary:
-      "We begin by understanding the physical site constraints and the emotional rhythm of your daily life.",
+      "We begin by understanding the physical site constraints, daylight orientation, and the daily rhythm of your life.",
     deliverables: [
       "Full 3D laser-measured site survey and dimensional audit",
       "Solar daylight & seasonal sun-path analysis",
@@ -38,101 +39,74 @@ const DETAILED_STAGES = [
       "Lifestyle briefing questionnaire & functional priority matrix",
     ],
     details:
-      "Before sketching a single layout, our team spends hours on site during morning and afternoon sun angles. We document ceiling heights, beams, masonry tolerances, and views to anchor the architectural strategy.",
+      "Before sketching a single layout, our team spends hours on site during morning and afternoon sun angles. We document ceiling heights, structural columns, masonry tolerances, and acoustic factors to anchor the architectural strategy.",
   },
   {
     step: "02",
-    title: "Consultation & Strategic Brief",
-    timeline: "Week 3",
-    icon: FileText,
+    title: "Concept & Spatial Layouts",
+    phase: "Phase 2: Concept",
+    timeline: "Weeks 3 – 5",
+    icon: CompassIcon,
     summary:
-      "Synthesizing your requirements into an actionable architectural program and investment budget band.",
+      "Circulation planning, volume articulation, and establishing the foundational material palette.",
     deliverables: [
-      "Written spatial manifesto & room-by-room requirement schedule",
-      "Feasibility study and statutory building permissions roadmap",
-      "Transparent timeline projection and milestone fee schedule",
+      "Three distinct 2D furniture and spatial flow layout schemes",
+      "Atmospheric moodboards establishing stone, timber, and metal accents",
+      "Sightline analysis and architectural focal wall identification",
+      "Written spatial manifesto & investment budget roadmap",
     ],
     details:
-      "We meet at our studio or on site to align expectations. We define which rooms demand expansive public generosity and which require intimate, acoustic sanctuary.",
+      "We explore wall adjustments, ceiling volumes, and door alignments. Once the optimal plan is finalized, we anchor the scheme in three core materials (e.g. Italian travertine, quarter-sawn oak, and patinated bronze).",
   },
   {
     step: "03",
-    title: "Concept Development & Spatial Layouts",
-    timeline: "Weeks 4 – 6",
-    icon: CompassIcon,
+    title: "Design & Technical Detailing",
+    phase: "Phase 3: Design",
+    timeline: "Weeks 6 – 10",
+    icon: Palette,
     summary:
-      "Circulation planning, volume articulation, and establishing the fundamental material palette.",
+      "Photorealistic 3D visualisations, physical sample workshops, and exhaustive construction drawings.",
     deliverables: [
-      "Three distinct 2D furniture and spatial flow layout options",
-      "Atmospheric moodboards establishing stone, wood, and metal accents",
-      "Sightline analysis and focal wall identification",
-      "Preliminary lighting temperature & mood strategies",
+      "Room-by-room photorealistic 3D visualisations",
+      "Illumination simulations (daylight vs. 2700K evening scenes)",
+      "Physical sample tray: actual marble slabs, veneer flitches, and brass swatches",
+      "Exhaustive GFC (Good For Construction) drawing set (50+ sheets)",
+      "Frozen Bill of Quantities (BOQ) with fixed vendor specifications",
     ],
     details:
-      "We explore wall removals, ceiling heights, and door placements. Once the optimal plan is chosen, we anchor the scheme in three foundational materials (e.g. travertine, oak, and antique brass).",
+      "You will see precisely how textures, shadows, and reflections behave in every room before any physical purchase orders are issued. No material is ordered from a catalog alone; we visit stone yards and flitch ateliers together.",
   },
   {
     step: "04",
-    title: "3D Visualisation & Spatial Modeling",
-    timeline: "Weeks 7 – 9",
-    icon: Palette,
+    title: "Execute & Turnkey Supervision",
+    phase: "Phase 4: Execution",
+    timeline: "Months 3 – 8 (Project Dependent)",
+    icon: Hammer,
     summary:
-      "Translating the conceptual plan into photorealistic digital models to eliminate any ambiguity.",
+      "Managing the site with uncompromising quality checkpoints, skilled joinery craftsmen, and held schedules.",
     deliverables: [
-      "Room-by-room 3D architectural visualisations",
-      "Illumination simulations (daytime natural light vs. 2700K evening scenes)",
-      "False ceiling details, cove reveals, and AC grill integrations",
-      "Joinery elevation previews with hardware finishes",
+      "Full-time on-site project supervisor and weekly principal site walks",
+      "Weekly photographic progress updates via your client portal",
+      "Stage-wise inspection checklists for waterproofing, electrical, and joinery",
+      "Vendor coordination and single-source contractor management",
     ],
     details:
-      "You will see precisely how textures, shadows, and reflections behave in every room before any physical purchase orders are issued.",
+      "Our team holds the site. We manage contractors, resolve on-site dimensional surprises, and ensure shop drawings are adhered to within millimeter tolerances, preventing budget creep or schedule slippage.",
   },
   {
     step: "05",
-    title: "Material Selection & Technical Documentation",
-    timeline: "Weeks 10 – 12",
-    icon: LayersIcon,
-    summary:
-      "Physical flat-lay workshops in our studio and generating rigorous 1:1 scale shop drawings.",
-    deliverables: [
-      "Physical sample tray: actual marble slabs, veneer flitches, and brass swatches",
-      "Exhaustive GFC (Good For Construction) drawing set (50+ sheets)",
-      "Joinery detail sections with shadow gaps, hardware, and edge banding",
-      "Sanitary, tile, and lighting fixture specification register",
-      "Frozen Bill of Quantities (BOQ) with fixed vendor quotes",
-    ],
-    details:
-      "No material is ordered from a digital catalog alone. We visit quarries and timber yards together to hand-select marble book-matches and veneer bundles.",
-  },
-  {
-    step: "06",
-    title: "Turnkey Execution & Site Supervision",
-    timeline: "Months 4 – 10 (Project Dependent)",
-    icon: Hammer,
-    summary:
-      "Managing the site with uncompromising quality checkpoints, skilled craftsmanship, and strict schedule adherence.",
-    deliverables: [
-      "Full-time on-site project supervisor and weekly principal site walks",
-      "Weekly photographic progress updates accessible via your client portal",
-      "Stage-wise inspection checklists for waterproofing, electrical, and joinery",
-      "Vendor coordination and white-glove material logistics",
-    ],
-    details:
-      "Our team holds the site. We manage contractors, resolve on-site dimensional surprises, and ensure shop drawings are adhered to within millimeter tolerances.",
-  },
-  {
-    step: "07",
-    title: "Final Snagging, Styling & Handover",
+    title: "Deliver & White-Glove Handover",
+    phase: "Phase 5: Delivery",
     timeline: "Final Month",
     icon: Key,
     summary:
-      "Meticulous snag-free verification, deep cleaning, styling, and formal presentation of your completed sanctuary.",
+      "Meticulous snag-free verification, deep cleaning, bespoke styling, and formal presentation of your completed sanctuary.",
     deliverables: [
       "Zero-snag final walkthrough inspection",
       "Comprehensive homeowner's maintenance & material care dossier",
       "Warranties, equipment manuals, and touch-up paint formulations",
       "Bespoke styling: artwork mounting, rug placement, and lighting commissioning",
-      "Scheduled 90-day post-handover review",
+      "Scheduled 90-day post-handover quality review",
     ],
     details:
       "On handover day, your home is thoroughly cleaned, conditioned, and ready to inhabit. We return 90 days later to inspect settlement and ensure total satisfaction.",
@@ -178,34 +152,33 @@ function ProcessPage() {
   return (
     <PublicShell>
       {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-32 pb-16 sm:pt-40 sm:pb-24">
+      <div className="border-b border-border bg-background pt-28 pb-12 sm:pt-36 sm:pb-16">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
           <p className="eyebrow">Methodology & Rigor</p>
           <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
             A Predictable, Transparent Architectural Journey.
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
-            Exceptional interiors do not happen by chance. Here is the exact roadmap we follow to
-            take your commission from a raw space into an enduring, quiet sanctuary.
+            Exceptional interiors do not happen by chance. Here is the exact 5-step roadmap we
+            follow to take your commission from a raw space into an enduring, quiet sanctuary.
           </p>
         </div>
       </div>
 
-      {/* 7-Stage Timeline */}
-      <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
-        <div className="space-y-16">
-          {DETAILED_STAGES.map((stage, idx) => {
-            const Icon = stage.icon;
+      {/* 5-Phase Timeline */}
+      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:py-16 sm:px-8">
+        <div className="space-y-8 sm:space-y-10">
+          {DETAILED_STAGES.map((stage) => {
             return (
               <div
                 key={stage.step}
-                className="border border-border/80 bg-background p-8 sm:p-12 transition-all duration-300 hover:border-accent"
+                className="border border-border/80 bg-background p-6 sm:p-10 transition-colors duration-300 hover:border-accent"
               >
-                <div className="grid gap-8 lg:grid-cols-12 items-start">
+                <div className="grid gap-6 lg:grid-cols-12 items-start">
                   {/* Left Column: Stage Identification */}
-                  <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
+                  <div className="lg:col-span-4 flex flex-col justify-between space-y-3">
                     <div className="flex items-baseline gap-3">
-                      <span className="font-display text-4xl sm:text-5xl font-light text-accent">
+                      <span className="font-display text-3xl sm:text-4xl font-light text-accent">
                         {stage.step}
                       </span>
                       <span className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -223,18 +196,21 @@ function ProcessPage() {
                   </div>
 
                   {/* Right Column: Narrative & Deliverables */}
-                  <div className="lg:col-span-8 lg:pl-8 lg:border-l border-border/60 space-y-6">
+                  <div className="lg:col-span-8 lg:pl-8 lg:border-l border-border/60 space-y-5">
                     <p className="text-sm sm:text-base leading-relaxed text-foreground font-light">
                       {stage.details}
                     </p>
 
-                    <div className="border-t border-border/60 pt-6">
+                    <div className="border-t border-border/60 pt-5">
                       <h3 className="text-xs uppercase tracking-wider text-foreground font-semibold mb-3">
                         Key Deliverables for this Phase:
                       </h3>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {stage.deliverables.map((item, dIdx) => (
-                          <div key={dIdx} className="flex items-start gap-2.5 text-xs text-muted-foreground">
+                          <div
+                            key={dIdx}
+                            className="flex items-start gap-2.5 text-xs text-muted-foreground"
+                          >
                             <CheckCircle2 className="size-3.5 text-accent shrink-0 mt-0.5" />
                             <span>{item}</span>
                           </div>
@@ -249,7 +225,7 @@ function ProcessPage() {
         </div>
 
         {/* Consultation Callout */}
-        <div className="mt-20 border border-border bg-card/60 p-10 sm:p-16 text-center">
+        <div className="mt-14 border border-border bg-card/40 p-8 sm:p-12 text-center">
           <p className="eyebrow">Ready to start?</p>
           <h2 className="mt-3 font-display text-3xl sm:text-4xl font-light text-foreground">
             Stage 01 Begins with a Site Walk

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as ProcessRouteImport } from './routes/process'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as JournalIndexRouteImport } from './routes/journal/index'
@@ -25,10 +26,22 @@ import { Route as AuthenticatedPortalIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStudioIndexRouteImport } from './routes/_authenticated/studio/index'
 import { Route as AuthenticatedStudioApprovalsRouteImport } from './routes/_authenticated/studio/approvals'
 import { Route as AuthenticatedStudioWeeklyRouteImport } from './routes/_authenticated/studio/weekly'
+import { Route as AuthenticatedStudioClientsIndexRouteImport } from './routes/_authenticated/studio/clients/index'
+import { Route as AuthenticatedStudioDocumentsIndexRouteImport } from './routes/_authenticated/studio/documents/index'
+import { Route as AuthenticatedStudioFinanceIndexRouteImport } from './routes/_authenticated/studio/finance/index'
 import { Route as AuthenticatedStudioLeadsIndexRouteImport } from './routes/_authenticated/studio/leads/index'
 import { Route as AuthenticatedStudioLeadsIdRouteImport } from './routes/_authenticated/studio/leads/$id'
+import { Route as AuthenticatedStudioMaterialsIndexRouteImport } from './routes/_authenticated/studio/materials/index'
+import { Route as AuthenticatedStudioMediaIndexRouteImport } from './routes/_authenticated/studio/media/index'
+import { Route as AuthenticatedStudioNotificationsIndexRouteImport } from './routes/_authenticated/studio/notifications/index'
 import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_authenticated/studio/projects/index'
 import { Route as AuthenticatedStudioProjectsIdRouteImport } from './routes/_authenticated/studio/projects/$id'
+import { Route as AuthenticatedStudioQuotationsIndexRouteImport } from './routes/_authenticated/studio/quotations/index'
+import { Route as AuthenticatedStudioReportsIndexRouteImport } from './routes/_authenticated/studio/reports/index'
+import { Route as AuthenticatedStudioSettingsIndexRouteImport } from './routes/_authenticated/studio/settings/index'
+import { Route as AuthenticatedStudioSitesIndexRouteImport } from './routes/_authenticated/studio/sites/index'
+import { Route as AuthenticatedStudioTeamIndexRouteImport } from './routes/_authenticated/studio/team/index'
+import { Route as AuthenticatedStudioWebsiteIndexRouteImport } from './routes/_authenticated/studio/website/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +65,11 @@ const AuthRoute = AuthRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProcessRoute = ProcessRouteImport.update({
@@ -113,6 +131,24 @@ const AuthenticatedStudioWeeklyRoute =
     path: '/studio/weekly',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioClientsIndexRoute =
+  AuthenticatedStudioClientsIndexRouteImport.update({
+    id: '/studio/clients/',
+    path: '/studio/clients/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioDocumentsIndexRoute =
+  AuthenticatedStudioDocumentsIndexRouteImport.update({
+    id: '/studio/documents/',
+    path: '/studio/documents/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioFinanceIndexRoute =
+  AuthenticatedStudioFinanceIndexRouteImport.update({
+    id: '/studio/finance/',
+    path: '/studio/finance/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioLeadsIndexRoute =
   AuthenticatedStudioLeadsIndexRouteImport.update({
     id: '/studio/leads/',
@@ -123,6 +159,24 @@ const AuthenticatedStudioLeadsIdRoute =
   AuthenticatedStudioLeadsIdRouteImport.update({
     id: '/studio/leads/$id',
     path: '/studio/leads/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioMaterialsIndexRoute =
+  AuthenticatedStudioMaterialsIndexRouteImport.update({
+    id: '/studio/materials/',
+    path: '/studio/materials/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioMediaIndexRoute =
+  AuthenticatedStudioMediaIndexRouteImport.update({
+    id: '/studio/media/',
+    path: '/studio/media/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioNotificationsIndexRoute =
+  AuthenticatedStudioNotificationsIndexRouteImport.update({
+    id: '/studio/notifications/',
+    path: '/studio/notifications/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudioProjectsIndexRoute =
@@ -137,12 +191,49 @@ const AuthenticatedStudioProjectsIdRoute =
     path: '/studio/projects/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioQuotationsIndexRoute =
+  AuthenticatedStudioQuotationsIndexRouteImport.update({
+    id: '/studio/quotations/',
+    path: '/studio/quotations/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioReportsIndexRoute =
+  AuthenticatedStudioReportsIndexRouteImport.update({
+    id: '/studio/reports/',
+    path: '/studio/reports/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioSettingsIndexRoute =
+  AuthenticatedStudioSettingsIndexRouteImport.update({
+    id: '/studio/settings/',
+    path: '/studio/settings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioSitesIndexRoute =
+  AuthenticatedStudioSitesIndexRouteImport.update({
+    id: '/studio/sites/',
+    path: '/studio/sites/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioTeamIndexRoute =
+  AuthenticatedStudioTeamIndexRouteImport.update({
+    id: '/studio/team/',
+    path: '/studio/team/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudioWebsiteIndexRoute =
+  AuthenticatedStudioWebsiteIndexRouteImport.update({
+    id: '/studio/website/',
+    path: '/studio/website/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/gallery': typeof GalleryRoute
   '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -156,14 +247,27 @@ export interface FileRoutesByFullPath {
   '/studio/': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
+  '/studio/clients/': typeof AuthenticatedStudioClientsIndexRoute
+  '/studio/documents/': typeof AuthenticatedStudioDocumentsIndexRoute
+  '/studio/finance/': typeof AuthenticatedStudioFinanceIndexRoute
   '/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
+  '/studio/materials/': typeof AuthenticatedStudioMaterialsIndexRoute
+  '/studio/media/': typeof AuthenticatedStudioMediaIndexRoute
+  '/studio/notifications/': typeof AuthenticatedStudioNotificationsIndexRoute
   '/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
+  '/studio/quotations/': typeof AuthenticatedStudioQuotationsIndexRoute
+  '/studio/reports/': typeof AuthenticatedStudioReportsIndexRoute
+  '/studio/settings/': typeof AuthenticatedStudioSettingsIndexRoute
+  '/studio/sites/': typeof AuthenticatedStudioSitesIndexRoute
+  '/studio/team/': typeof AuthenticatedStudioTeamIndexRoute
+  '/studio/website/': typeof AuthenticatedStudioWebsiteIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/gallery': typeof GalleryRoute
   '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -177,8 +281,20 @@ export interface FileRoutesByTo {
   '/studio': typeof AuthenticatedStudioIndexRoute
   '/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
+  '/studio/clients': typeof AuthenticatedStudioClientsIndexRoute
+  '/studio/documents': typeof AuthenticatedStudioDocumentsIndexRoute
+  '/studio/finance': typeof AuthenticatedStudioFinanceIndexRoute
   '/studio/leads': typeof AuthenticatedStudioLeadsIndexRoute
+  '/studio/materials': typeof AuthenticatedStudioMaterialsIndexRoute
+  '/studio/media': typeof AuthenticatedStudioMediaIndexRoute
+  '/studio/notifications': typeof AuthenticatedStudioNotificationsIndexRoute
   '/studio/projects': typeof AuthenticatedStudioProjectsIndexRoute
+  '/studio/quotations': typeof AuthenticatedStudioQuotationsIndexRoute
+  '/studio/reports': typeof AuthenticatedStudioReportsIndexRoute
+  '/studio/settings': typeof AuthenticatedStudioSettingsIndexRoute
+  '/studio/sites': typeof AuthenticatedStudioSitesIndexRoute
+  '/studio/team': typeof AuthenticatedStudioTeamIndexRoute
+  '/studio/website': typeof AuthenticatedStudioWebsiteIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -187,6 +303,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/gallery': typeof GalleryRoute
   '/process': typeof ProcessRoute
   '/services': typeof ServicesRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -200,8 +317,20 @@ export interface FileRoutesById {
   '/_authenticated/studio/': typeof AuthenticatedStudioIndexRoute
   '/_authenticated/studio/leads/$id': typeof AuthenticatedStudioLeadsIdRoute
   '/_authenticated/studio/projects/$id': typeof AuthenticatedStudioProjectsIdRoute
+  '/_authenticated/studio/clients/': typeof AuthenticatedStudioClientsIndexRoute
+  '/_authenticated/studio/documents/': typeof AuthenticatedStudioDocumentsIndexRoute
+  '/_authenticated/studio/finance/': typeof AuthenticatedStudioFinanceIndexRoute
   '/_authenticated/studio/leads/': typeof AuthenticatedStudioLeadsIndexRoute
+  '/_authenticated/studio/materials/': typeof AuthenticatedStudioMaterialsIndexRoute
+  '/_authenticated/studio/media/': typeof AuthenticatedStudioMediaIndexRoute
+  '/_authenticated/studio/notifications/': typeof AuthenticatedStudioNotificationsIndexRoute
   '/_authenticated/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
+  '/_authenticated/studio/quotations/': typeof AuthenticatedStudioQuotationsIndexRoute
+  '/_authenticated/studio/reports/': typeof AuthenticatedStudioReportsIndexRoute
+  '/_authenticated/studio/settings/': typeof AuthenticatedStudioSettingsIndexRoute
+  '/_authenticated/studio/sites/': typeof AuthenticatedStudioSitesIndexRoute
+  '/_authenticated/studio/team/': typeof AuthenticatedStudioTeamIndexRoute
+  '/_authenticated/studio/website/': typeof AuthenticatedStudioWebsiteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -210,6 +339,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/gallery'
     | '/process'
     | '/services'
     | '/journal/$slug'
@@ -223,14 +353,27 @@ export interface FileRouteTypes {
     | '/studio/'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
+    | '/studio/clients/'
+    | '/studio/documents/'
+    | '/studio/finance/'
     | '/studio/leads/'
+    | '/studio/materials/'
+    | '/studio/media/'
+    | '/studio/notifications/'
     | '/studio/projects/'
+    | '/studio/quotations/'
+    | '/studio/reports/'
+    | '/studio/settings/'
+    | '/studio/sites/'
+    | '/studio/team/'
+    | '/studio/website/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/auth'
     | '/contact'
+    | '/gallery'
     | '/process'
     | '/services'
     | '/journal/$slug'
@@ -244,8 +387,20 @@ export interface FileRouteTypes {
     | '/studio'
     | '/studio/leads/$id'
     | '/studio/projects/$id'
+    | '/studio/clients'
+    | '/studio/documents'
+    | '/studio/finance'
     | '/studio/leads'
+    | '/studio/materials'
+    | '/studio/media'
+    | '/studio/notifications'
     | '/studio/projects'
+    | '/studio/quotations'
+    | '/studio/reports'
+    | '/studio/settings'
+    | '/studio/sites'
+    | '/studio/team'
+    | '/studio/website'
   id:
     | '__root__'
     | '/'
@@ -253,6 +408,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/gallery'
     | '/process'
     | '/services'
     | '/journal/$slug'
@@ -266,8 +422,20 @@ export interface FileRouteTypes {
     | '/_authenticated/studio/'
     | '/_authenticated/studio/leads/$id'
     | '/_authenticated/studio/projects/$id'
+    | '/_authenticated/studio/clients/'
+    | '/_authenticated/studio/documents/'
+    | '/_authenticated/studio/finance/'
     | '/_authenticated/studio/leads/'
+    | '/_authenticated/studio/materials/'
+    | '/_authenticated/studio/media/'
+    | '/_authenticated/studio/notifications/'
     | '/_authenticated/studio/projects/'
+    | '/_authenticated/studio/quotations/'
+    | '/_authenticated/studio/reports/'
+    | '/_authenticated/studio/settings/'
+    | '/_authenticated/studio/sites/'
+    | '/_authenticated/studio/team/'
+    | '/_authenticated/studio/website/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,6 +444,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  GalleryRoute: typeof GalleryRoute
   ProcessRoute: typeof ProcessRoute
   ServicesRoute: typeof ServicesRoute
   JournalSlugRoute: typeof JournalSlugRoute
@@ -319,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/process': {
@@ -398,6 +574,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioWeeklyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/clients/': {
+      id: '/_authenticated/studio/clients/'
+      path: '/studio/clients'
+      fullPath: '/studio/clients/'
+      preLoaderRoute: typeof AuthenticatedStudioClientsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/documents/': {
+      id: '/_authenticated/studio/documents/'
+      path: '/studio/documents'
+      fullPath: '/studio/documents/'
+      preLoaderRoute: typeof AuthenticatedStudioDocumentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/finance/': {
+      id: '/_authenticated/studio/finance/'
+      path: '/studio/finance'
+      fullPath: '/studio/finance/'
+      preLoaderRoute: typeof AuthenticatedStudioFinanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio/leads/': {
       id: '/_authenticated/studio/leads/'
       path: '/studio/leads'
@@ -410,6 +607,27 @@ declare module '@tanstack/react-router' {
       path: '/studio/leads/$id'
       fullPath: '/studio/leads/$id'
       preLoaderRoute: typeof AuthenticatedStudioLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/materials/': {
+      id: '/_authenticated/studio/materials/'
+      path: '/studio/materials'
+      fullPath: '/studio/materials/'
+      preLoaderRoute: typeof AuthenticatedStudioMaterialsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/media/': {
+      id: '/_authenticated/studio/media/'
+      path: '/studio/media'
+      fullPath: '/studio/media/'
+      preLoaderRoute: typeof AuthenticatedStudioMediaIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/notifications/': {
+      id: '/_authenticated/studio/notifications/'
+      path: '/studio/notifications'
+      fullPath: '/studio/notifications/'
+      preLoaderRoute: typeof AuthenticatedStudioNotificationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio/projects/': {
@@ -426,6 +644,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioProjectsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/quotations/': {
+      id: '/_authenticated/studio/quotations/'
+      path: '/studio/quotations'
+      fullPath: '/studio/quotations/'
+      preLoaderRoute: typeof AuthenticatedStudioQuotationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/reports/': {
+      id: '/_authenticated/studio/reports/'
+      path: '/studio/reports'
+      fullPath: '/studio/reports/'
+      preLoaderRoute: typeof AuthenticatedStudioReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/settings/': {
+      id: '/_authenticated/studio/settings/'
+      path: '/studio/settings'
+      fullPath: '/studio/settings/'
+      preLoaderRoute: typeof AuthenticatedStudioSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/sites/': {
+      id: '/_authenticated/studio/sites/'
+      path: '/studio/sites'
+      fullPath: '/studio/sites/'
+      preLoaderRoute: typeof AuthenticatedStudioSitesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/team/': {
+      id: '/_authenticated/studio/team/'
+      path: '/studio/team'
+      fullPath: '/studio/team/'
+      preLoaderRoute: typeof AuthenticatedStudioTeamIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio/website/': {
+      id: '/_authenticated/studio/website/'
+      path: '/studio/website'
+      fullPath: '/studio/website/'
+      preLoaderRoute: typeof AuthenticatedStudioWebsiteIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -437,8 +697,20 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudioIndexRoute: typeof AuthenticatedStudioIndexRoute
   AuthenticatedStudioLeadsIdRoute: typeof AuthenticatedStudioLeadsIdRoute
   AuthenticatedStudioProjectsIdRoute: typeof AuthenticatedStudioProjectsIdRoute
+  AuthenticatedStudioClientsIndexRoute: typeof AuthenticatedStudioClientsIndexRoute
+  AuthenticatedStudioDocumentsIndexRoute: typeof AuthenticatedStudioDocumentsIndexRoute
+  AuthenticatedStudioFinanceIndexRoute: typeof AuthenticatedStudioFinanceIndexRoute
   AuthenticatedStudioLeadsIndexRoute: typeof AuthenticatedStudioLeadsIndexRoute
+  AuthenticatedStudioMaterialsIndexRoute: typeof AuthenticatedStudioMaterialsIndexRoute
+  AuthenticatedStudioMediaIndexRoute: typeof AuthenticatedStudioMediaIndexRoute
+  AuthenticatedStudioNotificationsIndexRoute: typeof AuthenticatedStudioNotificationsIndexRoute
   AuthenticatedStudioProjectsIndexRoute: typeof AuthenticatedStudioProjectsIndexRoute
+  AuthenticatedStudioQuotationsIndexRoute: typeof AuthenticatedStudioQuotationsIndexRoute
+  AuthenticatedStudioReportsIndexRoute: typeof AuthenticatedStudioReportsIndexRoute
+  AuthenticatedStudioSettingsIndexRoute: typeof AuthenticatedStudioSettingsIndexRoute
+  AuthenticatedStudioSitesIndexRoute: typeof AuthenticatedStudioSitesIndexRoute
+  AuthenticatedStudioTeamIndexRoute: typeof AuthenticatedStudioTeamIndexRoute
+  AuthenticatedStudioWebsiteIndexRoute: typeof AuthenticatedStudioWebsiteIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -449,8 +721,24 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudioIndexRoute: AuthenticatedStudioIndexRoute,
   AuthenticatedStudioLeadsIdRoute: AuthenticatedStudioLeadsIdRoute,
   AuthenticatedStudioProjectsIdRoute: AuthenticatedStudioProjectsIdRoute,
+  AuthenticatedStudioClientsIndexRoute: AuthenticatedStudioClientsIndexRoute,
+  AuthenticatedStudioDocumentsIndexRoute:
+    AuthenticatedStudioDocumentsIndexRoute,
+  AuthenticatedStudioFinanceIndexRoute: AuthenticatedStudioFinanceIndexRoute,
   AuthenticatedStudioLeadsIndexRoute: AuthenticatedStudioLeadsIndexRoute,
+  AuthenticatedStudioMaterialsIndexRoute:
+    AuthenticatedStudioMaterialsIndexRoute,
+  AuthenticatedStudioMediaIndexRoute: AuthenticatedStudioMediaIndexRoute,
+  AuthenticatedStudioNotificationsIndexRoute:
+    AuthenticatedStudioNotificationsIndexRoute,
   AuthenticatedStudioProjectsIndexRoute: AuthenticatedStudioProjectsIndexRoute,
+  AuthenticatedStudioQuotationsIndexRoute:
+    AuthenticatedStudioQuotationsIndexRoute,
+  AuthenticatedStudioReportsIndexRoute: AuthenticatedStudioReportsIndexRoute,
+  AuthenticatedStudioSettingsIndexRoute: AuthenticatedStudioSettingsIndexRoute,
+  AuthenticatedStudioSitesIndexRoute: AuthenticatedStudioSitesIndexRoute,
+  AuthenticatedStudioTeamIndexRoute: AuthenticatedStudioTeamIndexRoute,
+  AuthenticatedStudioWebsiteIndexRoute: AuthenticatedStudioWebsiteIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -462,6 +750,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  GalleryRoute: GalleryRoute,
   ProcessRoute: ProcessRoute,
   ServicesRoute: ServicesRoute,
   JournalSlugRoute: JournalSlugRoute,

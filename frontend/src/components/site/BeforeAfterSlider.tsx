@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { MoveHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DriveImage } from "./DriveImage";
 
 interface BeforeAfterSliderProps {
   beforeUrl: string;
@@ -77,11 +78,11 @@ export function BeforeAfterSlider({
         )}
       >
         {/* After Image (Background) */}
-        <img
+        <DriveImage
           src={afterUrl}
           alt={afterLabel}
-          loading="lazy"
           className="absolute inset-0 size-full object-cover pointer-events-none"
+          wrapperClassName="absolute inset-0 size-full pointer-events-none"
         />
 
         {/* Before Image (Foreground with Clip) */}
@@ -89,11 +90,11 @@ export function BeforeAfterSlider({
           className="absolute inset-0 size-full overflow-hidden pointer-events-none"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
         >
-          <img
+          <DriveImage
             src={beforeUrl}
             alt={beforeLabel}
-            loading="lazy"
             className="absolute inset-0 size-full object-cover filter contrast-[0.95]"
+            wrapperClassName="absolute inset-0 size-full pointer-events-none"
           />
         </div>
 
