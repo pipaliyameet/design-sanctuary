@@ -147,3 +147,12 @@ const mergedConfig = {
 fs.writeFileSync(configPath, JSON.stringify(mergedConfig, null, 2), 'utf-8');
 console.log(`Updated ${configPath} successfully!`);
 
+// 4. Synchronize complete static build to root dist/ directory
+const rootDist = path.join(rootDir, 'dist');
+if (!fs.existsSync(rootDist)) {
+  fs.mkdirSync(rootDist, { recursive: true });
+}
+copyFolderRecursiveSync(staticDest, rootDist);
+console.log('Synchronized complete static build to root dist/ successfully!');
+
+
