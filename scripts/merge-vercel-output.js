@@ -60,6 +60,51 @@ if (fs.existsSync(staticSrc)) {
   copyFolderRecursiveSync(staticSrc, staticDest);
 }
 
+// 3. Generate static index.html & 404.html fallbacks to guarantee no directory listing
+const assetsDir = path.join(staticDest, 'assets');
+let mainCss = '';
+let mainJs = '';
+
+if (fs.existsSync(assetsDir)) {
+  const assetFiles = fs.readdirSync(assetsDir);
+  const cssFile = assetFiles.find(f => f.startsWith('styles-') && f.endsWith('.css'));
+  const jsFile = assetFiles.find(f => f.startsWith('index-') && f.endsWith('.js'));
+  if (cssFile) mainCss = `/assets/${cssFile}`;
+  if (jsFile) mainJs = `/assets/${jsFile}`;
+}
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atelier Vermilion — Interior Design Studio</title>
+    <meta name="description" content="Interior design studio detailing residences, villas and hospitality spaces around daylight, stone and quiet craft." />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..400&family=Archivo:wght@300;400;500;600&display=swap" />
+    ${mainCss ? `<link rel="stylesheet" href="${mainCss}" />` : ''}
+  </head>
+  <body class="bg-[#0c0a09] text-[#f5f5f4] antialiased min-h-screen">
+    <div id="root"></div>
+    ${mainJs ? `<script type="module" src="${mainJs}"></script>` : ''}
+  </body>
+</html>`;
+
+if (!fs.existsSync(staticDest)) {
+  fs.mkdirSync(staticDest, { recursive: true });
+}
+fs.writeFileSync(path.join(staticDest, 'index.html'), htmlContent, 'utf-8');
+fs.writeFileSync(path.join(staticDest, '404.html'), htmlContent, 'utf-8');
+console.log('Created static index.html and 404.html in .vercel/output/static');
+
+const frontendPublicDir = path.join(rootDir, 'frontend', 'public');
+if (fs.existsSync(frontendPublicDir)) {
+  fs.writeFileSync(path.join(frontendPublicDir, 'index.html'), htmlContent, 'utf-8');
+}
+
+
 // 3. Write merged config.json
 const configPath = path.join(rootVercelOutput, 'config.json');
 const mergedConfig = {
