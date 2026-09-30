@@ -4,10 +4,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "npx vite dev",
-    "build": "npx vite build",
-    "build:dev": "npx vite build --mode development",
-    "preview": "npx vite preview",
+    "dev": "vite dev",
+    "build": "NITRO_PRESET=vercel vite build",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
     "lint": "npx eslint .",
     "check": "npx tsc --noEmit",
     "format": "npx prettier --write ."
