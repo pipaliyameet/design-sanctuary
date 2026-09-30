@@ -35,6 +35,19 @@ const serverFuncDest = path.join(rootVercelOutput, 'functions', '__server.func')
 if (fs.existsSync(serverFuncSrc)) {
   console.log(`Copying ${serverFuncSrc} -> ${serverFuncDest}`);
   copyFolderRecursiveSync(serverFuncSrc, serverFuncDest);
+  
+  // Patch .vc-config.json to nodejs22.x
+  const vcConfigFile = path.join(serverFuncDest, '.vc-config.json');
+  if (fs.existsSync(vcConfigFile)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(vcConfigFile, 'utf-8'));
+      parsed.runtime = 'nodejs22.x';
+      fs.writeFileSync(vcConfigFile, JSON.stringify(parsed, null, 2), 'utf-8');
+      console.log('Successfully patched __server.func runtime to nodejs22.x');
+    } catch (e) {
+      console.warn('Could not patch .vc-config.json:', e);
+    }
+  }
 } else {
   console.warn(`Warning: ${serverFuncSrc} does not exist`);
 }
@@ -62,8 +75,12 @@ const mergedConfig = {
       handle: "filesystem"
     },
     {
-      src: "^/api(/.*)?$",
-      dest: "/api"
+      src: "^/api/(.*)$",
+      dest: "/api/index"
+    },
+    {
+      src: "^/api$",
+      dest: "/api/index"
     },
     {
       src: "^/(.*)$",
@@ -79,3 +96,4 @@ const mergedConfig = {
 
 fs.writeFileSync(configPath, JSON.stringify(mergedConfig, null, 2), 'utf-8');
 console.log(`Updated ${configPath} successfully!`);
+
