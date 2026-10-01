@@ -5,10 +5,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /** Every function here runs as the signed-in user, so RLS decides visibility.
  *  Staff policies (is_staff) already restrict these tables to studio members. */
 
-async function assertStaff(supabase: {
-  rpc: (fn: "is_staff", args: { _user_id: string }) => Promise<{ data: boolean | null }>;
-}, userId: string) {
-  const { data } = await supabase.rpc("is_staff", { _user_id: userId });
+async function assertStaff(supabase: unknown, userId: string) {
+  const client = supabase as {
+    rpc: (fn: "is_staff", args: { _user_id: string }) => PromiseLike<{ data: boolean | null }>;
+  };
+  const { data } = await client.rpc("is_staff", { _user_id: userId });
   if (!data) throw new Error("Studio access only.");
   return true;
 }
@@ -215,7 +216,7 @@ export const updateLead = createServerFn({ method: "POST" })
     const { id, ...patch } = data;
     const { error } = await supabase
       .from("leads")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .update({ ...patch, updated_at: new Date().toISOString() } as never)
       .eq("id", id);
     if (error) throw new Error(error.message);
     await logActivity(
@@ -333,6 +334,8 @@ export const createFollowUpTask = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
     const { error } = await supabase.from("tasks").insert({
+      // project_id is optional for lead follow-ups
+      ...({} as Record<string, never>),
       title: data.title,
       description: data.description ?? null,
       due_date: data.due_date,
@@ -342,7 +345,7 @@ export const createFollowUpTask = createServerFn({ method: "POST" })
       status: "todo",
       project_id: data.project_id ?? null,
       room_id: data.room_id ?? null,
-    });
+    } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -476,7 +479,7 @@ export const updateTask = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
     const { id, ...patch } = data;
-    const { error } = await supabase.from("tasks").update(patch).eq("id", id);
+    const { error } = await supabase.from("tasks").update(patch as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -498,7 +501,7 @@ export const updateProjectStage = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertStaff(supabase, userId);
     const { id, ...patch } = data;
-    const { error } = await supabase.from("projects").update(patch).eq("id", id);
+    const { error } = await supabase.from("projects").update(patch as never).eq("id", id);
     if (error) throw new Error(error.message);
     await logActivity(supabase, userId, "project", id, "project_updated", patch.stage ? `Stage set to ${patch.stage}` : `Progress set to ${patch.progress}%`, id);
     return { ok: true };

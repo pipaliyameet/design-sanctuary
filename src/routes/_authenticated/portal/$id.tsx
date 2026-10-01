@@ -294,7 +294,7 @@ function PortalProject() {
                                     decide.mutate({
                                       id: a.id,
                                       decision: "approved",
-                                      comment: notes[a.id]?.trim() || undefined,
+                                      ...(notes[a.id]?.trim() ? { comment: notes[a.id]!.trim() } : {}),
                                     })
                                   }
                                 >
