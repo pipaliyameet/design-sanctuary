@@ -8,6 +8,7 @@ import {
   Grid3X3,
   LayoutGrid,
   Columns,
+  Rows,
   Maximize2,
   ChevronLeft,
   ChevronRight,
@@ -26,6 +27,7 @@ import {
   GOOGLE_DRIVE_PHOTOS,
   getPaginatedGoogleDrivePhotos,
   getPublicGalleryPhotos,
+  groupPhotosIntoOrientationRows,
   PUBLIC_DRIVE_FOLDER_URL,
   type GoogleDrivePhoto,
   PHOTO_CATEGORIES,
@@ -50,27 +52,28 @@ export const Route = createFileRoute("/gallery")({
   }),
 });
 
-type LayoutMode = "masonry" | "grid" | "cinematic";
+type LayoutMode = "harmonized" | "masonry" | "grid" | "cinematic";
 
 function GalleryPage() {
   const [category, setCategory] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("All");
+  const [selectedOrientation, setSelectedOrientation] = useState<"all" | "landscape" | "portrait">("all");
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(12);
   const [sortBy, setSortBy] = useState<"default" | "newest" | "title" | "project">("default");
-  const [layout, setLayout] = useState<LayoutMode>("masonry");
+  const [layout, setLayout] = useState<LayoutMode>("harmonized");
   const [lightboxPhoto, setLightboxPhoto] = useState<GoogleDrivePhoto | null>(null);
 
   // Reset to page 1 whenever filter changes
   useEffect(() => {
     setPage(1);
-  }, [category, selectedTag, search, limit, sortBy]);
+  }, [category, selectedTag, selectedOrientation, search, limit, sortBy]);
 
   // Server data fetching
   const { data: serverGallery } = useQuery({
-    queryKey: ["public-gallery", { category, tag: selectedTag, search, page, limit, sortBy }],
-    queryFn: () => getPublicGalleryPhotos({ category, tag: selectedTag, search, page, limit, sortBy }),
+    queryKey: ["public-gallery", { category, tag: selectedTag, orientation: selectedOrientation, search, page, limit, sortBy }],
+    queryFn: () => getPublicGalleryPhotos({ category, tag: selectedTag, orientation: selectedOrientation, search, page, limit, sortBy }),
     staleTime: 60_000,
   });
 
@@ -82,12 +85,18 @@ function GalleryPage() {
     return getPaginatedGoogleDrivePhotos({
       category,
       tag: selectedTag,
+      orientation: selectedOrientation,
       search,
       page,
       limit,
       sortBy,
     });
-  }, [serverGallery, category, selectedTag, search, page, limit, sortBy]);
+  }, [serverGallery, category, selectedTag, selectedOrientation, search, page, limit, sortBy]);
+
+  // Group photos into orientation-harmonized rows (Landscape row has only landscapes, Portrait row has only portraits)
+  const orientationRows = useMemo(() => {
+    return groupPhotosIntoOrientationRows(paginated.items, 2, 3);
+  }, [paginated.items]);
 
   // Lightbox keyboard navigation
   useEffect(() => {
@@ -148,7 +157,7 @@ function GalleryPage() {
               </h1>
               <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed font-light">
                 High-resolution documentation of bespoke residential and commercial commissions.
-                Filter room by room, inspect materials, and view full-scale architectural photographs.
+                Organized with orientation-harmonized compositions, material inspection, and full-scale architectural photography.
               </p>
             </div>
 
@@ -190,13 +199,13 @@ function GalleryPage() {
           </div>
         </div>
 
-        {/* Toolbar: Search, Layout Switcher, Sort & Per-Page Controls */}
+        {/* Toolbar: Search, Format Filter, Tag, Layout Switcher, Sort & Per-Page Controls */}
         <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-6">
           {/* Search Box */}
-          <div className="relative w-full lg:w-96">
+          <div className="relative w-full lg:w-80">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search by room, travertine, oak, project, city..."
+              placeholder="Search room, stone, teak, city..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 h-10 text-xs bg-card/50"
@@ -211,15 +220,29 @@ function GalleryPage() {
             )}
           </div>
 
-          {/* Right Controls: Tag Filter, Sort, Layout & Items Per Page */}
+          {/* Right Controls: Orientation, Tag, Sort, Layout & Items Per Page */}
           <div className="flex flex-wrap items-center gap-3">
+            {/* Format / Orientation Filter */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground hidden sm:inline">Format:</span>
+              <select
+                value={selectedOrientation}
+                onChange={(e) => setSelectedOrientation(e.target.value as any)}
+                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent"
+              >
+                <option value="all">All Formats</option>
+                <option value="landscape">Landscape (Horizontal)</option>
+                <option value="portrait">Portrait (Vertical)</option>
+              </select>
+            </div>
+
             {/* Tag Filter */}
             <div className="flex items-center gap-2 text-xs">
               <span className="text-muted-foreground hidden sm:inline">Tag:</span>
               <select
                 value={selectedTag}
                 onChange={(e) => setSelectedTag(e.target.value)}
-                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent"
+                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent max-w-[130px]"
               >
                 {paginated.allTags.map((t) => (
                   <option key={t} value={t}>
@@ -262,8 +285,18 @@ function GalleryPage() {
             {/* Layout Switcher */}
             <div className="hidden sm:flex items-center rounded border border-border bg-card p-0.5">
               <button
+                onClick={() => setLayout("harmonized")}
+                title="Orientation Harmonized Rows"
+                className={cn(
+                  "p-1.5 rounded transition-colors",
+                  layout === "harmonized" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Rows className="size-3.5" />
+              </button>
+              <button
                 onClick={() => setLayout("masonry")}
-                title="Masonry Layout"
+                title="Waterfall Masonry"
                 className={cn(
                   "p-1.5 rounded transition-colors",
                   layout === "masonry" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
@@ -273,7 +306,7 @@ function GalleryPage() {
               </button>
               <button
                 onClick={() => setLayout("grid")}
-                title="Grid Layout"
+                title="Structured Grid"
                 className={cn(
                   "p-1.5 rounded transition-colors",
                   layout === "grid" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
@@ -319,7 +352,52 @@ function GalleryPage() {
         {/* PHOTO GALLERY CONTENT */}
         {paginated.items.length > 0 ? (
           <div className="mt-8">
-            {/* Masonry Layout: Natural Proportions waterfall */}
+            {/* 1. Harmonized Mode: Rows with 100% same orientation photos */}
+            {layout === "harmonized" && (
+              <div className="space-y-10">
+                {orientationRows.map((row) => (
+                  <div key={row.id} className="space-y-3">
+                    {/* Row Orientation Tag */}
+                    <div className="flex items-center gap-2 text-[10px] uppercase font-mono tracking-wider text-muted-foreground">
+                      <span className="h-px w-5 bg-border" />
+                      <span>
+                        {row.orientation === "landscape"
+                          ? `Horizontal Perspective (${row.items.length} Compositions)`
+                          : `Vertical Joinery & Volume (${row.items.length} Compositions)`}
+                      </span>
+                      <span className="h-px flex-1 bg-border/40" />
+                    </div>
+
+                    {/* Photos in Row */}
+                    <div
+                      className={cn(
+                        "grid gap-6 items-stretch",
+                        row.orientation === "landscape"
+                          ? row.items.length === 1
+                            ? "grid-cols-1 md:grid-cols-2"
+                            : "grid-cols-1 md:grid-cols-2"
+                          : row.items.length === 1
+                          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                          : row.items.length === 2
+                          ? "grid-cols-1 sm:grid-cols-2"
+                          : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                      )}
+                    >
+                      {row.items.map((photo) => (
+                        <PhotoCardItem
+                          key={photo.id}
+                          photo={photo}
+                          aspectRatio={row.orientation === "landscape" ? "aspect-[16/10]" : "aspect-[3/4]"}
+                          onOpenLightbox={() => setLightboxPhoto(photo)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 2. Masonry Layout: Natural Proportions waterfall */}
             {layout === "masonry" && (
               <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
                 {paginated.items.map((photo) => (
@@ -332,7 +410,7 @@ function GalleryPage() {
               </div>
             )}
 
-            {/* Grid Layout: Structured Aspect Matrix */}
+            {/* 3. Grid Layout: Structured Aspect Matrix */}
             {layout === "grid" && (
               <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {paginated.items.map((photo) => (
@@ -346,7 +424,7 @@ function GalleryPage() {
               </div>
             )}
 
-            {/* Cinematic Layout: Wide Architectural Format */}
+            {/* 4. Cinematic Layout: Wide Architectural Format */}
             {layout === "cinematic" && (
               <div className="grid gap-8 md:grid-cols-2">
                 {paginated.items.map((photo) => (
@@ -371,6 +449,7 @@ function GalleryPage() {
               onClick={() => {
                 setCategory("All");
                 setSelectedTag("All");
+                setSelectedOrientation("all");
                 setSearch("");
               }}
               className="mt-6 rounded border border-foreground/30 px-5 py-2 text-xs uppercase tracking-widest text-foreground hover:bg-foreground hover:text-background transition-colors"

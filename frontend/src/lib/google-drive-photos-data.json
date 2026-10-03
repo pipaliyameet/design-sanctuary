@@ -3,7 +3,7 @@
     "id": "1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     "index": 1,
     "fileName": "IMG-20260925-WA0012.jpg",
-    "title": "Formal Living Salon \u2014 The Altamount Penthouse (View 1)",
+    "title": "Formal Living Salon — The Altamount Penthouse (View 1)",
     "caption": "Honed silver travertine hearth with bespoke smoked oak wall paneling and low-slung linen seating.",
     "category": "Living & Salon",
     "projectId": "altamount-penthouse",
@@ -22,13 +22,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     "index": 2,
     "fileName": "IMG-20260925-WA0013.jpg",
-    "title": "Master Bedroom Retreat \u2014 Alibaug Coastal Villa (View 2)",
+    "title": "Master Bedroom Retreat — Alibaug Coastal Villa (View 2)",
     "caption": "Curved acoustic micro-cement headboard niche with concealed 2700K ambient illumination and linen draping.",
     "category": "Master Bedroom & Suites",
     "projectId": "alibaug-coastal-villa",
@@ -47,13 +51,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     "index": 3,
     "fileName": "IMG-20260925-WA0014.jpg",
-    "title": "Dining Pavilion & Bar Credenza \u2014 Shah Courtyard Residence (View 3)",
+    "title": "Dining Pavilion & Bar Credenza — Shah Courtyard Residence (View 3)",
     "caption": "Monolithic quartzite dining island paired with custom patinated bronze pendant and fluted teak cabinetry.",
     "category": "Dining & Show Kitchen",
     "projectId": "shah-villa",
@@ -72,13 +80,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
     "index": 4,
     "fileName": "IMG-20260925-WA0016.jpg",
-    "title": "Double-Height Travertine Foyer \u2014 Mehta Executive Sanctuary (View 4)",
+    "title": "Double-Height Travertine Foyer — Mehta Executive Sanctuary (View 4)",
     "caption": "Architectural entrance gallery featuring vein-matched Roman travertine portals and custom cast brass pull handles.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "mehta-executive-suite",
@@ -97,13 +109,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz",
     "index": 5,
     "fileName": "IMG-20260925-WA0017.jpg",
-    "title": "Courtyard Balcony & Water Feature \u2014 The Oberoi Sea-Facing Duplex (View 5)",
+    "title": "Courtyard Balcony & Water Feature — The Oberoi Sea-Facing Duplex (View 5)",
     "caption": "Cantilevered balcony overlooking reflecting pool with weathered teak decking and lush tropical greenery.",
     "category": "Courtyard & Terraces",
     "projectId": "oberoi-penthouse",
@@ -122,13 +138,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1xU2lFKRsSmMckhy3W_hGC9h8jL0jcgz5",
     "index": 6,
     "fileName": "IMG-20260925-WA0018.jpg",
-    "title": "Marble Ensuite & Soaking Tub \u2014 Kothari Pavilions (View 1)",
+    "title": "Marble Ensuite & Soaking Tub — Kothari Pavilions (View 1)",
     "caption": "Floor-to-ceiling bookmatched Grigio Carnico marble bath sanctuary with concealed thermostatic brass fittings.",
     "category": "Bath & Spa Sanctuary",
     "projectId": "kothari-haven",
@@ -147,13 +167,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1EMJLrcUNSG1DG65uQMG-jS77UcfIpV23",
     "index": 7,
     "fileName": "IMG-20260925-WA0019.jpg",
-    "title": "Bespoke Millwork & Library Niche \u2014 The Altamount Penthouse (View 2)",
+    "title": "Bespoke Millwork & Library Niche — The Altamount Penthouse (View 2)",
     "caption": "Floor-to-ceiling fumed oak bookshelves with integrated magnetic architectural track lighting.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "altamount-penthouse",
@@ -172,13 +196,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
     "index": 8,
     "fileName": "IMG-20260925-WA0020.jpg",
-    "title": "Private Lounge & Evening Salon \u2014 Alibaug Coastal Villa (View 3)",
+    "title": "Private Lounge & Evening Salon — Alibaug Coastal Villa (View 3)",
     "caption": "Intimate lounge with textured lime plaster walls, boucle armchairs, and concealed architectural bar credenza.",
     "category": "Living & Salon",
     "projectId": "alibaug-coastal-villa",
@@ -197,13 +225,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "10nP_gXYEBs66BpfredfrBQdldkynOdJ9",
     "index": 9,
     "fileName": "IMG-20260925-WA0021.jpg",
-    "title": "Culinary Studio & Breakfast Bar \u2014 Shah Courtyard Residence (View 4)",
+    "title": "Culinary Studio & Breakfast Bar — Shah Courtyard Residence (View 4)",
     "caption": "Minimalist kitchen island with seamless fluted oak fronts and integrated induction cooktop.",
     "category": "Dining & Show Kitchen",
     "projectId": "shah-villa",
@@ -222,13 +254,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "12uXjDNKMiHQbafv1nNlieoXbkuH4uUtG",
     "index": 10,
     "fileName": "IMG-20260925-WA0022.jpg",
-    "title": "Private Study & Collector Alcove \u2014 Mehta Executive Sanctuary (View 5)",
+    "title": "Private Study & Collector Alcove — Mehta Executive Sanctuary (View 5)",
     "caption": "Quiet workspace with custom walnut cantilevered desk and bespoke linen acoustic partitions.",
     "category": "Living & Salon",
     "projectId": "mehta-executive-suite",
@@ -247,13 +283,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1rd1eUwEnOsj4rWR5J5Hf6uCrX5FhTMQQ",
     "index": 11,
     "fileName": "IMG-20260925-WA0023.jpg",
-    "title": "Formal Living Salon \u2014 The Oberoi Sea-Facing Duplex (View 1)",
+    "title": "Formal Living Salon — The Oberoi Sea-Facing Duplex (View 1)",
     "caption": "Honed silver travertine hearth with bespoke smoked oak wall paneling and low-slung linen seating.",
     "category": "Living & Salon",
     "projectId": "oberoi-penthouse",
@@ -272,13 +312,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1PdTvbUCszjzM57uHSEBnQzzzlrsUvknj",
     "index": 12,
     "fileName": "IMG-20260925-WA0024.jpg",
-    "title": "Master Bedroom Retreat \u2014 Kothari Pavilions (View 2)",
+    "title": "Master Bedroom Retreat — Kothari Pavilions (View 2)",
     "caption": "Curved acoustic micro-cement headboard niche with concealed 2700K ambient illumination and linen draping.",
     "category": "Master Bedroom & Suites",
     "projectId": "kothari-haven",
@@ -297,13 +341,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1PnXMNXdSjwQAtWFBlAytAd4Z49DgRN_G",
     "index": 13,
     "fileName": "IMG-20260925-WA0025.jpg",
-    "title": "Dining Pavilion & Bar Credenza \u2014 The Altamount Penthouse (View 3)",
+    "title": "Dining Pavilion & Bar Credenza — The Altamount Penthouse (View 3)",
     "caption": "Monolithic quartzite dining island paired with custom patinated bronze pendant and fluted teak cabinetry.",
     "category": "Dining & Show Kitchen",
     "projectId": "altamount-penthouse",
@@ -322,13 +370,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1gico1DxE6E86rbkWWD-tRhmm3oW3EB-m",
     "index": 14,
     "fileName": "IMG-20260925-WA0026.jpg",
-    "title": "Double-Height Travertine Foyer \u2014 Alibaug Coastal Villa (View 4)",
+    "title": "Double-Height Travertine Foyer — Alibaug Coastal Villa (View 4)",
     "caption": "Architectural entrance gallery featuring vein-matched Roman travertine portals and custom cast brass pull handles.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "alibaug-coastal-villa",
@@ -347,13 +399,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "12YsoUaKcH_-JWcT0UfH0nfgQbksqrYUN",
     "index": 15,
     "fileName": "IMG-20260925-WA0027.jpg",
-    "title": "Courtyard Balcony & Water Feature \u2014 Shah Courtyard Residence (View 5)",
+    "title": "Courtyard Balcony & Water Feature — Shah Courtyard Residence (View 5)",
     "caption": "Cantilevered balcony overlooking reflecting pool with weathered teak decking and lush tropical greenery.",
     "category": "Courtyard & Terraces",
     "projectId": "shah-villa",
@@ -372,13 +428,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "16T2338T2eCSomTPnKV-etsGQ4GiNT8IU",
     "index": 16,
     "fileName": "IMG-20260925-WA0028.jpg",
-    "title": "Marble Ensuite & Soaking Tub \u2014 Mehta Executive Sanctuary (View 1)",
+    "title": "Marble Ensuite & Soaking Tub — Mehta Executive Sanctuary (View 1)",
     "caption": "Floor-to-ceiling bookmatched Grigio Carnico marble bath sanctuary with concealed thermostatic brass fittings.",
     "category": "Bath & Spa Sanctuary",
     "projectId": "mehta-executive-suite",
@@ -397,13 +457,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1u-bKPfr9L2An6PCsePAesGhYuVutNMFR",
     "index": 17,
     "fileName": "IMG-20260925-WA0029.jpg",
-    "title": "Bespoke Millwork & Library Niche \u2014 The Oberoi Sea-Facing Duplex (View 2)",
+    "title": "Bespoke Millwork & Library Niche — The Oberoi Sea-Facing Duplex (View 2)",
     "caption": "Floor-to-ceiling fumed oak bookshelves with integrated magnetic architectural track lighting.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "oberoi-penthouse",
@@ -422,13 +486,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1qfgSo5t8_igBBGjoZE-K0DARG6E9qRNu",
     "index": 18,
     "fileName": "IMG-20260925-WA0030.jpg",
-    "title": "Private Lounge & Evening Salon \u2014 Kothari Pavilions (View 3)",
+    "title": "Private Lounge & Evening Salon — Kothari Pavilions (View 3)",
     "caption": "Intimate lounge with textured lime plaster walls, boucle armchairs, and concealed architectural bar credenza.",
     "category": "Living & Salon",
     "projectId": "kothari-haven",
@@ -447,13 +515,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1ihQ3YjteLcb7J7yGPDwR6MWsjeziTvU6",
     "index": 19,
     "fileName": "IMG-20260925-WA0031.jpg",
-    "title": "Culinary Studio & Breakfast Bar \u2014 The Altamount Penthouse (View 4)",
+    "title": "Culinary Studio & Breakfast Bar — The Altamount Penthouse (View 4)",
     "caption": "Minimalist kitchen island with seamless fluted oak fronts and integrated induction cooktop.",
     "category": "Dining & Show Kitchen",
     "projectId": "altamount-penthouse",
@@ -472,13 +544,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "13Np7ydDvDLcSMU6ohvPHjTMo6kg47RE-",
     "index": 20,
     "fileName": "IMG-20260925-WA0032.jpg",
-    "title": "Private Study & Collector Alcove \u2014 Alibaug Coastal Villa (View 5)",
+    "title": "Private Study & Collector Alcove — Alibaug Coastal Villa (View 5)",
     "caption": "Quiet workspace with custom walnut cantilevered desk and bespoke linen acoustic partitions.",
     "category": "Living & Salon",
     "projectId": "alibaug-coastal-villa",
@@ -497,13 +573,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1UNtmTkQxW0vxEKvv7_POkseU7576wxPR",
     "index": 21,
     "fileName": "IMG-20260925-WA0033.jpg",
-    "title": "Formal Living Salon \u2014 Shah Courtyard Residence (View 1)",
+    "title": "Formal Living Salon — Shah Courtyard Residence (View 1)",
     "caption": "Honed silver travertine hearth with bespoke smoked oak wall paneling and low-slung linen seating.",
     "category": "Living & Salon",
     "projectId": "shah-villa",
@@ -522,13 +602,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1VXY00jcsOzQyxcdQq9g0Uubc7DwmmaPN",
     "index": 22,
     "fileName": "IMG-20260925-WA0034.jpg",
-    "title": "Master Bedroom Retreat \u2014 Mehta Executive Sanctuary (View 2)",
+    "title": "Master Bedroom Retreat — Mehta Executive Sanctuary (View 2)",
     "caption": "Curved acoustic micro-cement headboard niche with concealed 2700K ambient illumination and linen draping.",
     "category": "Master Bedroom & Suites",
     "projectId": "mehta-executive-suite",
@@ -547,13 +631,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1lR9CjqpuCkuV2ietp3LOplngUozxQl_R",
     "index": 23,
     "fileName": "IMG-20260925-WA0035.jpg",
-    "title": "Dining Pavilion & Bar Credenza \u2014 The Oberoi Sea-Facing Duplex (View 3)",
+    "title": "Dining Pavilion & Bar Credenza — The Oberoi Sea-Facing Duplex (View 3)",
     "caption": "Monolithic quartzite dining island paired with custom patinated bronze pendant and fluted teak cabinetry.",
     "category": "Dining & Show Kitchen",
     "projectId": "oberoi-penthouse",
@@ -572,13 +660,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1YhMC1rcK8CG5IIoGohUveL6D4UZzh17f",
     "index": 24,
     "fileName": "IMG-20260925-WA0036.jpg",
-    "title": "Double-Height Travertine Foyer \u2014 Kothari Pavilions (View 4)",
+    "title": "Double-Height Travertine Foyer — Kothari Pavilions (View 4)",
     "caption": "Architectural entrance gallery featuring vein-matched Roman travertine portals and custom cast brass pull handles.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "kothari-haven",
@@ -597,13 +689,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1WlZWIijCvscNb2y2on11lpgZo4sFcmky",
     "index": 25,
     "fileName": "IMG-20260925-WA0037.jpg",
-    "title": "Courtyard Balcony & Water Feature \u2014 The Altamount Penthouse (View 5)",
+    "title": "Courtyard Balcony & Water Feature — The Altamount Penthouse (View 5)",
     "caption": "Cantilevered balcony overlooking reflecting pool with weathered teak decking and lush tropical greenery.",
     "category": "Courtyard & Terraces",
     "projectId": "altamount-penthouse",
@@ -622,13 +718,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1gj2tDFZW_P70-G8baesKe3l4Ws6wF82S",
     "index": 26,
     "fileName": "IMG-20260925-WA0038.jpg",
-    "title": "Marble Ensuite & Soaking Tub \u2014 Alibaug Coastal Villa (View 1)",
+    "title": "Marble Ensuite & Soaking Tub — Alibaug Coastal Villa (View 1)",
     "caption": "Floor-to-ceiling bookmatched Grigio Carnico marble bath sanctuary with concealed thermostatic brass fittings.",
     "category": "Bath & Spa Sanctuary",
     "projectId": "alibaug-coastal-villa",
@@ -647,13 +747,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1QzIpjByYiOtrSlgB_1AleLM0N0P6qvNZ",
     "index": 27,
     "fileName": "IMG-20260925-WA0039.jpg",
-    "title": "Bespoke Millwork & Library Niche \u2014 Shah Courtyard Residence (View 2)",
+    "title": "Bespoke Millwork & Library Niche — Shah Courtyard Residence (View 2)",
     "caption": "Floor-to-ceiling fumed oak bookshelves with integrated magnetic architectural track lighting.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "shah-villa",
@@ -672,13 +776,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1_8bYff9kkOygGmxBRQ-Ps7FPcQQzHmxH",
     "index": 28,
     "fileName": "IMG-20260925-WA0040.jpg",
-    "title": "Private Lounge & Evening Salon \u2014 Mehta Executive Sanctuary (View 3)",
+    "title": "Private Lounge & Evening Salon — Mehta Executive Sanctuary (View 3)",
     "caption": "Intimate lounge with textured lime plaster walls, boucle armchairs, and concealed architectural bar credenza.",
     "category": "Living & Salon",
     "projectId": "mehta-executive-suite",
@@ -697,13 +805,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1viEyqE-mrPVHqHRFKNRog3xdo4qzQHKv",
     "index": 29,
     "fileName": "IMG-20260925-WA0041.jpg",
-    "title": "Culinary Studio & Breakfast Bar \u2014 The Oberoi Sea-Facing Duplex (View 4)",
+    "title": "Culinary Studio & Breakfast Bar — The Oberoi Sea-Facing Duplex (View 4)",
     "caption": "Minimalist kitchen island with seamless fluted oak fronts and integrated induction cooktop.",
     "category": "Dining & Show Kitchen",
     "projectId": "oberoi-penthouse",
@@ -722,13 +834,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1KiFHyBesXFXnTwZzXbOG3q0p-TcqLmhk",
     "index": 30,
     "fileName": "IMG-20260925-WA0042.jpg",
-    "title": "Private Study & Collector Alcove \u2014 Kothari Pavilions (View 5)",
+    "title": "Private Study & Collector Alcove — Kothari Pavilions (View 5)",
     "caption": "Quiet workspace with custom walnut cantilevered desk and bespoke linen acoustic partitions.",
     "category": "Living & Salon",
     "projectId": "kothari-haven",
@@ -747,13 +863,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1UKMPunwayrL_gRUuMUdvv-ktRBmKJRLU",
     "index": 31,
     "fileName": "IMG-20260925-WA0043.jpg",
-    "title": "Formal Living Salon \u2014 The Altamount Penthouse (View 1)",
+    "title": "Formal Living Salon — The Altamount Penthouse (View 1)",
     "caption": "Honed silver travertine hearth with bespoke smoked oak wall paneling and low-slung linen seating.",
     "category": "Living & Salon",
     "projectId": "altamount-penthouse",
@@ -772,13 +892,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1i-X4ci2VeovgXKzU2ZbnHSYEkQXXY9Lv",
     "index": 32,
     "fileName": "IMG-20260925-WA0044.jpg",
-    "title": "Master Bedroom Retreat \u2014 Alibaug Coastal Villa (View 2)",
+    "title": "Master Bedroom Retreat — Alibaug Coastal Villa (View 2)",
     "caption": "Curved acoustic micro-cement headboard niche with concealed 2700K ambient illumination and linen draping.",
     "category": "Master Bedroom & Suites",
     "projectId": "alibaug-coastal-villa",
@@ -797,13 +921,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1P-WP3EAC5dabf6FevQ59wfwALOTRUcmE",
     "index": 33,
     "fileName": "IMG-20260925-WA0045.jpg",
-    "title": "Dining Pavilion & Bar Credenza \u2014 Shah Courtyard Residence (View 3)",
+    "title": "Dining Pavilion & Bar Credenza — Shah Courtyard Residence (View 3)",
     "caption": "Monolithic quartzite dining island paired with custom patinated bronze pendant and fluted teak cabinetry.",
     "category": "Dining & Show Kitchen",
     "projectId": "shah-villa",
@@ -822,13 +950,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1EVdZH9_ji9RigDaqbjvVLhpLXbXhTamL",
     "index": 34,
     "fileName": "IMG-20260925-WA0046.jpg",
-    "title": "Double-Height Travertine Foyer \u2014 Mehta Executive Sanctuary (View 4)",
+    "title": "Double-Height Travertine Foyer — Mehta Executive Sanctuary (View 4)",
     "caption": "Architectural entrance gallery featuring vein-matched Roman travertine portals and custom cast brass pull handles.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "mehta-executive-suite",
@@ -847,13 +979,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1h9WXYfHxVFgbvTFd23bJzA-RV3Cwp0_4",
     "index": 35,
     "fileName": "IMG-20260925-WA0047.jpg",
-    "title": "Courtyard Balcony & Water Feature \u2014 The Oberoi Sea-Facing Duplex (View 5)",
+    "title": "Courtyard Balcony & Water Feature — The Oberoi Sea-Facing Duplex (View 5)",
     "caption": "Cantilevered balcony overlooking reflecting pool with weathered teak decking and lush tropical greenery.",
     "category": "Courtyard & Terraces",
     "projectId": "oberoi-penthouse",
@@ -872,13 +1008,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1aTrha3A_AYy0xOcjJfcE850ko5RjBLFU",
     "index": 36,
     "fileName": "IMG-20260925-WA0048.jpg",
-    "title": "Marble Ensuite & Soaking Tub \u2014 Kothari Pavilions (View 1)",
+    "title": "Marble Ensuite & Soaking Tub — Kothari Pavilions (View 1)",
     "caption": "Floor-to-ceiling bookmatched Grigio Carnico marble bath sanctuary with concealed thermostatic brass fittings.",
     "category": "Bath & Spa Sanctuary",
     "projectId": "kothari-haven",
@@ -897,13 +1037,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1I6d_YhPIZAhOcV9gj0OUb6JjMETMskVB",
     "index": 37,
     "fileName": "IMG-20260925-WA0049.jpg",
-    "title": "Bespoke Millwork & Library Niche \u2014 The Altamount Penthouse (View 2)",
+    "title": "Bespoke Millwork & Library Niche — The Altamount Penthouse (View 2)",
     "caption": "Floor-to-ceiling fumed oak bookshelves with integrated magnetic architectural track lighting.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "altamount-penthouse",
@@ -922,13 +1066,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1vk4GI3YQho2It1yG6oPC5uS04wS0_x0O",
     "index": 38,
     "fileName": "IMG-20260925-WA0050.jpg",
-    "title": "Private Lounge & Evening Salon \u2014 Alibaug Coastal Villa (View 3)",
+    "title": "Private Lounge & Evening Salon — Alibaug Coastal Villa (View 3)",
     "caption": "Intimate lounge with textured lime plaster walls, boucle armchairs, and concealed architectural bar credenza.",
     "category": "Living & Salon",
     "projectId": "alibaug-coastal-villa",
@@ -947,13 +1095,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1BcLRi9ncJwXJT8BM_Wgv2s65uj2eH5KP",
     "index": 39,
     "fileName": "IMG-20260925-WA0051.jpg",
-    "title": "Culinary Studio & Breakfast Bar \u2014 Shah Courtyard Residence (View 4)",
+    "title": "Culinary Studio & Breakfast Bar — Shah Courtyard Residence (View 4)",
     "caption": "Minimalist kitchen island with seamless fluted oak fronts and integrated induction cooktop.",
     "category": "Dining & Show Kitchen",
     "projectId": "shah-villa",
@@ -972,13 +1124,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "16AzejOIUCmTpj5nSH_1KRGMeHUwCAgK0",
     "index": 40,
     "fileName": "IMG-20260925-WA0052.jpg",
-    "title": "Private Study & Collector Alcove \u2014 Mehta Executive Sanctuary (View 5)",
+    "title": "Private Study & Collector Alcove — Mehta Executive Sanctuary (View 5)",
     "caption": "Quiet workspace with custom walnut cantilevered desk and bespoke linen acoustic partitions.",
     "category": "Living & Salon",
     "projectId": "mehta-executive-suite",
@@ -997,13 +1153,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1B05seMjHojwQxnFrnpNKX3UaKsGKhkkT",
     "index": 41,
     "fileName": "IMG-20260925-WA0053.jpg",
-    "title": "Formal Living Salon \u2014 The Oberoi Sea-Facing Duplex (View 1)",
+    "title": "Formal Living Salon — The Oberoi Sea-Facing Duplex (View 1)",
     "caption": "Honed silver travertine hearth with bespoke smoked oak wall paneling and low-slung linen seating.",
     "category": "Living & Salon",
     "projectId": "oberoi-penthouse",
@@ -1022,13 +1182,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1vHKascGE0qb6SUPfaaWpjD_XwaIx_wb4",
     "index": 42,
     "fileName": "IMG-20260925-WA0054.jpg",
-    "title": "Master Bedroom Retreat \u2014 Kothari Pavilions (View 2)",
+    "title": "Master Bedroom Retreat — Kothari Pavilions (View 2)",
     "caption": "Curved acoustic micro-cement headboard niche with concealed 2700K ambient illumination and linen draping.",
     "category": "Master Bedroom & Suites",
     "projectId": "kothari-haven",
@@ -1047,13 +1211,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1g5Q126GwaF-FM2WL0ZBF2_z1_PrSTcP5",
     "index": 43,
     "fileName": "IMG-20260925-WA0055.jpg",
-    "title": "Dining Pavilion & Bar Credenza \u2014 The Altamount Penthouse (View 3)",
+    "title": "Dining Pavilion & Bar Credenza — The Altamount Penthouse (View 3)",
     "caption": "Monolithic quartzite dining island paired with custom patinated bronze pendant and fluted teak cabinetry.",
     "category": "Dining & Show Kitchen",
     "projectId": "altamount-penthouse",
@@ -1072,13 +1240,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1_CiVGhmisHv613bd2JZGMBXZXlGqOdoU",
     "index": 44,
     "fileName": "IMG-20260925-WA0056.jpg",
-    "title": "Double-Height Travertine Foyer \u2014 Alibaug Coastal Villa (View 4)",
+    "title": "Double-Height Travertine Foyer — Alibaug Coastal Villa (View 4)",
     "caption": "Architectural entrance gallery featuring vein-matched Roman travertine portals and custom cast brass pull handles.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "alibaug-coastal-villa",
@@ -1097,13 +1269,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1xugbz_pcpdpd4Mp-C6LvKTRRCnD52jmI",
     "index": 45,
     "fileName": "IMG-20260925-WA0057.jpg",
-    "title": "Courtyard Balcony & Water Feature \u2014 Shah Courtyard Residence (View 5)",
+    "title": "Courtyard Balcony & Water Feature — Shah Courtyard Residence (View 5)",
     "caption": "Cantilevered balcony overlooking reflecting pool with weathered teak decking and lush tropical greenery.",
     "category": "Courtyard & Terraces",
     "projectId": "shah-villa",
@@ -1122,13 +1298,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1EvRpRRCRJ6AkfC1PJYv2AiJcxiMSgXhr",
     "index": 46,
     "fileName": "IMG-20260925-WA0058.jpg",
-    "title": "Marble Ensuite & Soaking Tub \u2014 Mehta Executive Sanctuary (View 1)",
+    "title": "Marble Ensuite & Soaking Tub — Mehta Executive Sanctuary (View 1)",
     "caption": "Floor-to-ceiling bookmatched Grigio Carnico marble bath sanctuary with concealed thermostatic brass fittings.",
     "category": "Bath & Spa Sanctuary",
     "projectId": "mehta-executive-suite",
@@ -1147,13 +1327,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "17lhxakLJOiBX85eh08FDp_3nwi04ck5W",
     "index": 47,
     "fileName": "IMG-20260925-WA0059.jpg",
-    "title": "Bespoke Millwork & Library Niche \u2014 The Oberoi Sea-Facing Duplex (View 2)",
+    "title": "Bespoke Millwork & Library Niche — The Oberoi Sea-Facing Duplex (View 2)",
     "caption": "Floor-to-ceiling fumed oak bookshelves with integrated magnetic architectural track lighting.",
     "category": "Foyer & Architectural Joinery",
     "projectId": "oberoi-penthouse",
@@ -1172,13 +1356,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1o2OiyXq_jGcRCgyFL3v6FcbUDN_nK7s3",
     "index": 48,
     "fileName": "IMG-20260925-WA0060.jpg",
-    "title": "Private Lounge & Evening Salon \u2014 Kothari Pavilions (View 3)",
+    "title": "Private Lounge & Evening Salon — Kothari Pavilions (View 3)",
     "caption": "Intimate lounge with textured lime plaster walls, boucle armchairs, and concealed architectural bar credenza.",
     "category": "Living & Salon",
     "projectId": "kothari-haven",
@@ -1197,13 +1385,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   },
   {
     "id": "1mmdE-ExR5Dr1MzVueHb_kH_PBPzXWRUw",
     "index": 49,
     "fileName": "IMG-20260925-WA0064.jpg",
-    "title": "Culinary Studio & Breakfast Bar \u2014 The Altamount Penthouse (View 4)",
+    "title": "Culinary Studio & Breakfast Bar — The Altamount Penthouse (View 4)",
     "caption": "Minimalist kitchen island with seamless fluted oak fronts and integrated induction cooktop.",
     "category": "Dining & Show Kitchen",
     "projectId": "altamount-penthouse",
@@ -1222,13 +1414,17 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1600,
+    "height": 1066,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
   },
   {
     "id": "1_CIxI7SZMsOVhcZXLFp5dTyFO5qAexdT",
     "index": 50,
     "fileName": "IMG-20260925-WA0065.jpg",
-    "title": "Private Study & Collector Alcove \u2014 Alibaug Coastal Villa (View 5)",
+    "title": "Private Study & Collector Alcove — Alibaug Coastal Villa (View 5)",
     "caption": "Quiet workspace with custom walnut cantilevered desk and bespoke linen acoustic partitions.",
     "category": "Living & Salon",
     "projectId": "alibaug-coastal-villa",
@@ -1247,6 +1443,10 @@
       "Google Drive Vault"
     ],
     "size": 55465,
-    "uploadedAt": "2026-09-25"
+    "uploadedAt": "2026-09-25",
+    "width": 1066,
+    "height": 1600,
+    "aspectRatio": 0.67,
+    "orientation": "portrait"
   }
 ]

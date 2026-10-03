@@ -17,6 +17,10 @@ export interface GoogleDrivePhoto {
   tags: string[];
   size?: number;
   uploadedAt?: string;
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+  orientation?: "landscape" | "portrait" | "square";
 }
 
 export const PUBLIC_DRIVE_FOLDER_ID = "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze";
@@ -39,6 +43,7 @@ export interface PhotoFilterParams {
   category?: string;
   tag?: string;
   search?: string;
+  orientation?: "all" | "landscape" | "portrait";
   page?: number;
   limit?: number;
   sortBy?: "default" | "newest" | "title" | "project";
@@ -55,6 +60,62 @@ export interface PaginatedPhotosResult {
   allCategories: string[];
   allTags: string[];
   totalDriveAssets: number;
+}
+
+export interface PhotoRowGroup {
+  id: string;
+  orientation: "landscape" | "portrait";
+  items: GoogleDrivePhoto[];
+}
+
+/**
+ * Dynamically organizes photos into homogeneous rows where:
+ * - All photos in a landscape row are landscape
+ * - All photos in a portrait row are portrait
+ */
+export function groupPhotosIntoOrientationRows(
+  photos: GoogleDrivePhoto[],
+  landscapePerRow = 2,
+  portraitPerRow = 3,
+): PhotoRowGroup[] {
+  const rows: PhotoRowGroup[] = [];
+  let currentGroup: GoogleDrivePhoto[] = [];
+  let currentOrientation: "landscape" | "portrait" | null = null;
+
+  for (const photo of photos) {
+    const photoOrientation: "landscape" | "portrait" =
+      photo.orientation === "portrait" || (photo.aspectRatio && photo.aspectRatio < 1)
+        ? "portrait"
+        : "landscape";
+
+    const maxItems = photoOrientation === "landscape" ? landscapePerRow : portraitPerRow;
+
+    if (currentOrientation === null) {
+      currentOrientation = photoOrientation;
+      currentGroup = [photo];
+    } else if (currentOrientation === photoOrientation && currentGroup.length < maxItems) {
+      currentGroup.push(photo);
+    } else {
+      // Push existing row
+      rows.push({
+        id: `row-${rows.length}-${currentOrientation}`,
+        orientation: currentOrientation,
+        items: currentGroup,
+      });
+      currentOrientation = photoOrientation;
+      currentGroup = [photo];
+    }
+  }
+
+  if (currentGroup.length > 0 && currentOrientation) {
+    rows.push({
+      id: `row-${rows.length}-${currentOrientation}`,
+      orientation: currentOrientation,
+      items: currentGroup,
+    });
+  }
+
+  return rows;
 }
 
 export function getPaginatedGoogleDrivePhotos(
@@ -102,6 +163,13 @@ export function getPaginatedGoogleDrivePhotos(
         photo.fileName.toLowerCase().includes(q) ||
         photo.tags.some((t) => t.toLowerCase().includes(q));
       if (!matchFound) return false;
+    }
+
+    // Orientation match
+    if (orientation && orientation !== "all") {
+      const isPortrait = photo.orientation === "portrait" || (photo.aspectRatio && photo.aspectRatio < 1);
+      if (orientation === "portrait" && !isPortrait) return false;
+      if (orientation === "landscape" && isPortrait) return false;
     }
 
     return true;
