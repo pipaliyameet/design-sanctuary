@@ -44,6 +44,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       featuredProjects,
       recentJournal,
       heroMedia,
+      homepageMediaDocs,
       services,
       processSteps,
       testimonials,
@@ -53,6 +54,16 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       caseStudiesCol.find({ featured: true }).sort({ publishedAt: -1 }).limit(6).toArray(),
       journalCol.find({}).sort({ publishedAt: -1 }).limit(3).toArray(),
       mediaCol.find({ visibility: "website", isFeatured: true }).sort({ sortOrder: 1 }).limit(16).toArray(),
+      mediaCol
+        .find({
+          $or: [
+            { isHomepageVisible: true },
+            { isFeatured: true, visibility: "website" },
+          ],
+        })
+        .sort({ homepageOrder: 1, sortOrder: 1, createdAt: -1 })
+        .limit(24)
+        .toArray(),
       servicesCol.find({ published: true }).sort({ sortOrder: 1 }).toArray(),
       processCol.find({ published: true }).sort({ sortOrder: 1 }).toArray(),
       testimonialsCol.find({ approved: true }).sort({ sortOrder: 1 }).limit(6).toArray(),
@@ -73,6 +84,34 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       return fallback;
     };
 
+    const homepageMedia = homepageMediaDocs.map((m: any, idx: number) => ({
+      id: String(m._id),
+      _id: String(m._id),
+      driveFileId: m.driveFileId,
+      fileName: m.fileName,
+      title: m.title || m.caption || m.fileName || `Architectural Work #${idx + 1}`,
+      caption: m.caption || m.description || m.title || "",
+      description: m.description || m.alt || m.caption || "",
+      category: m.category || "Living & Salon",
+      mediaType: m.mediaType || (m.mimeType?.startsWith("video/") ? "video" : "image"),
+      url: m.driveUrl || (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : ""),
+      thumbnailUrl:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      thumbnail_url:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      isHomepageVisible: m.isHomepageVisible ?? m.isFeatured ?? true,
+      homepageOrder: m.homepageOrder ?? m.sortOrder ?? idx + 1,
+      projectId: m.projectId || "altamount-penthouse",
+      projectTitle: m.projectTitle || "The Altamount Penthouse",
+      tags: m.tags || [],
+      size: m.size || 0,
+      createdAt: m.createdAt,
+    }));
+
     return sendSuccess(res, {
       heroTitle: unwrapStr(settingsMap.heroTitle, "Architecture & Interior Sanctuary"),
       heroSubtitle: unwrapStr(
@@ -82,6 +121,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       featuredProjects,
       recentJournal,
       heroMedia,
+      homepageMedia,
       services,
       processSteps,
       testimonials,

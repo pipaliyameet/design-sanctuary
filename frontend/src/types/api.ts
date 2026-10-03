@@ -170,6 +170,9 @@ export interface MediaItem {
   visibility: "website" | "client_only" | "internal" | "private";
   isFeatured?: boolean;
   isCover?: boolean;
+  isHomepageVisible?: boolean;
+  homepageOrder?: number;
+  mediaType?: "image" | "video" | "floor_plan" | "render" | "before_after" | "document" | string;
   sortOrder?: number;
   createdAt: string;
   updatedAt: string;

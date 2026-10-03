@@ -198,7 +198,7 @@ export async function deleteStudioClient({ data }: { data: { id: string } }) {
 // 5. Media Vault
 export async function listStudioMedia(params?: any) {
   const items = await mediaService.list(params);
-  return (items || []).map((m: any) => ({
+  return (items || []).map((m: any, idx: number) => ({
     ...m,
     id: m.id || String(m._id) || m.driveFileId,
     _id: String(m._id || m.id),
@@ -206,11 +206,15 @@ export async function listStudioMedia(params?: any) {
     thumbnail_url: m.thumbnail_url || m.thumbnailUrl || m.url || (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
     project_title: m.project_title || m.projectTitle || "The Altamount Penthouse",
     title: m.title || m.caption || m.fileName,
+    caption: m.caption || m.title || "",
     description: m.description || m.alt || m.caption || "",
     tags: m.tags || [],
     category: m.category || "Living & Salon",
     visibility: m.visibility || "website",
-    uploaded_by: m.uploaded_by || "Owner / Studio Principal",
+    isHomepageVisible: m.isHomepageVisible ?? m.isFeatured ?? true,
+    homepageOrder: m.homepageOrder ?? m.sortOrder ?? idx + 1,
+    mediaType: m.mediaType || (m.mimeType?.startsWith("video/") ? "video" : "image"),
+    uploaded_by: m.uploaded_by || m.uploadedBy || "Owner / Studio Principal",
     upload_date: m.createdAt || m.upload_date || new Date().toISOString(),
   }));
 }
@@ -223,7 +227,11 @@ export async function createStudioMedia({ data }: { data: any }) {
 }
 export const addStudioMediaAsset = createStudioMedia;
 
-export async function uploadStudioMedia({ data }: { data: { file?: File; [key: string]: any } }) {
+export async function uploadStudioMedia({ data }: { data: { file?: File; files?: File[]; [key: string]: any } }) {
+  if (data.files && data.files.length > 0) {
+    const { files, ...metadata } = data;
+    return mediaService.upload(files, metadata);
+  }
   if (data.file) {
     const { file, ...metadata } = data;
     return mediaService.upload(file, metadata);
@@ -231,9 +239,29 @@ export async function uploadStudioMedia({ data }: { data: { file?: File; [key: s
   return mediaService.create(data);
 }
 
-export async function updateStudioMedia({ data }: { data: { id: string; updates?: any; visibility?: string; isFeatured?: boolean; isCover?: boolean } }) {
+export async function updateStudioMedia({
+  data,
+}: {
+  data: {
+    id: string;
+    updates?: any;
+    visibility?: string;
+    isFeatured?: boolean;
+    isHomepageVisible?: boolean;
+    homepageOrder?: number;
+    isCover?: boolean;
+    title?: string;
+    caption?: string;
+    category?: string;
+    tags?: string[];
+  };
+}) {
   const payload = data.updates || data;
   return mediaService.update(data.id, payload);
+}
+
+export async function reorderStudioHomepageMedia({ data }: { data: { items: Array<{ id: string; homepageOrder: number }> } }) {
+  return mediaService.reorderHomepage(data.items);
 }
 
 export async function deleteStudioMedia({ data }: { data: { id: string } }) {

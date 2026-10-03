@@ -13,10 +13,12 @@ import {
   submitEnquiry,
   getPublicGallery,
 } from "../controllers/public.controller.js";
+import { getHomepageMedia } from "../controllers/media.controller.js";
 
 const router = Router();
 
 router.get("/home", getHomeData);
+router.get("/media/homepage", getHomepageMedia);
 router.get("/settings", getSiteSettings);
 router.get("/projects", listCaseStudies);
 router.get("/projects/:slug", getCaseStudy);

@@ -621,9 +621,9 @@ export function HomePage() {
 
 
       {/* =========================================================================
-          SECTION 13 — PHOTO VAULT / CURATED STRIP
+          SECTION 13 — PHOTO VAULT / CURATED STRIP (Owner-Selected Google Drive Media)
           ========================================================================= */}
-      <InstagramFeedSection />
+      <InstagramFeedSection photos={data?.homepageMedia} />
 
       {/* =========================================================================
           SECTION 14 — CONSULTATION INQUIRY (Real API Endpoint)

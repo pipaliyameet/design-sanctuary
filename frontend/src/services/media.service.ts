@@ -8,30 +8,47 @@ export const mediaService = {
     category?: string;
     visibility?: string;
     isFeatured?: boolean;
+    isHomepageVisible?: boolean;
     isCover?: boolean;
   }): Promise<MediaItem[]> {
     return api.get<MediaItem[]>("/media", params);
+  },
+
+  async getHomepage(): Promise<MediaItem[]> {
+    return api.get<MediaItem[]>("/media/homepage");
   },
 
   async getById(id: string): Promise<MediaItem> {
     return api.get<MediaItem>(`/media/${id}`);
   },
 
-  async upload(file: File, metadata: {
-    projectId?: string;
-    projectTitle?: string;
-    roomId?: string;
-    category?: string;
-    title?: string;
-    caption?: string;
-    alt?: string;
-    tags?: string[] | string;
-    visibility?: string;
-    isFeatured?: boolean;
-    isCover?: boolean;
-  }): Promise<MediaItem> {
+  async upload(
+    fileOrFiles: File | File[],
+    metadata: {
+      projectId?: string;
+      projectTitle?: string;
+      roomId?: string;
+      category?: string;
+      title?: string;
+      caption?: string;
+      alt?: string;
+      tags?: string[] | string;
+      visibility?: string;
+      isFeatured?: boolean;
+      isHomepageVisible?: boolean;
+      homepageOrder?: number;
+      isCover?: boolean;
+    },
+  ): Promise<MediaItem | MediaItem[]> {
     const formData = new FormData();
-    formData.append("file", file);
+    if (Array.isArray(fileOrFiles)) {
+      fileOrFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+    } else {
+      formData.append("files", fileOrFiles);
+    }
+
     if (metadata.projectId) formData.append("projectId", metadata.projectId);
     if (metadata.projectTitle) formData.append("projectTitle", metadata.projectTitle);
     if (metadata.roomId) formData.append("roomId", metadata.roomId);
@@ -44,9 +61,11 @@ export const mediaService = {
     }
     if (metadata.visibility) formData.append("visibility", metadata.visibility);
     if (metadata.isFeatured !== undefined) formData.append("isFeatured", String(metadata.isFeatured));
+    if (metadata.isHomepageVisible !== undefined) formData.append("isHomepageVisible", String(metadata.isHomepageVisible));
+    if (metadata.homepageOrder !== undefined) formData.append("homepageOrder", String(metadata.homepageOrder));
     if (metadata.isCover !== undefined) formData.append("isCover", String(metadata.isCover));
 
-    return api.upload<MediaItem>("/media/upload", formData);
+    return api.upload<MediaItem | MediaItem[]>("/media/upload", formData);
   },
 
   async create(data: Partial<MediaItem>): Promise<MediaItem> {
@@ -55,6 +74,10 @@ export const mediaService = {
 
   async update(id: string, data: Partial<MediaItem>): Promise<MediaItem> {
     return api.patch<MediaItem>(`/media/${id}`, data);
+  },
+
+  async reorderHomepage(items: Array<{ id: string; homepageOrder: number }>): Promise<{ reordered: boolean }> {
+    return api.patch<{ reordered: boolean }>("/media/reorder", { items });
   },
 
   async delete(id: string): Promise<{ deleted: boolean }> {

@@ -243,6 +243,8 @@ export async function getHomeContent() {
         ? (rawData.materials as MaterialItem[])
         : CURATED_STUDIO_MATERIALS;
 
+    const homepageMedia = Array.isArray(rawData.homepageMedia) ? rawData.homepageMedia : [];
+
     return {
       heroTitle,
       heroSubtitle,
@@ -254,6 +256,7 @@ export async function getHomeContent() {
       materials: materialsData,
       recentJournal: [],
       heroMedia: rawData.heroMedia || [],
+      homepageMedia,
       settings: rawData.settings || {},
     };
   } catch (err) {
@@ -270,8 +273,20 @@ export async function getHomeContent() {
       materials: CURATED_STUDIO_MATERIALS,
       recentJournal: [],
       heroMedia: [],
+      homepageMedia: [],
       settings: {},
     };
+  }
+}
+
+export async function getHomepageMedia() {
+  try {
+    const res: any = await publicService.getHomepageMedia();
+    const data = res?.data || res || [];
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn("[API Error] Failed to fetch homepage media:", err);
+    return [];
   }
 }
 

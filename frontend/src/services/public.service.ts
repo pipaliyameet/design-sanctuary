@@ -51,6 +51,10 @@ export const publicService = {
     return api.get("/public/home");
   },
 
+  async getHomepageMedia() {
+    return api.get("/media/homepage");
+  },
+
   async getSiteSettings() {
     return api.get("/public/settings");
   },

@@ -162,6 +162,12 @@ export interface MediaDoc {
   visibility: "website" | "client_only" | "internal" | "private";
   isFeatured?: boolean;
   isCover?: boolean;
+  isHomepageVisible?: boolean;
+  homepageOrder?: number;
+  status?: "active" | "archived" | "deleted" | string;
+  uploadedBy?: string | null;
+  publicUrl?: string | null;
+  streamUrl?: string | null;
   sortOrder?: number;
   width?: number;
   height?: number;

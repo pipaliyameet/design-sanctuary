@@ -15,6 +15,59 @@ import {
 import { sendSuccess, sendError } from "../utils/response.js";
 import { env } from "../config/env.js";
 
+/**
+ * Public Endpoint: Returns ONLY media marked visible on homepage, sorted by homepageOrder
+ */
+export async function getHomepageMedia(req: Request, res: Response, next: NextFunction) {
+  try {
+    const mediaCol = await getCollection<MediaDoc>("media");
+    const items = await mediaCol
+      .find({
+        $or: [
+          { isHomepageVisible: true },
+          { isFeatured: true, visibility: "website" },
+        ],
+      })
+      .sort({ homepageOrder: 1, sortOrder: 1, createdAt: -1 })
+      .toArray();
+
+    const formatted = items.map((m: any, idx: number) => ({
+      id: String(m._id),
+      _id: String(m._id),
+      driveFileId: m.driveFileId,
+      fileName: m.fileName,
+      title: m.title || m.caption || m.fileName || `Architectural Work #${idx + 1}`,
+      caption: m.caption || m.description || m.title || "",
+      description: m.description || m.alt || m.caption || "",
+      category: m.category || "Living & Salon",
+      mediaType: m.mediaType || (m.mimeType?.startsWith("video/") ? "video" : "image"),
+      url: m.driveUrl || (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : ""),
+      thumbnailUrl:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      thumbnail_url:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      isHomepageVisible: m.isHomepageVisible ?? m.isFeatured ?? true,
+      homepageOrder: m.homepageOrder ?? m.sortOrder ?? idx + 1,
+      projectId: m.projectId || "altamount-penthouse",
+      projectTitle: m.projectTitle || "The Altamount Penthouse",
+      tags: m.tags || [],
+      size: m.size || 0,
+      createdAt: m.createdAt,
+    }));
+
+    return sendSuccess(res, formatted);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Register media via Google Drive link or file ID
+ */
 export async function createMedia(req: Request, res: Response, next: NextFunction) {
   try {
     const {
@@ -31,6 +84,8 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
       tags,
       visibility = "website",
       isFeatured = false,
+      isHomepageVisible = true,
+      homepageOrder = 1,
       isCover = false,
       sortOrder = 0,
     } = req.body;
@@ -78,10 +133,12 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
       projectTitle: projectTitle || "The Altamount Penthouse",
       roomId: null,
       fileName: fileName || title || (driveFileId ? `drive-${driveFileId}.jpg` : "photo.jpg"),
+      title: title || caption || "Architectural Photograph",
       driveFileId: driveFileId || null,
       driveUrl: directUrl,
       thumbnailUrl: thumbnailUrl,
       mimeType: "image/jpeg",
+      mediaType: "image",
       size: 50000,
       category: category || "Living & Salon",
       caption: caption || title || "Architectural Photograph",
@@ -89,8 +146,12 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
       tags: parsedTags.length > 0 ? parsedTags : ["Google Drive Vault"],
       visibility: visibility || "website",
       isFeatured: isFeatured === true || isFeatured === "true",
+      isHomepageVisible: isHomepageVisible === true || isHomepageVisible === "true",
+      homepageOrder: Number(homepageOrder) || 1,
       isCover: isCover === true || isCover === "true",
       sortOrder: Number(sortOrder) || 0,
+      uploadedBy: req.user?.fullName || "Studio Owner",
+      status: "active",
       createdAt: now,
       updatedAt: now,
     };
@@ -129,11 +190,20 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
   }
 }
 
+/**
+ * Upload single or multiple files directly to Google Drive permanent storage
+ */
 export async function uploadMedia(req: Request, res: Response, next: NextFunction) {
   try {
-    const file = req.file;
-    if (!file) {
-      return sendError(res, "No file provided for upload.", 400, "MISSING_FILE");
+    const rawFiles: Express.Multer.File[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      rawFiles.push(...req.files);
+    } else if (req.file) {
+      rawFiles.push(req.file);
+    }
+
+    if (rawFiles.length === 0) {
+      return sendError(res, "No files provided for upload.", 400, "MISSING_FILE");
     }
 
     const {
@@ -147,98 +217,103 @@ export async function uploadMedia(req: Request, res: Response, next: NextFunctio
       tags,
       visibility = "website",
       isFeatured = "false",
+      isHomepageVisible = "true",
+      homepageOrder,
       isCover = "false",
       sortOrder = "0",
     } = req.body;
 
-    // Determine target Google Drive folder
-    let targetFolderId = env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
-    if (projectId) {
-      const projectsFolderId = await getOrCreateDriveFolder("Projects", env.GOOGLE_DRIVE_ROOT_FOLDER_ID);
-      const projectSpecificFolderId = await getOrCreateDriveFolder(`Project-${projectId}`, projectsFolderId);
-      targetFolderId = projectSpecificFolderId;
-    } else if (category === "portfolio" || category === "Living & Salon") {
-      const portfolioFolderId = await getOrCreateDriveFolder("Portfolio", env.GOOGLE_DRIVE_ROOT_FOLDER_ID);
-      targetFolderId = portfolioFolderId;
-    }
-
+    const targetFolderId = env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
     const isPublic = visibility === "website" || visibility === "client_only";
-
-    // 1. Upload file buffer to Google Drive
-    const driveResult = await uploadBufferToGoogleDrive({
-      buffer: file.buffer,
-      fileName: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
-      mimeType: file.mimetype,
-      folderId: targetFolderId,
-      isPublic,
-    });
-
-    // 2. Insert metadata document into MongoDB
-    const now = new Date();
     const mediaCol = await getCollection<MediaDoc>("media");
     const activityCol = await getCollection<ActivityLogDoc>("activityLogs");
+    const now = new Date();
 
-    const parsedTags = Array.isArray(tags)
-      ? tags
-      : typeof tags === "string"
+    const createdRecords: any[] = [];
+
+    for (let i = 0; i < rawFiles.length; i++) {
+      const file = rawFiles[i];
+      const mediaType = file.mimetype.startsWith("video/") ? "video" : "image";
+      const cleanFileName = `${Date.now()}-${i}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+
+      const driveResult = await uploadBufferToGoogleDrive({
+        buffer: file.buffer,
+        fileName: cleanFileName,
+        mimeType: file.mimetype,
+        folderId: targetFolderId,
+        isPublic,
+      });
+
+      const parsedTags = Array.isArray(tags)
         ? tags
-            .split(",")
-            .map((t: string) => t.trim())
-            .filter(Boolean)
-        : ["Device Upload", "Studio Photography"];
+        : typeof tags === "string"
+          ? tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+          : ["Google Drive Vault", "Studio Photography"];
 
-    const mediaDoc: any = {
-      projectId: projectId || "altamount-penthouse",
-      projectTitle: projectTitle || "The Altamount Penthouse",
-      roomId: roomId || null,
-      fileName: file.originalname,
-      title: title || caption || file.originalname,
-      driveFileId: driveResult.fileId,
-      driveUrl: driveResult.directUrl,
-      thumbnailUrl: driveResult.thumbnailUrl,
-      mimeType: file.mimetype,
-      size: file.size,
-      category: category || "Living & Salon",
-      caption: caption || title || file.originalname,
-      alt: alt || caption || title || file.originalname,
-      tags: parsedTags.length > 0 ? parsedTags : ["Device Upload", "Studio Photography"],
-      visibility: visibility as any,
-      isFeatured: isFeatured === "true" || isFeatured === true,
-      isCover: isCover === "true" || isCover === true,
-      sortOrder: parseInt(sortOrder, 10) || 0,
-      createdAt: now,
-      updatedAt: now,
-    };
+      const itemTitle =
+        rawFiles.length === 1 && title
+          ? title
+          : file.originalname.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
 
-    const insertRes = await mediaCol.insertOne(mediaDoc as any);
-    const mediaId = String(insertRes.insertedId);
+      const mediaDoc: any = {
+        projectId: projectId || "altamount-penthouse",
+        projectTitle: projectTitle || "The Altamount Penthouse",
+        roomId: roomId || null,
+        fileName: file.originalname,
+        title: itemTitle,
+        driveFileId: driveResult.fileId,
+        driveUrl: driveResult.directUrl,
+        thumbnailUrl: driveResult.thumbnailUrl,
+        mimeType: file.mimetype,
+        mediaType,
+        size: file.size,
+        category: category || "Living & Salon",
+        caption: caption || itemTitle,
+        alt: alt || itemTitle,
+        tags: parsedTags,
+        visibility: visibility as any,
+        isFeatured: isFeatured === "true" || isFeatured === true,
+        isHomepageVisible: isHomepageVisible === "true" || isHomepageVisible === true,
+        homepageOrder: homepageOrder ? Number(homepageOrder) + i : i + 1,
+        sortOrder: parseInt(sortOrder, 10) || 0,
+        uploadedBy: req.user?.fullName || "Studio Owner",
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      };
 
-    await activityCol.insertOne({
-      projectId: projectId || null,
-      actorId: req.user?.id || null,
-      actorLabel: req.user?.fullName || "Studio Owner",
-      action: "Uploaded Device Photo to Drive",
-      entity: "media",
-      entityId: mediaId,
-      entityTitle: title || file.originalname,
-      detail: `Uploaded device photo directly to Google Drive (${(file.size / 1024).toFixed(1)} KB) - category: ${category}`,
-      createdAt: now,
-    });
+      const insertRes = await mediaCol.insertOne(mediaDoc as any);
+      const mediaId = String(insertRes.insertedId);
 
-    return sendSuccess(
-      res,
-      {
+      createdRecords.push({
         ...mediaDoc,
         _id: insertRes.insertedId,
         id: mediaId,
         url: driveResult.directUrl,
         thumbnail_url: driveResult.thumbnailUrl,
-        thumbnailUrl: driveResult.thumbnailUrl,
         title: mediaDoc.title,
         project_title: mediaDoc.projectTitle,
         tags: mediaDoc.tags,
-      },
-      "Photo uploaded to Google Drive and published successfully.",
+      });
+    }
+
+    await activityCol.insertOne({
+      projectId: projectId || null,
+      actorId: req.user?.id || null,
+      actorLabel: req.user?.fullName || "Studio Owner",
+      action: "Uploaded Media to Google Drive",
+      entity: "media",
+      entityId: createdRecords[0]?.id || "",
+      entityTitle: createdRecords.map((r) => r.fileName).join(", "),
+      detail: `Uploaded ${createdRecords.length} file(s) to permanent Google Drive vault (${targetFolderId})`,
+      createdAt: now,
+    });
+
+    const responseData = createdRecords.length === 1 ? createdRecords[0] : createdRecords;
+    return sendSuccess(
+      res,
+      responseData,
+      `Successfully uploaded ${createdRecords.length} file(s) to Google Drive and media vault.`,
       201,
     );
   } catch (err) {
@@ -246,9 +321,12 @@ export async function uploadMedia(req: Request, res: Response, next: NextFunctio
   }
 }
 
+/**
+ * List media records with filtering & search
+ */
 export async function listMedia(req: Request, res: Response, next: NextFunction) {
   try {
-    const { projectId, roomId, category, visibility, isFeatured, isCover } = req.query;
+    const { projectId, roomId, category, visibility, isFeatured, isCover, isHomepageVisible } = req.query;
     const mediaCol = await getCollection<MediaDoc>("media");
 
     let query: any = {};
@@ -267,24 +345,37 @@ export async function listMedia(req: Request, res: Response, next: NextFunction)
     if (isFeatured !== undefined) {
       query.isFeatured = isFeatured === "true";
     }
+    if (isHomepageVisible !== undefined) {
+      query.isHomepageVisible = isHomepageVisible === "true";
+    }
     if (isCover !== undefined) {
       query.isCover = isCover === "true";
     }
 
-    const items = await mediaCol.find(query).sort({ sortOrder: 1, createdAt: -1 }).toArray();
-    const formatted = items.map((m: any) => ({
+    const items = await mediaCol.find(query).sort({ homepageOrder: 1, sortOrder: 1, createdAt: -1 }).toArray();
+    const formatted = items.map((m: any, idx: number) => ({
       ...m,
       id: String(m._id),
       _id: String(m._id),
       driveFileId: m.driveFileId,
       url: m.driveUrl || (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : ""),
-      thumbnail_url: m.thumbnailUrl || m.driveUrl || (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
-      thumbnailUrl: m.thumbnailUrl || m.driveUrl || (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
-      title: m.caption || m.fileName || "Architectural Work",
-      description: m.alt || m.caption || "",
+      thumbnail_url:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      thumbnailUrl:
+        m.thumbnailUrl ||
+        m.driveUrl ||
+        (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+      title: m.title || m.caption || m.fileName || "Architectural Work",
+      caption: m.caption || m.title || "",
+      description: m.description || m.alt || m.caption || "",
       project_title: m.projectTitle || "The Altamount Penthouse",
       tags: m.tags || [],
-      uploaded_by: "Owner / Studio Principal",
+      mediaType: m.mediaType || (m.mimeType?.startsWith("video/") ? "video" : "image"),
+      isHomepageVisible: m.isHomepageVisible ?? m.isFeatured ?? false,
+      homepageOrder: m.homepageOrder ?? m.sortOrder ?? idx + 1,
+      uploaded_by: m.uploadedBy || "Owner / Studio Principal",
       upload_date: m.createdAt,
     }));
     return sendSuccess(res, formatted);
@@ -293,6 +384,9 @@ export async function listMedia(req: Request, res: Response, next: NextFunction)
   }
 }
 
+/**
+ * Get media by ID
+ */
 export async function getMediaById(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -309,7 +403,7 @@ export async function getMediaById(req: Request, res: Response, next: NextFuncti
       id: String(item._id),
       url: item.driveUrl,
       thumbnail_url: item.thumbnailUrl || item.driveUrl,
-      title: item.caption || item.fileName,
+      title: item.title || item.caption || item.fileName,
       project_title: (item as any).projectTitle || "Studio Archive",
     });
   } catch (err) {
@@ -317,6 +411,9 @@ export async function getMediaById(req: Request, res: Response, next: NextFuncti
   }
 }
 
+/**
+ * Update media metadata (homepage visibility, order, title, etc.)
+ */
 export async function updateMedia(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -331,6 +428,13 @@ export async function updateMedia(req: Request, res: Response, next: NextFunctio
     delete (updates as any)._id;
     delete (updates as any).id;
 
+    if (updates.homepageOrder !== undefined) {
+      updates.homepageOrder = Number(updates.homepageOrder);
+    }
+    if (updates.isHomepageVisible !== undefined) {
+      updates.isHomepageVisible = updates.isHomepageVisible === true || (updates.isHomepageVisible as any) === "true";
+    }
+
     const result = await mediaCol.findOneAndUpdate(
       query as any,
       { $set: updates as any },
@@ -341,12 +445,51 @@ export async function updateMedia(req: Request, res: Response, next: NextFunctio
       return sendError(res, "Media asset not found.", 404, "NOT_FOUND");
     }
 
-    return sendSuccess(res, result, "Media metadata updated.");
+    return sendSuccess(res, result, "Media metadata updated successfully.");
   } catch (err) {
     next(err);
   }
 }
 
+/**
+ * Bulk reorder homepage media
+ */
+export async function reorderHomepageMedia(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+      return sendError(res, "Invalid items payload. Array required.", 400);
+    }
+
+    const mediaCol = await getCollection<MediaDoc>("media");
+    const bulkOps = items.map((item) => {
+      const query = ObjectId.isValid(item.id) ? { _id: new ObjectId(item.id) } : { _id: item.id };
+      return {
+        updateOne: {
+          filter: query,
+          update: {
+            $set: {
+              homepageOrder: Number(item.homepageOrder) || 0,
+              updatedAt: new Date(),
+            },
+          },
+        },
+      };
+    });
+
+    if (bulkOps.length > 0) {
+      await mediaCol.bulkWrite(bulkOps as any);
+    }
+
+    return sendSuccess(res, { reordered: true, count: bulkOps.length }, "Homepage media order updated successfully.");
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Permanent Delete Media: Deletes from Google Drive + deletes from MongoDB
+ */
 export async function deleteMedia(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -356,7 +499,6 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
 
     let item = await mediaCol.findOne(query as any);
     if (!item) {
-      // Also try matching by driveFileId
       item = await mediaCol.findOne({ driveFileId: id } as any);
     }
 
@@ -380,20 +522,23 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
       projectId: item.projectId || null,
       actorId: req.user?.id || null,
       actorLabel: req.user?.fullName || "Owner / Studio Admin",
-      action: "Deleted Media Asset",
+      action: "Permanently Deleted Media Asset",
       entity: "media",
       entityId: String(item._id),
       entityTitle: item.fileName,
-      detail: `Deleted photo (${item.caption || item.driveFileId}) from database`,
+      detail: `Deleted photo (${item.caption || item.driveFileId}) permanently from Google Drive & database`,
       createdAt: new Date(),
     });
 
-    return sendSuccess(res, { deleted: true, id: String(item._id) }, "Media asset deleted successfully.");
+    return sendSuccess(res, { deleted: true, id: String(item._id) }, "Media asset deleted permanently from Drive and library.");
   } catch (err) {
     next(err);
   }
 }
 
+/**
+ * Proxy Google Drive Images for high resilience
+ */
 export async function proxyDriveImage(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -454,6 +599,9 @@ export async function proxyDriveImage(req: Request, res: Response, next: NextFun
   }
 }
 
+/**
+ * Local files fallback
+ */
 export async function serveLocalFile(req: Request, res: Response, next: NextFunction) {
   try {
     const { filename } = req.params;
@@ -471,4 +619,3 @@ export async function serveLocalFile(req: Request, res: Response, next: NextFunc
     next(err);
   }
 }
-

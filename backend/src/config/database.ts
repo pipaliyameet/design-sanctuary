@@ -78,6 +78,8 @@ async function ensureDatabaseIndexes(db: Db): Promise<void> {
       db.collection("tasks").createIndex({ assigneeId: 1 }),
       db.collection("media").createIndex({ projectId: 1, category: 1 }),
       db.collection("media").createIndex({ driveFileId: 1 }),
+      db.collection("media").createIndex({ isHomepageVisible: 1, homepageOrder: 1 }),
+      db.collection("media").createIndex({ visibility: 1 }),
       db.collection("designFiles").createIndex({ projectId: 1, roomId: 1 }),
       db.collection("approvals").createIndex({ projectId: 1, status: 1 }),
       db.collection("documents").createIndex({ projectId: 1, category: 1 }),
