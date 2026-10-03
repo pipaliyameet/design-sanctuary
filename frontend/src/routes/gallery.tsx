@@ -319,9 +319,9 @@ function GalleryPage() {
         {/* PHOTO GALLERY CONTENT */}
         {paginated.items.length > 0 ? (
           <div className="mt-8">
-            {/* Masonry / Grid Modes */}
+            {/* Masonry Layout: Natural Proportions waterfall */}
             {layout === "masonry" && (
-              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
                 {paginated.items.map((photo) => (
                   <PhotoCardItem
                     key={photo.id}
@@ -332,6 +332,7 @@ function GalleryPage() {
               </div>
             )}
 
+            {/* Grid Layout: Structured Aspect Matrix */}
             {layout === "grid" && (
               <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {paginated.items.map((photo) => (
@@ -345,6 +346,7 @@ function GalleryPage() {
               </div>
             )}
 
+            {/* Cinematic Layout: Wide Architectural Format */}
             {layout === "cinematic" && (
               <div className="grid gap-8 md:grid-cols-2">
                 {paginated.items.map((photo) => (
@@ -626,12 +628,12 @@ function PhotoCardItem({
   onOpenLightbox: () => void;
 }) {
   return (
-    <div className="group relative rounded border border-border/80 bg-card overflow-hidden transition-all duration-300 hover:border-accent/80 hover:shadow-xl break-inside-avoid mb-6">
+    <div className="group relative rounded-lg border border-border/80 bg-card overflow-hidden transition-all duration-300 hover:border-accent/80 hover:shadow-xl break-inside-avoid mb-6 w-full inline-block">
       {/* Image Preview with Dynamic Box Sizing */}
       <div
         onClick={onOpenLightbox}
         className={cn(
-          "relative overflow-hidden cursor-pointer",
+          "relative overflow-hidden cursor-pointer bg-stone/40",
           aspectRatio ? aspectRatio : "w-full",
         )}
       >
@@ -647,38 +649,39 @@ function PhotoCardItem({
           )}
           wrapperClassName="w-full"
         />
-        {/* Subtle dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-          <span className="rounded bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] text-white font-medium">
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
+          <span className="rounded-full bg-black/75 backdrop-blur-md px-2.5 py-0.5 text-[10px] text-white font-medium border border-white/10 shadow-sm">
             {photo.category}
           </span>
-          <span className="rounded bg-black/60 backdrop-blur-md px-2 py-0.5 text-[9px] font-mono text-white/80">
+          <span className="rounded-full bg-black/65 backdrop-blur-md px-2 py-0.5 text-[9px] font-mono text-white/90 border border-white/10">
             #{photo.index}
           </span>
         </div>
 
         {/* Center Hover Action */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <span className="rounded bg-black/75 backdrop-blur-md px-3.5 py-1.5 text-xs text-white flex items-center gap-1.5 border border-white/20 shadow-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+          <span className="rounded-full bg-black/80 backdrop-blur-md px-4 py-1.5 text-xs text-white flex items-center gap-1.5 border border-white/20 shadow-lg font-medium">
             <Eye className="size-3.5 text-accent" /> Inspect Photo
           </span>
-        </div>
-
-        {/* Bottom Details on Image */}
-        <div className="absolute bottom-3 left-3 right-3 text-white">
-          <p className="font-display text-sm font-medium leading-snug line-clamp-1">{photo.title}</p>
-          <p className="text-[11px] text-white/75 mt-0.5">
-            {photo.projectTitle} · {photo.location}
-          </p>
         </div>
       </div>
 
       {/* Card Details Footer */}
-      <div className="p-3.5 space-y-2.5 text-xs bg-card">
-        <p className="text-muted-foreground text-[11px] line-clamp-2 leading-relaxed">
+      <div className="p-4 space-y-2 bg-card">
+        <p className="text-[10px] uppercase tracking-wider text-accent font-medium font-mono">
+          {photo.projectTitle} · {photo.location}
+        </p>
+
+        <h3
+          onClick={onOpenLightbox}
+          className="font-display text-sm sm:text-base font-normal text-foreground leading-snug cursor-pointer hover:text-accent transition-colors line-clamp-1"
+        >
+          {photo.title}
+        </h3>
+
+        <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed font-light">
           {photo.caption}
         </p>
 
@@ -686,7 +689,7 @@ function PhotoCardItem({
           {photo.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground font-medium"
+              className="rounded bg-muted px-2 py-0.5 text-[9px] text-muted-foreground font-medium"
             >
               #{tag}
             </span>
@@ -694,7 +697,7 @@ function PhotoCardItem({
         </div>
 
         {/* Action cue */}
-        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
+        <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
           <button
             onClick={onOpenLightbox}
             className="text-accent hover:underline flex items-center gap-1 font-medium cursor-pointer"
