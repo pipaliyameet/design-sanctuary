@@ -29,7 +29,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "Ahmedabad, Gujarat",
     videoSrc: "/videos/architectural-film-01.mp4",
-    posterUrl: "/materials/silver-vein-navona-travertine.jpg",
+    posterUrl: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/11E8B_lIp0tP7p19agB-AE7cg499W7nWc/preview",
     description:

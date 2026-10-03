@@ -148,7 +148,7 @@ export const CURATED_STUDIO_MATERIALS: MaterialItem[] = [
     name: "Silver Vein-Cut Navona Travertine",
     category: "Natural Stone",
     provenance: "Tivoli, Italy",
-    image: "/materials/silver-vein-navona-travertine.jpg",
+    image: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     description: "Linear vein-cut Italian travertine with subtle slate-grey and cream striations, honed to a silky tactile finish.",
     projectTitle: "The Altamount Penthouse",
   },
