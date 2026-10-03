@@ -103,12 +103,12 @@ export async function getSiteSettings(req: Request, res: Response, next: NextFun
     }
 
     return sendSuccess(res, {
-      studioName: "Atelier Vermilion",
+      studioName: "Right-Angle-Design-Studio",
       tagline: "Architecture & Interior Sanctuary",
       phone: "+91 98200 41100",
-      email: "atelier@ateliervermilion.com",
+      email: "contact@rightangle.design",
       address: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
-      instagram: "https://instagram.com/ateliervermilion",
+      instagram: "https://instagram.com/rightangledesignstudio",
       ...settingsMap,
     });
   } catch (err) {

@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/studio/settings/")({
   component: StudioSettingsPage,
   head: () => ({
     meta: [
-      { title: "Studio Settings & Audit Trail — Atelier Vermilion Studio" },
+      { title: "Studio Settings & Audit Trail — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:
@@ -71,7 +71,7 @@ function StudioSettingsPage() {
   // Owner Account State
   const [fullName, setFullName] = useState(session?.fullName || "");
   const [userTitle, setUserTitle] = useState(session?.title || "Studio Owner & Principal");
-  const [userPhone, setUserPhone] = useState(session?.phone || "+91 98250 99881");
+  const [userPhone, setUserPhone] = useState(session?.phone || "+91 98200 41100");
 
   // Keep state updated when session loads
   useState(() => {
@@ -110,13 +110,13 @@ function StudioSettingsPage() {
   };
 
   const [studioProfile, setStudioProfile] = useState({
-    studioName: "Atelier Vermilion",
+    studioName: "Right-Angle-Design-Studio",
     tagline: "Architecture & Bespoke Interior Sanctuary",
     gstin: "24AAACA1234F1Z5",
     pan: "AAACA1234F",
-    email: "contact@ateliervermilion.com",
-    phone: "+91 98250 99881",
-    address: "Design Sanctuary Studio, Racecourse Ring Road, Rajkot 360001, Gujarat",
+    email: "contact@rightangle.design",
+    phone: "+91 98200 41100",
+    address: "Right-Angle-Design-Studio HQ, Racecourse Ring Road, Rajkot 360001, Gujarat",
     currency: "INR (₹)",
     taxRate: "18%",
   });
@@ -292,7 +292,7 @@ function StudioSettingsPage() {
 
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Registered Studio Atelier Address
+                Registered Studio Office Address
               </Label>
               <Input
                 value={studioProfile.address}

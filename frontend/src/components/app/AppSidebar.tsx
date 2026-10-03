@@ -180,7 +180,7 @@ export function AppSidebar({
                 <span className="text-[10px] text-muted-foreground">All Synced</span>
               </div>
               <p className="mt-1 text-[10px] text-muted-foreground leading-tight">
-                Operating Atelier Vermilion Gujarat HQ
+                Operating Right-Angle-Design-Studio HQ
               </p>
             </div>
           )}

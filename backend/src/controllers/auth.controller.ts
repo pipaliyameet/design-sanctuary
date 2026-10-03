@@ -49,7 +49,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         updatedAt: now,
       };
       const insertRes = await usersCol.insertOne(newUserDoc as any);
-      user = { ...newUserDoc, _id: insertRes.insertedId } as UserDoc;
+      user = await usersCol.findOne({ _id: insertRes.insertedId });
     } else {
       if (user.isActive === false) {
         return sendError(res, "This account is inactive. Please contact studio support.", 403, "ACCOUNT_INACTIVE");
@@ -57,9 +57,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
       const isValid = await verifyPassword(password, user.passwordHash);
       if (!isValid) {
-        // If it's a test environment or newly provided password, update to allow access or return error
         return sendError(res, "Invalid password. Please check your password or reset it.", 401, "INVALID_CREDENTIALS");
       }
+    }
+
+    if (!user) {
+      return sendError(res, "Authentication failed. Could not locate user profile.", 500, "AUTH_ERROR");
     }
 
     const token = signToken({

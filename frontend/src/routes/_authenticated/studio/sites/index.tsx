@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/studio/sites/")({
   component: SiteManagementPage,
   head: () => ({
     meta: [
-      { title: "Site Execution & Daily Progress Logs — Atelier Vermilion Studio" },
+      { title: "Site Execution & Daily Progress Logs — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

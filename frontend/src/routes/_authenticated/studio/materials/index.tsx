@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/studio/materials/")({
   component: MaterialsVendorsPage,
   head: () => ({
     meta: [
-      { title: "Materials & Vendor Directory — Atelier Vermilion Studio" },
+      { title: "Materials & Vendor Directory — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

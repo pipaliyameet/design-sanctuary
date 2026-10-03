@@ -447,7 +447,7 @@ function GalleryPage() {
         <div className="mt-20 rounded border border-border bg-card/40 p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <Badge variant="outline" className="text-[10px] text-accent border-accent/40 mb-2">
-              Atelier Commissions
+              Studio Commissions
             </Badge>
             <h3 className="font-display text-2xl sm:text-3xl text-foreground font-light">
               Commission bespoke architecture for your residence.
@@ -568,7 +568,7 @@ function GalleryPage() {
                     </div>
                     <div className="flex items-center justify-between border-b border-border/40 pb-1.5">
                       <span>Studio Practice:</span>
-                      <span className="text-foreground">Right Angle Design Studio</span>
+                      <span className="text-foreground">Right-Angle-Design-Studio</span>
                     </div>
                   </div>
 
@@ -602,7 +602,7 @@ function GalleryPage() {
                   to="/portfolio"
                   className="w-full inline-flex items-center justify-center gap-2 rounded border border-border bg-card px-4 py-2.5 text-xs text-foreground hover:border-accent hover:text-accent transition-colors"
                 >
-                  <span>Explore Atelier Portfolio</span>
+                  <span>Explore Studio Portfolio</span>
                   <ArrowRight className="size-3" />
                 </Link>
               </div>

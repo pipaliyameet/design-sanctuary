@@ -347,7 +347,7 @@ export function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean; onClos
               to select
             </span>
           </div>
-          <span>Atelier Vermilion Command</span>
+          <span>Right-Angle-Design-Studio Command</span>
         </div>
       </div>
     </div>

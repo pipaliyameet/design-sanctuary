@@ -11,7 +11,7 @@ export function PublicShell({
   children: ReactNode;
   overlayHeader?: boolean;
 }) {
-  const whatsappUrl = `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent("Hello Atelier Vermilion, I would like to discuss an interior design project.")}`;
+  const whatsappUrl = `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent("Hello Right-Angle-Design-Studio, I would like to discuss an interior design project.")}`;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-accent/30 selection:text-foreground">
@@ -24,7 +24,7 @@ export function PublicShell({
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Chat with Atelier Vermilion on WhatsApp"
+        aria-label="Chat with Right-Angle-Design-Studio on WhatsApp"
         className="fixed bottom-5 right-5 z-40 md:hidden flex size-12 items-center justify-center rounded-full bg-foreground text-background border border-accent/60 shadow-xl transition-transform active:scale-95 hover:bg-accent hover:text-accent-foreground"
       >
         <MessageSquare className="size-5 text-accent" />

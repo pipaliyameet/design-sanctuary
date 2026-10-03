@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/studio/notifications/")({
   component: NotificationCenterPage,
   head: () => ({
     meta: [
-      { title: "Notification Center — Atelier Vermilion Studio" },
+      { title: "Notification Center — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

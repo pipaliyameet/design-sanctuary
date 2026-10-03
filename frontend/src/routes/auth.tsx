@@ -96,9 +96,9 @@ function AuthPage() {
 
   const fillPrincipalCredentials = () => {
     setMode("signin");
-    setEmail("ira@ateliervermilion.com");
+    setEmail("admin@rightangle.design");
     setPassword("password123");
-    toast.info("Filled Principal credentials (ira@ateliervermilion.com / password123)");
+    toast.info("Filled Principal credentials (admin@rightangle.design / password123)");
   };
 
   return (

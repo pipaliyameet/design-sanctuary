@@ -31,7 +31,7 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
   };
 
   const generateWhatsAppLink = () => {
-    const text = `Hello Atelier Vermilion Studio,\n\nI would like to inquire about a project:\n• Name: ${formData.name || "[Your Name]"}\n• City: ${formData.city}\n• Property Type: ${formData.property_type}\n• Scope: ${formData.space_type}\n• Approx Area: ${formData.area_sqft ? formData.area_sqft + " sq ft" : "Not specified"}\n• Budget Band: ${formData.budget_band}\n• Notes: ${formData.message || "Looking forward to speaking with a principal designer."}`;
+    const text = `Hello Right-Angle-Design-Studio,\n\nI would like to inquire about a project:\n• Name: ${formData.name || "[Your Name]"}\n• City: ${formData.city}\n• Property Type: ${formData.property_type}\n• Scope: ${formData.space_type}\n• Approx Area: ${formData.area_sqft ? formData.area_sqft + " sq ft" : "Not specified"}\n• Budget Band: ${formData.budget_band}\n• Notes: ${formData.message || "Looking forward to speaking with a principal designer."}`;
     return `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
@@ -82,7 +82,7 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
                 </div>
                 <div>
                   <p className="font-medium text-foreground">Design Inquiries</p>
-                  <p className="text-muted-foreground">studio@ateliervermilion.com</p>
+                  <p className="text-muted-foreground">contact@rightangle.design</p>
                 </div>
               </div>
 

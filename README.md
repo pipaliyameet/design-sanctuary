@@ -1,4 +1,4 @@
-# 🏛️ Atelier Vermilion — Interior Studio Platform
+# 🏛️ Right-Angle-Design-Studio — Interior Architecture Platform
 
 A full-stack, enterprise-grade interior architecture and studio management platform featuring an editorial client-facing website, rich interactive studio portal, project pipelines, media galleries, quotation generators, financial tracking, and Google Drive / MongoDB backend sync.
 

@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/studio/clients/")({
   component: ClientsPage,
   head: () => ({
     meta: [
-      { title: "Client Directory & Portfolios — Atelier Vermilion Studio" },
+      { title: "Client Directory & Portfolios — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

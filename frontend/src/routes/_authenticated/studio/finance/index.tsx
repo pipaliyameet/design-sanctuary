@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/studio/finance/")({
   component: StudioFinancePage,
   head: () => ({
     meta: [
-      { title: "Executive Finance & Profitability — Atelier Vermilion Studio" },
+      { title: "Executive Finance & Profitability — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

@@ -22,13 +22,13 @@ export const Route = createFileRoute("/_authenticated/studio/weekly")({
   component: WeeklyPage,
   head: () => ({
     meta: [
-      { title: "Monday summary — Atelier Vermilion Studio" },
+      { title: "Monday summary — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:
           "Weekly studio digest compiled every Monday morning: KPIs, new enquiries and projects awaiting client approval.",
       },
-      { property: "og:title", content: "Monday summary — Atelier Vermilion Studio" },
+      { property: "og:title", content: "Monday summary — Right-Angle-Design-Studio" },
       { property: "og:description", content: "Weekly studio digest and delivery status." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

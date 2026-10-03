@@ -58,7 +58,7 @@ export const Route = createFileRoute("/_authenticated/studio/leads/")({
   component: LeadsPipelinePage,
   head: () => ({
     meta: [
-      { title: "Leads & Pipeline CRM — Atelier Vermilion Studio" },
+      { title: "Leads & Pipeline CRM — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

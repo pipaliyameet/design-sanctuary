@@ -59,7 +59,7 @@ export const Route = createFileRoute("/_authenticated/studio/projects/$id")({
   component: SingleProjectWorkspace,
   head: () => ({
     meta: [
-      { title: "Project Workspace — Atelier Vermilion Studio" },
+      { title: "Project Workspace — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:

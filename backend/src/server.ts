@@ -6,7 +6,7 @@ import { testPgConnection } from "./config/pgDatabase.js";
 async function startServer() {
   try {
     console.log("--------------------------------------------------");
-    console.log("🏛️ Atelier Vermilion / Interior Studio Backend");
+    console.log("🏛️ Right-Angle-Design-Studio Backend");
     console.log("--------------------------------------------------");
 
     // Connect to Supabase PostgreSQL

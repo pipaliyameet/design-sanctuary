@@ -1,6 +1,6 @@
-# Interior Studio Backend API
+# Right-Angle-Design-Studio Backend API
 
-Decoupled, enterprise-grade backend server for **Atelier Vermilion / Design Sanctuary**. Built with Node.js, Express, TypeScript, MongoDB Atlas, and Google Drive API.
+Decoupled, enterprise-grade backend server for **Right-Angle-Design-Studio**. Built with Node.js, Express, TypeScript, Supabase PostgreSQL / MongoDB, and Google Drive API.
 
 ---
 

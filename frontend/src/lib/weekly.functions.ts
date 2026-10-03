@@ -5,7 +5,7 @@ export async function getWeeklySummary() {
   return {
     email: {
       configured: true,
-      domain: "ateliervermilion.com",
+      domain: "rightangle.design",
     },
     latest: {
       week_number: data?.weekNumber || 38,

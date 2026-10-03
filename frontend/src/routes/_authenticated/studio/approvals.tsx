@@ -25,12 +25,12 @@ export const Route = createFileRoute("/_authenticated/studio/approvals")({
   component: ApprovalsPage,
   head: () => ({
     meta: [
-      { title: "Client approvals — Atelier Vermilion Studio" },
+      { title: "Client approvals — Right-Angle-Design-Studio" },
       {
         name: "description",
         content: "Every design set awaiting a client decision, with comments and decision history.",
       },
-      { property: "og:title", content: "Client approvals — Atelier Vermilion Studio" },
+      { property: "og:title", content: "Client approvals — Right-Angle-Design-Studio" },
       { property: "og:description", content: "Approval queue across all projects." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

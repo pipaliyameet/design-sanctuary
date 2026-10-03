@@ -36,12 +36,12 @@ export const Route = createFileRoute("/_authenticated/studio/leads/$id")({
   component: LeadDetail,
   head: () => ({
     meta: [
-      { title: "Lead detail — Atelier Vermilion Studio" },
+      { title: "Lead detail — Right-Angle-Design-Studio" },
       {
         name: "description",
         content: "Qualify a lead, assign an owner and convert it into a live project.",
       },
-      { property: "og:title", content: "Lead detail — Atelier Vermilion Studio" },
+      { property: "og:title", content: "Lead detail — Right-Angle-Design-Studio" },
       { property: "og:description", content: "Lead qualification and conversion." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

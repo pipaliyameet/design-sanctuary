@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/studio/quotations/")({
   component: QuotationsPage,
   head: () => ({
     meta: [
-      { title: "Quotations & BOQ Estimations — Atelier Vermilion Studio" },
+      { title: "Quotations & BOQ Estimations — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:
@@ -204,13 +204,13 @@ function QuotationsPage() {
             <div className="flex justify-between items-start border-b border-border pb-6">
               <div>
                 <h2 className="font-display text-2xl font-normal text-foreground">
-                  Atelier Vermilion
+                  Right-Angle-Design-Studio
                 </h2>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-0.5">
                   Interior Architecture & Turnkey Sanctuary
                 </p>
                 <p className="text-muted-foreground mt-2 leading-relaxed">
-                  Design Sanctuary Studio, Racecourse Ring Road
+                  Right-Angle-Design-Studio HQ, Racecourse Ring Road
                   <br />
                   Rajkot 360001, Gujarat, India
                   <br />

@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/studio/team/")({
   component: StudioTeamPage,
   head: () => ({
     meta: [
-      { title: "Studio Team & Resource Allocation — Atelier Vermilion Studio" },
+      { title: "Studio Team & Resource Allocation — Right-Angle-Design-Studio" },
       {
         name: "description",
         content:
