@@ -41,8 +41,6 @@ interface NavItem {
 
 const PRIMARY_STUDIO_NAV: NavItem[] = [
   { to: "/studio", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/studio/website", label: "Website Control", icon: Globe, badge: "Live Editor" },
-  { to: "/studio/projects", label: "Projects", icon: FolderKanban },
   { to: "/studio/media", label: "Drive Media", icon: ImageIcon },
   { to: "/studio/leads", label: "Enquiries", icon: UserCheck, badge: "New" },
   { to: "/studio/settings", label: "Settings", icon: Settings },

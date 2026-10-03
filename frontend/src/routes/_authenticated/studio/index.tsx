@@ -105,7 +105,7 @@ function OwnerDashboard() {
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Button asChild variant="outline" size="sm" className="text-xs">
-            <Link to="/studio/projects">All Projects</Link>
+            <Link to="/studio/media">Drive Media Vault</Link>
           </Button>
           <Button asChild variant="outline" size="sm" className="text-xs">
             <Link to="/studio/leads">Leads Pipeline</Link>
