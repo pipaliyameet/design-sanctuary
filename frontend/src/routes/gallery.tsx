@@ -25,11 +25,11 @@ import { PublicShell } from "@/components/site/PublicShell";
 import {
   GOOGLE_DRIVE_PHOTOS,
   getPaginatedGoogleDrivePhotos,
+  getPublicGalleryPhotos,
   PUBLIC_DRIVE_FOLDER_URL,
   type GoogleDrivePhoto,
   PHOTO_CATEGORIES,
 } from "@/lib/google-drive-photos";
-import { getPublicGalleryPhotos } from "@/lib/public.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -74,9 +74,9 @@ function GalleryPage() {
     staleTime: 60_000,
   });
 
-  // Compute pagination (uses server data when available, otherwise local paginator)
+  // Compute pagination (uses server data when available and populated, otherwise local paginator)
   const paginated = useMemo(() => {
-    if (serverGallery && typeof serverGallery.total === "number") {
+    if (serverGallery && Array.isArray(serverGallery.items) && serverGallery.items.length > 0) {
       return serverGallery;
     }
     return getPaginatedGoogleDrivePhotos({

@@ -721,3 +721,5 @@ export async function getJournalPost({ data }: { data: { slug: string } }): Prom
 export async function submitEnquiry(payload: any) {
   return publicService.submitEnquiry(payload);
 }
+
+

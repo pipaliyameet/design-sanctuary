@@ -16,8 +16,8 @@ import {
   PHOTO_CATEGORIES,
   PUBLIC_DRIVE_FOLDER_URL,
   type GoogleDrivePhoto,
+  getPublicGalleryPhotos,
 } from "@/lib/google-drive-photos";
-import { getPublicGalleryPhotos } from "@/lib/public.functions";
 import { DriveImage } from "./DriveImage";
 import { PhotoLightboxModal } from "./PhotoLightboxModal";
 import { cn } from "@/lib/utils";

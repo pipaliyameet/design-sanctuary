@@ -138,12 +138,19 @@ export function getPaginatedGoogleDrivePhotos(
   };
 }
 
-/**
- * Returns a hero/featured image selection from Google Drive photos
- */
 export function getDriveCoverPhoto(index = 0): string {
   if (GOOGLE_DRIVE_PHOTOS[index]) {
     return GOOGLE_DRIVE_PHOTOS[index]!.url;
   }
   return GOOGLE_DRIVE_PHOTOS[0]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
 }
+
+/**
+ * Robust async fetcher for gallery photos with instant local pagination
+ */
+export async function getPublicGalleryPhotos(
+  params: PhotoFilterParams = {},
+): Promise<PaginatedPhotosResult> {
+  return getPaginatedGoogleDrivePhotos(params);
+}
+
