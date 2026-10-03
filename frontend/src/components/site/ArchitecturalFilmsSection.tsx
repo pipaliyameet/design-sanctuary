@@ -70,47 +70,21 @@ export function ArchitecturalFilmsSection() {
           {/* Left / Center: Vertical Rectangular Cinema Frame (5 Cols) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-start">
             <div className="relative w-full max-w-[340px] sm:max-w-[390px] aspect-[9/16] rounded-2xl overflow-hidden bg-stone border-2 border-border shadow-2xl ring-1 ring-black/5 group">
-              {/* Vertical Video Element */}
-              <video
-                ref={videoRef}
-                key={currentFilm.videoSrc}
-                src={currentFilm.videoSrc}
-                poster={currentFilm.posterUrl}
-                autoPlay
-                muted={isMuted}
-                playsInline
-                onEnded={handleVideoEnded}
-                className="size-full object-cover transition-opacity duration-700"
+              {/* Vertical Video / Embed Frame */}
+              <iframe
+                key={currentFilm.driveEmbedUrl}
+                src={currentFilm.driveEmbedUrl}
+                title={currentFilm.title}
+                allow="autoplay; fullscreen; encrypted-media"
+                className="size-full border-0 object-cover"
               />
 
-              {/* Gradient Overlays */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-              {/* Top Video Tag & Sound Toggle */}
-              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-wider text-amber-300 border border-amber-400/30 font-mono">
+              {/* Top Video Tag */}
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-wider text-amber-300 border border-amber-400/30 font-mono">
                   <span className="size-1.5 rounded-full bg-amber-400 animate-ping" />
                   Live Walkthrough
                 </span>
-
-                <button
-                  onClick={() => setIsMuted((prev) => !prev)}
-                  className="flex size-8 items-center justify-center rounded-full bg-black/70 backdrop-blur-md text-white hover:bg-black transition-all cursor-pointer"
-                  title={isMuted ? "Click to unmute" : "Click to mute"}
-                  aria-label={isMuted ? "Unmute video" : "Mute video"}
-                >
-                  {isMuted ? <VolumeX className="size-3.5 text-amber-400" /> : <Volume2 className="size-3.5 text-emerald-400" />}
-                </button>
-              </div>
-
-              {/* Bottom Video Label */}
-              <div className="absolute bottom-5 left-5 right-5 z-20 space-y-1 pointer-events-none text-white">
-                <p className="text-[10px] uppercase tracking-widest text-amber-300 font-mono font-medium">
-                  {currentFilm.location}
-                </p>
-                <h3 className="font-display text-lg font-light leading-snug line-clamp-2">
-                  {currentFilm.title}
-                </h3>
               </div>
             </div>
           </div>
