@@ -7,6 +7,7 @@ export interface DriveVideo {
   year: number;
   location: string;
   videoSrc: string;
+  streamUrl: string;
   posterUrl: string;
   driveFolderUrl: string;
   driveEmbedUrl: string;
@@ -29,6 +30,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "Ahmedabad, Gujarat",
     videoSrc: "/videos/architectural-film-01.mp4",
+    streamUrl: "https://drive.usercontent.google.com/download?id=11E8B_lIp0tP7p19agB-AE7cg499W7nWc&export=download",
     posterUrl: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/11E8B_lIp0tP7p19agB-AE7cg499W7nWc/preview",
@@ -46,6 +48,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "South Mumbai",
     videoSrc: "/videos/architectural-film-02.mp4",
+    streamUrl: "https://drive.usercontent.google.com/download?id=12S56ct9HKchc4qP44WfHlu7itB58qUm_&export=download",
     posterUrl: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/12S56ct9HKchc4qP44WfHlu7itB58qUm_/preview",
@@ -62,6 +65,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "Rajkot, Gujarat",
     videoSrc: "/videos/architectural-film-03.mp4",
+    streamUrl: "https://drive.usercontent.google.com/download?id=1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt&export=download",
     posterUrl: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt/preview",
