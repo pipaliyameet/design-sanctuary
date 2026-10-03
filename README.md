@@ -1,29 +1,80 @@
-# Welcome to your Lovable project
+# 🏛️ Atelier Vermilion — Interior Studio Platform
 
-This project was built with [Lovable](https://lovable.dev).
+A full-stack, enterprise-grade interior architecture and studio management platform featuring an editorial client-facing website, rich interactive studio portal, project pipelines, media galleries, quotation generators, financial tracking, and Google Drive / MongoDB backend sync.
 
-## Build with Lovable
+---
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## 📂 Project Structure (Separated Frontend & Backend)
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+```text
+├── package.json              # Monorepo orchestration scripts
+├── .gitignore                # Root Git ignore configuration
+├── README.md                 # Project documentation
+│
+├── 🎨 frontend/              # FRONTEND APPLICATION (TanStack Start + React + Tailwind)
+│   ├── .env                  # Frontend environment variables
+│   ├── .env.example          # Frontend environment template
+│   ├── .gitignore            # Frontend git ignore rules
+│   ├── package.json          # Frontend dependencies & scripts
+│   ├── tsconfig.json         # Frontend TypeScript config
+│   ├── vite.config.ts        # Vite configuration
+│   ├── components.json       # shadcn component configuration
+│   ├── public/               # Static assets (favicons, videos, materials)
+│   └── src/                  # React source code
+│       ├── components/       # UI & layout components (app, site, studio, ui)
+│       ├── config/           # Route & navigation configurations
+│       ├── hooks/            # Custom React hooks
+│       ├── integrations/     # Supabase client
+│       ├── lib/              # Utility functions & data helpers
+│       ├── routes/           # File-based routes (public site + studio portal)
+│       ├── services/         # API services connecting to backend
+│       ├── types/            # TypeScript interfaces
+│       └── styles.css        # Tailwind CSS & design tokens
+│
+└── ⚙️ backend/               # BACKEND APPLICATION (Node.js + Express + TypeScript)
+    ├── .env                  # Backend environment variables
+    ├── .env.example          # Backend environment template
+    ├── .gitignore            # Backend git ignore rules
+    ├── package.json          # Backend dependencies & scripts
+    ├── tsconfig.json         # Backend TypeScript config
+    ├── vercel.json           # Vercel serverless deployment config
+    ├── api/                  # Serverless entry point
+    └── src/
+        ├── config/           # MongoDB connection, Google Drive API, environment
+        ├── controllers/      # Route controllers (auth, projects, leads, media, etc.)
+        ├── middleware/       # Auth guards, JWT validation, error handlers
+        ├── models/           # MongoDB data models & schemas
+        ├── routes/           # Express REST API routes (`/api/*`)
+        ├── seed/             # Initial database seeder script
+        ├── server.ts         # Express server bootstrap
+        └── utils/            # Helpers & token generators
+```
 
-## Development
+---
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## 🚀 Running the Project
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+### From Root Directory (Single Command):
+```bash
+# Run both Frontend and Backend concurrently:
 npm run dev
 ```
 
-## Built with
+### Individual Service Commands:
+```bash
+# Frontend only (http://localhost:8080)
+npm run dev:frontend
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+# Backend only (http://localhost:5001)
+npm run dev:backend
+
+# Seed MongoDB with initial data
+npm run seed
+```
+
+---
+
+## 🔒 Environment Files
+
+- **Frontend**: `frontend/.env` (based on `frontend/.env.example`)
+- **Backend**: `backend/.env` (based on `backend/.env.example`)

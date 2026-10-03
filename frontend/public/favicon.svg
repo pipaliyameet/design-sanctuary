@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 160" width="100%" height="100%">
+  <!-- Outer Black Right Angle Bracket (Bold Rectangular Proportion) -->
+  <path d="M 0 0 H 100 V 160 H 80 V 20 H 0 Z" fill="#000000" />
+  <!-- Inner Architectural Orange Right Angle Bracket -->
+  <path d="M 0 38 H 62 V 58 H 20 V 160 H 0 Z" fill="#F58220" />
+</svg>
