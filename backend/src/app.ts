@@ -28,7 +28,7 @@ const app = express();
 
 // 1. Basic security & logging
 app.use(
-  helmet({
+  (helmet as any)({
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false,
@@ -44,8 +44,8 @@ const allowedOrigins = [
 ];
 
 app.use(
-  cors({
-    origin: (origin, callback) => {
+  (cors as any)({
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV !== "production") {
         callback(null, true);
       } else {
@@ -58,8 +58,8 @@ app.use(
   }),
 );
 
-app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
-app.use(cookieParser());
+app.use((morgan as any)(env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use((cookieParser as any)());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
