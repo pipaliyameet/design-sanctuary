@@ -1,6 +1,7 @@
 import app from "./app.js";
 import { env } from "./config/env.js";
 import { connectToDatabase, closeDatabase } from "./config/database.js";
+import { testPgConnection } from "./config/pgDatabase.js";
 
 async function startServer() {
   try {
@@ -8,11 +9,18 @@ async function startServer() {
     console.log("🏛️ Atelier Vermilion / Interior Studio Backend");
     console.log("--------------------------------------------------");
 
-    // Connect to MongoDB Atlas (Graceful non-fatal start)
+    // Connect to Supabase PostgreSQL
+    try {
+      await testPgConnection();
+    } catch (pgErr) {
+      console.warn("⚠️ [Supabase Postgres] Could not connect:", pgErr);
+    }
+
+    // Connect to MongoDB (Graceful non-fatal start)
     try {
       await connectToDatabase();
     } catch (dbErr) {
-      console.warn("⚠️ [MongoDB] Could not establish immediate connection. API running with resilient fallback.");
+      console.warn("⚠️ [MongoDB] Could not establish immediate connection.");
     }
 
     let currentPort = env.PORT;
