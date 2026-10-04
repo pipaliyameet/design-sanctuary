@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Film, Volume2, VolumeX, ExternalLink, Sparkles } from "lucide-react";
+import { Film, ExternalLink, Sparkles } from "lucide-react";
 import {
   ARCHITECTURAL_FILMS,
   GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
@@ -9,41 +9,29 @@ import { cn } from "@/lib/utils";
 
 export function ArchitecturalFilmsSection() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
   const [hasStreamError, setHasStreamError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentFilm: DriveVideo = ARCHITECTURAL_FILMS[currentVideoIndex] || ARCHITECTURAL_FILMS[0]!;
 
-  // Autoplay immediately on mount and on slide change
+  // Autoplay immediately on mount and on slide change - permanently muted
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = isMuted;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
     video.currentTime = 0;
     
-    const startPlay = async () => {
-      try {
-        await video.play();
-      } catch {
-        // Fallback: force muted autoplay
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
         video.muted = true;
-        setIsMuted(true);
         video.play().catch(() => {});
-      }
-    };
-
-    startPlay();
-  }, [currentVideoIndex]);
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const nextMuteState = !isMuted;
-      videoRef.current.muted = nextMuteState;
-      setIsMuted(nextMuteState);
+      });
     }
-  };
+  }, [currentVideoIndex, currentFilm.streamUrl]);
 
   // Seamlessly cycle to next walkthrough reel when current ends
   const handleVideoEnded = () => {
@@ -85,7 +73,7 @@ export function ArchitecturalFilmsSection() {
           {/* Left / Center: Vertical Rectangular Cinema Frame (5 Cols) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-start">
             <div className="relative w-full max-w-[340px] sm:max-w-[390px] aspect-[9/16] rounded-2xl overflow-hidden bg-stone border-2 border-border shadow-2xl ring-1 ring-black/5 group">
-              {/* Autoplaying HTML5 Video Stream */}
+              {/* Autoplaying HTML5 Video Stream - Permanent Mute */}
               {!hasStreamError ? (
                 <video
                   ref={videoRef}
@@ -93,10 +81,20 @@ export function ArchitecturalFilmsSection() {
                   src={currentFilm.streamUrl}
                   poster={currentFilm.posterUrl}
                   autoPlay
-                  muted={isMuted}
+                  muted
                   loop
                   playsInline
                   preload="auto"
+                  onCanPlay={() => {
+                    if (videoRef.current && videoRef.current.paused) {
+                      videoRef.current.play().catch(() => {});
+                    }
+                  }}
+                  onLoadedData={() => {
+                    if (videoRef.current && videoRef.current.paused) {
+                      videoRef.current.play().catch(() => {});
+                    }
+                  }}
                   onEnded={handleVideoEnded}
                   onError={() => setHasStreamError(true)}
                   className="size-full object-cover"
@@ -104,7 +102,7 @@ export function ArchitecturalFilmsSection() {
               ) : (
                 <iframe
                   key={currentFilm.driveEmbedUrl}
-                  src={currentFilm.driveEmbedUrl}
+                  src={`${currentFilm.driveEmbedUrl}?autoplay=1&mute=1`}
                   title={currentFilm.title}
                   allow="autoplay; fullscreen; encrypted-media"
                   className="size-full border-0 object-cover"
@@ -112,26 +110,11 @@ export function ArchitecturalFilmsSection() {
               )}
 
               {/* Top Video Tag */}
-              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
+              <div className="absolute top-4 left-4 z-20 pointer-events-none">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-wider text-amber-300 border border-amber-400/30 font-mono">
                   <span className="size-1.5 rounded-full bg-amber-400 animate-ping" />
                   Live Walkthrough
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[10px] text-zinc-300 font-mono">
-                  Muted Autoplay
-                </span>
-              </div>
-
-              {/* Audio Controls Floating Button */}
-              <div className="absolute bottom-4 right-4 z-20">
-                <button
-                  onClick={toggleMute}
-                  className="size-9 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white hover:bg-black/90 flex items-center justify-center shadow-lg transition-all cursor-pointer"
-                  title={isMuted ? "Unmute audio" : "Mute audio"}
-                  aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-                >
-                  {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4 text-accent" />}
-                </button>
               </div>
             </div>
           </div>

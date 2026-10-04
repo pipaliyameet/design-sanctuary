@@ -19,9 +19,18 @@ export function extractGoogleDriveId(srcOrId?: string): string | null {
   if (!srcOrId || typeof srcOrId !== "string") return null;
   const trimmed = srcOrId.trim();
 
-  // If already a clean Google Drive alphanumeric ID (typically 28-45 chars)
-  if (/^[a-zA-Z0-9_-]{25,50}$/.test(trimmed)) {
-    return trimmed;
+  // Guard against non-Google URLs and special schemes
+  if (
+    trimmed.startsWith("local-") ||
+    trimmed.startsWith("sim-") ||
+    trimmed.startsWith("err-") ||
+    trimmed.startsWith("mem_") ||
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.includes("/api/media/local/") ||
+    trimmed.includes("localhost:")
+  ) {
+    return null;
   }
 
   const dMatch = trimmed.match(/lh3\.googleusercontent\.com\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/i);
@@ -39,6 +48,11 @@ export function extractGoogleDriveId(srcOrId?: string): string | null {
   const openMatch = trimmed.match(/drive\.google\.com\/open\?.*id=([a-zA-Z0-9_-]+)/i);
   if (openMatch?.[1]) return openMatch[1];
 
+  // If already a clean Google Drive alphanumeric ID (28-45 chars, no slashes/periods)
+  if (/^[a-zA-Z0-9_-]{28,45}$/.test(trimmed) && !trimmed.includes(".")) {
+    return trimmed;
+  }
+
   return null;
 }
 
@@ -50,7 +64,7 @@ export function buildDriveCandidateUrls(
   driveId?: string,
   fallbackUrls: string[] = [],
 ): string[] {
-  const extractedId = driveId || extractGoogleDriveId(src);
+  const extractedId = extractGoogleDriveId(driveId) || extractGoogleDriveId(src);
   const candidates: string[] = [];
 
   if (extractedId) {
@@ -117,10 +131,15 @@ export function DriveImage({
   // Reset state on target image source change
   useEffect(() => {
     setCurrentIndex(0);
-    setLoaded(false);
-    setHasError(false);
     setAspectRatio(null);
-  }, [src, driveId]);
+    if (!src && !driveId && candidateUrls.length === 0) {
+      setLoaded(true);
+      setHasError(true);
+    } else {
+      setLoaded(false);
+      setHasError(false);
+    }
+  }, [src, driveId, candidateUrls.length]);
 
   const advanceToNextCandidate = useCallback(() => {
     if (timeoutRef.current) {

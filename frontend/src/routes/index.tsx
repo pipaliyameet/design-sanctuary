@@ -596,23 +596,35 @@ export function HomePage() {
           <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
             <p className="eyebrow text-center mb-10">CLIENT PERSPECTIVES</p>
 
-            <div className="grid gap-10 md:grid-cols-2 max-w-4xl mx-auto">
-              {testimonials.map((t, idx) => (
-                <div
-                  key={t._id || idx}
-                  className="flex flex-col justify-between border-l border-accent/70 pl-6 py-2"
-                >
-                  <p className="font-editorial text-lg sm:text-xl font-light italic text-foreground leading-relaxed">
-                    “{t.text}”
-                  </p>
-                  <div className="mt-6">
-                    <p className="font-display text-sm text-foreground">{t.clientName}</p>
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
-                      {t.project} · {t.location}
+            <div className="grid gap-10 md:grid-cols-3 max-w-6xl mx-auto">
+              {testimonials.map((t, idx) => {
+                const quoteText = t.quote || t.text || "";
+                const authorName = t.author || t.clientName || "Homeowner";
+                const projectText = t.projectTitle || t.project || "";
+                const locationText = t.location || t.role || "";
+                const subtitle = [projectText, locationText].filter(Boolean).join(" · ");
+
+                if (!quoteText) return null;
+
+                return (
+                  <div
+                    key={t._id || idx}
+                    className="flex flex-col justify-between border-l-2 border-accent/80 bg-card/40 p-6 rounded-r-md transition-all duration-300 hover:bg-card/70 hover:shadow-md"
+                  >
+                    <p className="font-editorial text-base sm:text-lg font-light italic text-foreground leading-relaxed">
+                      “{quoteText}”
                     </p>
+                    <div className="mt-6 pt-4 border-t border-border/50">
+                      <p className="font-display text-sm text-foreground font-medium">{authorName}</p>
+                      {subtitle && (
+                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5 font-light">
+                          {subtitle}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

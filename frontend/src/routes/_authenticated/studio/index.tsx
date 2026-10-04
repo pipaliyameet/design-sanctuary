@@ -104,14 +104,14 @@ function OwnerDashboard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <Button asChild size="sm" className="text-xs bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm font-medium">
+            <Link to="/studio/website">⭐ Set Customer Homepage</Link>
+          </Button>
           <Button asChild variant="outline" size="sm" className="text-xs">
             <Link to="/studio/media">Drive Media Vault</Link>
           </Button>
           <Button asChild variant="outline" size="sm" className="text-xs">
             <Link to="/studio/leads">Leads Pipeline</Link>
-          </Button>
-          <Button asChild size="sm" className="text-xs bg-primary text-primary-foreground">
-            <Link to="/studio/quotations">New Estimate</Link>
           </Button>
         </div>
       </div>

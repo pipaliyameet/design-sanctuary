@@ -1,5 +1,8 @@
+import { getApiBaseUrl } from "@/config/api";
+
 export interface DriveVideo {
   id: string;
+  driveFileId: string;
   title: string;
   subtitle: string;
   category: string;
@@ -19,10 +22,16 @@ export interface DriveVideo {
 export const GOOGLE_DRIVE_VIDEOS_FOLDER_ID = "1RVz5DwORdVYsquHkOm97r8i1RvJGhi-Y";
 export const GOOGLE_DRIVE_VIDEOS_FOLDER_URL = `https://drive.google.com/drive/folders/${GOOGLE_DRIVE_VIDEOS_FOLDER_ID}`;
 
+export function getVideoStreamUrl(driveFileId: string): string {
+  const baseUrl = getApiBaseUrl();
+  return `${baseUrl}/media/stream-video/${driveFileId}`;
+}
+
 // Curated Architectural Film & Walkthrough Reels from Right Angle Google Drive
 export const ARCHITECTURAL_FILMS: DriveVideo[] = [
   {
     id: "film-01",
+    driveFileId: "11E8B_lIp0tP7p19agB-AE7cg499W7nWc",
     title: "The Shah Courtyard Residence — Cinematic Walkthrough",
     subtitle: "A 6,400 sq ft pavilion structured around daylight, monolithic quartzite, and fluted teak millwork.",
     category: "Residential Architecture",
@@ -30,7 +39,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "Ahmedabad, Gujarat",
     videoSrc: "/videos/architectural-film-01.mp4",
-    streamUrl: "https://drive.usercontent.google.com/download?id=11E8B_lIp0tP7p19agB-AE7cg499W7nWc&export=download",
+    streamUrl: getVideoStreamUrl("11E8B_lIp0tP7p19agB-AE7cg499W7nWc"),
     posterUrl: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/11E8B_lIp0tP7p19agB-AE7cg499W7nWc/preview",
@@ -41,6 +50,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
   },
   {
     id: "film-02",
+    driveFileId: "12S56ct9HKchc4qP44WfHlu7itB58qUm_",
     title: "The Altamount Penthouse — Twilight Material Study",
     subtitle: "Evening ambiance illuminated by concealed 2700K architectural cove lighting and smoked oak joinery.",
     category: "Penthouse & Luxury Interiors",
@@ -48,7 +58,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "South Mumbai",
     videoSrc: "/videos/architectural-film-02.mp4",
-    streamUrl: "https://drive.usercontent.google.com/download?id=12S56ct9HKchc4qP44WfHlu7itB58qUm_&export=download",
+    streamUrl: getVideoStreamUrl("12S56ct9HKchc4qP44WfHlu7itB58qUm_"),
     posterUrl: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/12S56ct9HKchc4qP44WfHlu7itB58qUm_/preview",
@@ -58,6 +68,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
   },
   {
     id: "film-03",
+    driveFileId: "1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt",
     title: "Mehta Executive Suite — Craftsmanship & Details",
     subtitle: "Precision joinery, vein-matched Roman travertine portals, and custom patinated bronze handles.",
     category: "Commercial & Executive Suites",
@@ -65,7 +76,7 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
     year: 2026,
     location: "Rajkot, Gujarat",
     videoSrc: "/videos/architectural-film-03.mp4",
-    streamUrl: "https://drive.usercontent.google.com/download?id=1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt&export=download",
+    streamUrl: getVideoStreamUrl("1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt"),
     posterUrl: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     driveFolderUrl: GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
     driveEmbedUrl: "https://drive.google.com/file/d/1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt/preview",

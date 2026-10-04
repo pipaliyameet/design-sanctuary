@@ -172,11 +172,26 @@
 }
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
     border-color: var(--color-border);
   }
 
+  html {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -185,6 +200,19 @@
     font-feature-settings: "ss01" 1;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+
+  iframe {
+    max-width: 100%;
   }
 
   h1,
@@ -298,6 +326,15 @@
 /* Draggable Before & After Slider helpers */
 .comparison-slider-clip {
   clip-path: inset(0 calc(100% - var(--slider-pos, 50%)) 0 0);
+}
+
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 

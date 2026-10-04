@@ -3,15 +3,22 @@ import { CaseStudyDetail, CaseCard } from "../types/api";
 
 export interface ServiceItem {
   _id?: string;
-  number: string;
+  number?: string;
   title: string;
-  shortDesc: string;
-  fullDesc: string;
-  deliverables: string[];
+  slug?: string;
+  shortDesc?: string;
+  short_description?: string;
+  fullDesc?: string;
+  description?: string;
+  deliverables?: string[];
   image: string;
+  images?: string[];
   driveFileId?: string | null;
-  link: string;
+  link?: string;
+  icon?: string;
+  active?: boolean;
   sortOrder?: number;
+  order?: number;
 }
 
 export interface ProcessStepItem {
@@ -25,12 +32,17 @@ export interface ProcessStepItem {
 
 export interface TestimonialItem {
   _id?: string;
-  clientName: string;
-  project: string;
-  location: string;
-  text: string;
+  clientName?: string;
+  author?: string;
+  project?: string;
+  projectTitle?: string;
+  location?: string;
+  text?: string;
   quote?: string;
   role?: string;
+  rating?: number;
+  approved?: boolean;
+  sortOrder?: number;
 }
 
 export interface MaterialItem {

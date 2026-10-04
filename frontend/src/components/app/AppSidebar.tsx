@@ -41,7 +41,8 @@ interface NavItem {
 
 const PRIMARY_STUDIO_NAV: NavItem[] = [
   { to: "/studio", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/studio/media", label: "Drive Media", icon: ImageIcon },
+  { to: "/studio/website", label: "Customer Homepage", icon: Globe, badge: "Live" },
+  { to: "/studio/media", label: "Drive Media Vault", icon: ImageIcon },
   { to: "/studio/leads", label: "Enquiries", icon: UserCheck, badge: "New" },
   { to: "/studio/settings", label: "Settings", icon: Settings },
 ];
@@ -71,7 +72,7 @@ export function AppSidebar({
     <TooltipProvider delayDuration={150}>
       <aside
         className={cn(
-          "relative flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out shrink-0 select-none z-30",
+          "relative flex flex-col h-screen h-full border-r border-border bg-card transition-all duration-300 ease-in-out shrink-0 select-none z-30",
           collapsed ? "w-[68px]" : "w-[260px]",
         )}
       >

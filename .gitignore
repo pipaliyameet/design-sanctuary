@@ -43,5 +43,11 @@ dist-ssr/
 *.sln
 *.sw?
 
+# Credentials & Service Accounts
+*service*account*.json
+*credentials*.json
+*-uploader-*.json
+gcp-key.json
+
 .vercel
 .env*

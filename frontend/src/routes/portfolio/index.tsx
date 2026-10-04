@@ -13,9 +13,6 @@ const portfolioQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/portfolio/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/gallery" });
-  },
   loader: ({ context }) => context.queryClient.ensureQueryData(portfolioQuery),
   component: PortfolioPage,
   head: () => ({

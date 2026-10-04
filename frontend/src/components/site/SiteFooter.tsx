@@ -8,8 +8,8 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-border bg-card/60 text-foreground transition-colors">
-      <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 py-14 sm:py-20">
-        <div className="grid gap-12 lg:grid-cols-12 items-start">
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-20">
+        <div className="grid gap-10 sm:gap-12 lg:grid-cols-12 items-start">
           {/* Studio Brand & Bio */}
           <div className="lg:col-span-5 space-y-4">
             <Link to="/" className="inline-block">

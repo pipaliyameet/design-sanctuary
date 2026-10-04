@@ -81,9 +81,9 @@ export function AppShell({
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground font-sans antialiased overflow-x-hidden">
-      {/* Desktop Architectural Sidebar */}
-      <div className="hidden md:flex">
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground font-sans antialiased">
+      {/* Desktop Architectural Sidebar (Static / Fixed Non-Scrollable) */}
+      <div className="hidden md:flex h-full shrink-0 z-30">
         <AppSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -125,10 +125,10 @@ export function AppShell({
         </div>
       </div>
 
-      {/* Main Command Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Command Workspace Area (Independently Scrollable) */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-y-auto">
         {/* Top Command Bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/85 px-4 backdrop-blur sm:px-8">
+        <header className="sticky top-0 z-30 shrink-0 flex h-16 items-center justify-between border-b border-border bg-card/90 px-4 backdrop-blur sm:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}

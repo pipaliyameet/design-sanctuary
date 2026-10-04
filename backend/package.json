@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "node ./node_modules/tsx/dist/cli.mjs watch src/server.ts",
     "build": "node ./node_modules/typescript/bin/tsc",
     "vercel-build": "echo 'Vercel Serverless Ready'",
     "start": "node dist/src/server.js",
-    "seed": "tsx src/seed/seed.ts",
+    "seed": "node ./node_modules/tsx/dist/cli.mjs src/seed/seed.ts",
+    "setup-drive-oauth": "node scripts/setup-drive-oauth.js",
     "check": "node ./node_modules/typescript/bin/tsc --noEmit"
   },
   "dependencies": {

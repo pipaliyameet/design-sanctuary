@@ -69,8 +69,8 @@ export const Route = createFileRoute("/_authenticated/studio/media/")({
 });
 
 const CATEGORIES = [
-  { key: "all", label: "All Works" },
-  { key: "homepage", label: "⭐ Homepage Selected" },
+  { key: "all", label: "All Vault Photos (Google Drive)" },
+  { key: "homepage", label: "⭐ Customer Screen (Live)" },
   { key: "Living & Salon", label: "Living & Salon" },
   { key: "Master Bedroom & Suites", label: "Master Bedroom" },
   { key: "Dining & Show Kitchen", label: "Dining & Kitchen" },
@@ -78,8 +78,6 @@ const CATEGORIES = [
   { key: "Courtyard & Terraces", label: "Courtyard & Terraces" },
   { key: "Bath & Spa Sanctuary", label: "Bath & Spa" },
   { key: "Bespoke Materials & Lighting", label: "Materials & Lighting" },
-  { key: "3d_renders", label: "3D Renders" },
-  { key: "final_photos", label: "Final Photography" },
 ] as const;
 
 const POPULAR_PROJECTS = [
@@ -263,6 +261,7 @@ export function MediaLibraryPage() {
       queryClient.invalidateQueries({ queryKey: ["studio", "media"] });
       queryClient.invalidateQueries({ queryKey: ["public-gallery"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-media"] });
       queryClient.invalidateQueries({ queryKey: ["public"] });
       refetch();
     },
@@ -288,6 +287,7 @@ export function MediaLibraryPage() {
       );
       queryClient.invalidateQueries({ queryKey: ["studio", "media"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-media"] });
       queryClient.invalidateQueries({ queryKey: ["public-gallery"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Update failed"),
@@ -306,6 +306,8 @@ export function MediaLibraryPage() {
       toast.success("Homepage order saved.");
       queryClient.invalidateQueries({ queryKey: ["studio", "media"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-media"] });
+      queryClient.invalidateQueries({ queryKey: ["public-gallery"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Order update failed"),
   });
@@ -587,13 +589,13 @@ export function MediaLibraryPage() {
 
                         <div className="flex items-center gap-1">
                           {isHomepage ? (
-                            <span className="bg-accent text-accent-foreground px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 shadow-sm">
-                              <Star className="h-3 w-3 fill-current" />
-                              <span>Homepage #{asset.homepageOrder ?? 1}</span>
+                            <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 shadow-xs font-mono">
+                              <Star className="h-3 w-3 fill-amber-300 text-amber-300" />
+                              <span>CUSTOMER SCREEN #{asset.homepageOrder ?? 1}</span>
                             </span>
                           ) : (
-                            <span className="bg-black/60 text-white/70 px-1.5 py-0.5 rounded text-[9px] font-mono">
-                              Hidden
+                            <span className="bg-black/70 text-zinc-300 px-1.5 py-0.5 rounded text-[9px] font-mono">
+                              Drive Vault Only
                             </span>
                           )}
                         </div>
@@ -601,8 +603,8 @@ export function MediaLibraryPage() {
 
                       {/* Hover action overlay */}
                       <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="rounded bg-black/70 backdrop-blur px-2.5 py-1 text-xs text-white flex items-center gap-1 border border-white/20">
-                          <Eye className="h-3.5 w-3.5" /> Inspect & Full View
+                        <span className="rounded bg-black/75 backdrop-blur px-2.5 py-1 text-xs text-white flex items-center gap-1 border border-white/20">
+                          <Eye className="h-3.5 w-3.5" /> Inspect Photo
                         </span>
                       </div>
 
@@ -620,11 +622,11 @@ export function MediaLibraryPage() {
                         {asset.description || asset.caption || "Architectural photograph in Google Drive vault."}
                       </p>
 
-                      {/* Homepage Position / Order Control */}
+                      {/* Customer Screen Position / Order Control */}
                       {isHomepage && (
-                        <div className="rounded bg-accent/10 border border-accent/30 px-2.5 py-1.5 flex items-center justify-between text-[11px]">
-                          <span className="text-foreground font-medium flex items-center gap-1">
-                            <ArrowUpDown className="size-3 text-accent" /> Homepage Order:
+                        <div className="rounded bg-accent/15 border border-accent/40 px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                          <span className="text-foreground font-semibold flex items-center gap-1">
+                            <ArrowUpDown className="size-3 text-accent" /> Customer Order:
                           </span>
                           <div className="flex items-center gap-1.5">
                             <input
@@ -652,21 +654,21 @@ export function MediaLibraryPage() {
                                   }
                                 }
                               }}
-                              className="w-12 rounded border border-border bg-background px-1.5 py-0.5 text-center text-xs font-mono font-bold text-foreground"
+                              className="w-12 rounded border border-border bg-background px-1.5 py-0.5 text-center text-xs font-mono font-bold text-foreground focus:border-accent"
                             />
                           </div>
                         </div>
                       )}
 
-                      {/* Action Bar: Toggle Homepage Visibility & Delete */}
+                      {/* Action Bar: Toggle Customer Screen Visibility & Delete */}
                       <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
                         <Button
                           size="sm"
                           variant={isHomepage ? "default" : "outline"}
-                          className={`h-8 px-2.5 text-xs flex-1 cursor-pointer font-medium ${
+                          className={`h-8 px-2.5 text-xs flex-1 cursor-pointer font-medium transition-all ${
                             isHomepage
-                              ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                              : "border-border text-muted-foreground hover:text-foreground hover:border-accent"
+                              ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-xs"
+                              : "border-border text-foreground hover:border-accent hover:bg-accent/10"
                           }`}
                           onClick={() =>
                             toggleHomepageMutation.mutate({
@@ -679,12 +681,12 @@ export function MediaLibraryPage() {
                           {isHomepage ? (
                             <>
                               <Check className="h-3.5 w-3.5 mr-1 text-accent-foreground" />
-                              <span>Showing on Homepage</span>
+                              <span>✓ On Customer Screen</span>
                             </>
                           ) : (
                             <>
-                              <Plus className="h-3.5 w-3.5 mr-1" />
-                              <span>Show on Homepage</span>
+                              <Plus className="h-3.5 w-3.5 mr-1 text-accent" />
+                              <span>+ Set for Customer Screen</span>
                             </>
                           )}
                         </Button>

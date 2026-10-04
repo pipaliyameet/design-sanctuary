@@ -327,7 +327,12 @@ export async function getPublicGallery(req: Request, res: Response, next: NextFu
     const mediaCol = await getCollection<MediaDoc>("media");
 
     const filter: Record<string, any> = {
-      visibility: "website",
+      $or: [
+        { visibility: "website" },
+        { visibility: "public" },
+        { isVisible: true },
+        { isHomepageVisible: true },
+      ],
     };
 
     if (category && typeof category === "string" && category.toLowerCase() !== "all") {

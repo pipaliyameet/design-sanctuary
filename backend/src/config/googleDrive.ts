@@ -226,6 +226,33 @@ export async function deleteFileFromGoogleDrive(fileId: string): Promise<boolean
   }
 }
 
+export function deleteLocalUploadedFile(fileNameOrPath: string): boolean {
+  try {
+    if (!fileNameOrPath) return false;
+    const cleanName = path.basename(fileNameOrPath);
+    const uploadsDir = path.resolve(process.cwd(), "uploads");
+    const fullPath = path.join(uploadsDir, cleanName);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+      console.log(`[Local Storage] Cleaned up local file: ${cleanName}`);
+      return true;
+    }
+  } catch (err) {
+    console.warn(`[Local Storage] Error deleting local file ${fileNameOrPath}:`, err);
+  }
+  return false;
+}
+
+export function getGoogleDriveStatus() {
+  const client = getGoogleDriveClient();
+  return {
+    isConfigured: !!client,
+    rootFolderId: env.GOOGLE_DRIVE_ROOT_FOLDER_ID,
+    authMethod: env.GOOGLE_CLIENT_EMAIL ? "service_account" : env.GOOGLE_CLIENT_ID ? "oauth2" : "none",
+    clientEmail: env.GOOGLE_CLIENT_EMAIL ? env.GOOGLE_CLIENT_EMAIL : null,
+  };
+}
+
 export function buildDriveDirectUrl(fileId: string): string {
   if (fileId.startsWith("http://") || fileId.startsWith("https://") || fileId.startsWith("/")) {
     return fileId;

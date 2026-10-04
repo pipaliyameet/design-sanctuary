@@ -307,32 +307,86 @@ export const CURATED_STUDIO_PROJECTS: CaseCard[] = [
 export const CURATED_STUDIO_SERVICES: ServiceItem[] = [
   {
     _id: "srv-1",
+    number: "01",
     title: "Architectural Interior Design",
     slug: "architectural-interior-design",
+    shortDesc: "Complete architectural space planning, circulation mapping, and bespoke structural craftsmanship.",
     short_description: "Complete architectural space planning, interior detailing, and bespoke craftsmanship.",
+    fullDesc: "Full-service interior architecture including structural space realignment, bespoke portal joinery, daylight orientation, and tailored luxury residential aesthetics.",
     description: "Full-service interior architecture including MEP, structural space realignment, and tailored luxury aesthetics.",
+    image: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+    images: [
+      "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+      "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
+      "https://lh3.googleusercontent.com/d/1lR9CjqpuCkuV2ietp3LOplngUozxQl_R",
+      "https://lh3.googleusercontent.com/d/1YhMC1rcK8CG5IIoGohUveL6D4UZzh17f",
+    ],
+    deliverables: [
+      "Comprehensive spatial layouts & daylight mapping",
+      "Bespoke joinery, door, and window shop drawings",
+      "Architectural lighting design & lux level planning",
+      "Full sanitaryware, tile, and stone schedules",
+    ],
+    link: "/services#residential",
     icon: "Home",
     active: true,
+    sortOrder: 1,
     order: 1,
   },
   {
     _id: "srv-2",
+    number: "02",
     title: "Bespoke Furniture & Millwork",
     slug: "bespoke-furniture",
+    shortDesc: "Custom handcrafted furniture, wardrobe pavilions, and monolithic joinery crafted exclusively for each space.",
     short_description: "Custom handcrafted furniture, artisanal joinery, and curated material curation.",
+    fullDesc: "From 1-of-1 dining tables to precision-fluted teak paneling and integrated glass wardrobe pavilions with diffused LED lighting.",
     description: "From custom dining tables to integrated cabinetry, precision-crafted exclusively for each project.",
+    image: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+    images: [
+      "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+      "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
+      "https://lh3.googleusercontent.com/d/1VXY00jcsOzQyxcdQq9g0Uubc7DwmmaPN",
+      "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz",
+    ],
+    deliverables: [
+      "1-of-1 custom dining and cocktail table designs",
+      "Integrated sensor LED warm lighting wardrobe suites",
+      "Bespoke architectural hardware & patinated brass fittings",
+      "Veneer grain matching & hand-rubbed botanical oil finishes",
+    ],
+    link: "/services#furniture",
     icon: "Layers",
     active: true,
+    sortOrder: 2,
     order: 2,
   },
   {
     _id: "srv-3",
+    number: "03",
     title: "Turnkey Project Execution",
     slug: "turnkey-execution",
+    shortDesc: "Single-source site custody, weekly milestone transparency, and white-glove handover across India.",
     short_description: "End-to-end execution, site supervision, vendor management, and handover.",
+    fullDesc: "Comprehensive site governance with vetted master carpenters, masonry teams, and MEP engineers under continuous senior supervision with frozen milestone budgets.",
     description: "Comprehensive site management with rigorous quality control, weekly milestones, and client transparency.",
+    image: "https://lh3.googleusercontent.com/d/1UNtmTkQxW0vxEKvv7_POkseU7576wxPR",
+    images: [
+      "https://lh3.googleusercontent.com/d/1UNtmTkQxW0vxEKvv7_POkseU7576wxPR",
+      "https://lh3.googleusercontent.com/d/1xU2lFKRsSmMckhy3W_hGC9h8jL0jcgz5",
+      "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+      "https://lh3.googleusercontent.com/d/1YhMC1rcK8CG5IIoGohUveL6D4UZzh17f",
+    ],
+    deliverables: [
+      "Frozen bill of quantities (BOQ) with fixed pricing",
+      "Weekly on-site quality assurance audits",
+      "Direct supervision of electrical, plumbing & HVAC",
+      "White-glove handover with photographic progress portal",
+    ],
+    link: "/services#turnkey",
     icon: "Briefcase",
     active: true,
+    sortOrder: 3,
     order: 3,
   },
 ];
@@ -347,27 +401,42 @@ export const CURATED_STUDIO_PROCESS: ProcessStepItem[] = [
 export const CURATED_STUDIO_TESTIMONIALS: TestimonialItem[] = [
   {
     _id: "test-1",
-    quote: "Right-Angle-Design-Studio transformed our Altamount Penthouse with flawless attention to light, joinery, and craftsmanship. The living spaces feel tranquil and timeless.",
+    clientName: "Rajesh & Sunita Mehta",
     author: "Rajesh & Sunita Mehta",
-    role: "Homeowners",
+    project: "The Altamount Penthouse",
     projectTitle: "The Altamount Penthouse",
+    location: "Mumbai",
+    text: "Right-Angle-Design-Studio transformed our Altamount Penthouse with flawless attention to light, joinery, and craftsmanship. The living spaces feel tranquil and timeless.",
+    quote: "Right-Angle-Design-Studio transformed our Altamount Penthouse with flawless attention to light, joinery, and craftsmanship. The living spaces feel tranquil and timeless.",
+    role: "Homeowners",
     rating: 5,
+    approved: true,
   },
   {
     _id: "test-2",
-    quote: "Their turnkey execution and honesty in material selection made our Alibaug villa an effortless retreat. Every room frames daylight with exceptional poise.",
+    clientName: "Vikram Singhania",
     author: "Vikram Singhania",
-    role: "Estate Owner",
+    project: "Alibaug Coastal Villa",
     projectTitle: "Alibaug Coastal Villa",
+    location: "Alibaug",
+    text: "Their turnkey execution and honesty in material selection made our Alibaug villa an effortless retreat. Every room frames daylight with exceptional poise.",
+    quote: "Their turnkey execution and honesty in material selection made our Alibaug villa an effortless retreat. Every room frames daylight with exceptional poise.",
+    role: "Estate Owner",
     rating: 5,
+    approved: true,
   },
   {
     _id: "test-3",
-    quote: "The level of detailing in the Shah Courtyard Residence is truly world-class. The double-height atrium and fluted teak millwork are architectural masterworks.",
+    clientName: "Anand Shah",
     author: "Anand Shah",
-    role: "Client",
+    project: "Shah Courtyard Residence",
     projectTitle: "Shah Courtyard Residence",
+    location: "Ahmedabad",
+    text: "The level of detailing in the Shah Courtyard Residence is truly world-class. The double-height atrium and fluted teak millwork are architectural masterworks.",
+    quote: "The level of detailing in the Shah Courtyard Residence is truly world-class. The double-height atrium and fluted teak millwork are architectural masterworks.",
+    role: "Client",
     rating: 5,
+    approved: true,
   },
 ];
 
@@ -425,9 +494,23 @@ export async function getHomeContent() {
         ? (rawData.processSteps as ProcessStepItem[])
         : CURATED_STUDIO_PROCESS;
 
-    const testimonialsData =
-      Array.isArray(rawData.testimonials) && rawData.testimonials.length > 0
-        ? (rawData.testimonials as TestimonialItem[])
+    const rawTestimonials = rawData.testimonials;
+    const testimonialsData: TestimonialItem[] =
+      Array.isArray(rawTestimonials) && rawTestimonials.length > 0
+        ? rawTestimonials.map((t: any) => ({
+            _id: t._id ? String(t._id) : undefined,
+            clientName: t.clientName || t.author || "Private Client",
+            author: t.author || t.clientName || "Private Client",
+            project: t.project || t.projectTitle || "Residential Sanctuary",
+            projectTitle: t.projectTitle || t.project || "Residential Sanctuary",
+            location: t.location || "Mumbai",
+            text: t.text || t.quote || "",
+            quote: t.quote || t.text || "",
+            role: t.role || "Homeowner",
+            rating: t.rating || 5,
+            approved: t.approved ?? true,
+            sortOrder: t.sortOrder,
+          }))
         : CURATED_STUDIO_TESTIMONIALS;
 
     const homepageMedia = Array.isArray(rawData.homepageMedia) ? rawData.homepageMedia : [];

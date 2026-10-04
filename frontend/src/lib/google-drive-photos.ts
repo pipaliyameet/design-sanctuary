@@ -1,4 +1,5 @@
 import rawDriveData from "./google-drive-photos-data.json";
+import { publicService } from "../services/public.service";
 
 export interface GoogleDrivePhoto {
   id: string;
@@ -17,10 +18,6 @@ export interface GoogleDrivePhoto {
   tags: string[];
   size?: number;
   uploadedAt?: string;
-  width?: number;
-  height?: number;
-  aspectRatio?: number;
-  orientation?: "landscape" | "portrait" | "square";
 }
 
 export const PUBLIC_DRIVE_FOLDER_ID = "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze";
@@ -43,7 +40,6 @@ export interface PhotoFilterParams {
   category?: string;
   tag?: string;
   search?: string;
-  orientation?: "all" | "landscape" | "portrait";
   page?: number;
   limit?: number;
   sortBy?: "default" | "newest" | "title" | "project";
@@ -60,62 +56,6 @@ export interface PaginatedPhotosResult {
   allCategories: string[];
   allTags: string[];
   totalDriveAssets: number;
-}
-
-export interface PhotoRowGroup {
-  id: string;
-  orientation: "landscape" | "portrait";
-  items: GoogleDrivePhoto[];
-}
-
-/**
- * Dynamically organizes photos into homogeneous rows where:
- * - All photos in a landscape row are landscape
- * - All photos in a portrait row are portrait
- */
-export function groupPhotosIntoOrientationRows(
-  photos: GoogleDrivePhoto[],
-  landscapePerRow = 2,
-  portraitPerRow = 3,
-): PhotoRowGroup[] {
-  const rows: PhotoRowGroup[] = [];
-  let currentGroup: GoogleDrivePhoto[] = [];
-  let currentOrientation: "landscape" | "portrait" | null = null;
-
-  for (const photo of photos) {
-    const photoOrientation: "landscape" | "portrait" =
-      photo.orientation === "portrait" || (photo.aspectRatio && photo.aspectRatio < 1)
-        ? "portrait"
-        : "landscape";
-
-    const maxItems = photoOrientation === "landscape" ? landscapePerRow : portraitPerRow;
-
-    if (currentOrientation === null) {
-      currentOrientation = photoOrientation;
-      currentGroup = [photo];
-    } else if (currentOrientation === photoOrientation && currentGroup.length < maxItems) {
-      currentGroup.push(photo);
-    } else {
-      // Push existing row
-      rows.push({
-        id: `row-${rows.length}-${currentOrientation}`,
-        orientation: currentOrientation,
-        items: currentGroup,
-      });
-      currentOrientation = photoOrientation;
-      currentGroup = [photo];
-    }
-  }
-
-  if (currentGroup.length > 0 && currentOrientation) {
-    rows.push({
-      id: `row-${rows.length}-${currentOrientation}`,
-      orientation: currentOrientation,
-      items: currentGroup,
-    });
-  }
-
-  return rows;
 }
 
 export function getPaginatedGoogleDrivePhotos(
@@ -165,13 +105,6 @@ export function getPaginatedGoogleDrivePhotos(
       if (!matchFound) return false;
     }
 
-    // Orientation match
-    if (orientation && orientation !== "all") {
-      const isPortrait = photo.orientation === "portrait" || (photo.aspectRatio && photo.aspectRatio < 1);
-      if (orientation === "portrait" && !isPortrait) return false;
-      if (orientation === "landscape" && isPortrait) return false;
-    }
-
     return true;
   });
 
@@ -214,11 +147,59 @@ export function getDriveCoverPhoto(index = 0): string {
 }
 
 /**
- * Robust async fetcher for gallery photos with instant local pagination
+ * Live async fetcher for gallery photos with backend Google Drive integration
  */
 export async function getPublicGalleryPhotos(
   params: PhotoFilterParams = {},
 ): Promise<PaginatedPhotosResult> {
+  try {
+    const res: any = await publicService.getGallery({
+      category: params.category,
+      tag: params.tag,
+      search: params.search,
+      page: params.page,
+      limit: params.limit,
+      sortBy: params.sortBy,
+    });
+
+    if (res && Array.isArray(res.items) && res.items.length > 0) {
+      return {
+        items: res.items.map((item: any, idx: number) => ({
+          id: item.id || item._id,
+          index: (Number(params.page || 1) - 1) * Number(params.limit || 12) + idx + 1,
+          fileName: item.fileName || item.title || "",
+          title: item.title || item.caption || `Architectural Work #${idx + 1}`,
+          caption: item.caption || item.description || item.title || "",
+          category: item.category || "Living & Salon",
+          projectId: item.projectId || "altamount-penthouse",
+          projectTitle: item.projectTitle || "The Altamount Penthouse",
+          projectCode: item.projectCode || "RA-01",
+          location: item.location || "Mumbai",
+          url: item.url || (item.driveFileId ? `https://lh3.googleusercontent.com/d/${item.driveFileId}` : ""),
+          thumbnailUrl:
+            item.thumbnailUrl ||
+            item.thumbnail_url ||
+            (item.driveFileId ? `https://drive.google.com/thumbnail?id=${item.driveFileId}&sz=w800` : ""),
+          driveViewUrl: item.driveFileId ? `https://drive.google.com/file/d/${item.driveFileId}/view` : "",
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          size: item.size,
+          uploadedAt: item.createdAt,
+        })),
+        total: res.total || res.totalCount || res.items.length,
+        page: res.currentPage || res.page || params.page || 1,
+        limit: res.pageSize || res.limit || params.limit || 12,
+        totalPages: res.totalPages || Math.ceil((res.total || res.items.length) / (params.limit || 12)),
+        hasNextPage: res.hasNextPage ?? false,
+        hasPrevPage: res.hasPrevPage ?? false,
+        allCategories: res.allCategories || PHOTO_CATEGORIES,
+        allTags: res.allTags || [],
+        totalDriveAssets: res.totalDriveAssets || res.total || res.items.length,
+      };
+    }
+  } catch (err) {
+    console.warn("[Gallery] Live API query failed, fallback to local dataset:", err);
+  }
+
   return getPaginatedGoogleDrivePhotos(params);
 }
 

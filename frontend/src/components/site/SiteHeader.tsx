@@ -7,6 +7,7 @@ import { STUDIO_DETAILS } from "@/lib/public.functions";
 
 // Refined Primary Navigation
 const PRIMARY_NAV = [
+  { to: "/portfolio", label: "Projects" },
   { to: "/gallery", label: "Gallery" },
   { to: "/services", label: "Services" },
   { to: "/process", label: "Process" },
@@ -49,22 +50,30 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        solid
-          ? "bg-background/95 border-b border-border/70 backdrop-blur-md shadow-xs py-0"
-          : "bg-gradient-to-b from-ink/75 via-ink/30 to-transparent py-2",
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        open
+          ? "inset-0 h-dvh h-screen bg-background flex flex-col overflow-hidden"
+          : solid
+            ? "bg-background/95 border-b border-border/70 backdrop-blur-md shadow-xs py-0"
+            : "bg-gradient-to-b from-ink/75 via-ink/30 to-transparent py-2",
       )}
     >
-      <div className="mx-auto flex h-20 max-w-[1720px] items-center justify-between px-5 sm:px-8 lg:px-12 xl:px-16">
+      <div
+        className={cn(
+          "mx-auto flex h-20 w-full max-w-[1720px] items-center justify-between px-5 sm:px-8 lg:px-12 xl:px-16 shrink-0 transition-colors",
+          open && "border-b border-border/80",
+        )}
+      >
         {/* Brand Vector Logo */}
         <Link
           to="/"
           aria-label="Right Angle Design Studio — Home"
+          onClick={() => setOpen(false)}
           className="group flex items-center transition-opacity hover:opacity-90"
         >
           <BrandLogo
             variant="horizontal"
-            theme={solid ? "dark" : "light"}
+            theme={solid || open ? "dark" : "light"}
             size="sm"
           />
         </Link>
@@ -122,31 +131,31 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           onClick={() => setOpen((v) => !v)}
           className={cn(
             "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center md:hidden transition-colors focus:outline-none cursor-pointer",
-            solid ? "text-foreground" : "text-ink-foreground",
+            solid || open ? "text-foreground" : "text-ink-foreground",
           )}
         >
-          {open ? <X className="size-6" /> : <Menu className="size-6" />}
+          {open ? <X className="size-6 text-foreground" /> : <Menu className="size-6" />}
         </button>
       </div>
 
-      {/* Mobile Fullscreen Slide-out Menu */}
+      {/* Mobile Fullscreen Menu Drawer Body */}
       {open && (
-        <div className="fixed inset-x-0 top-20 bottom-0 z-40 bg-background/98 backdrop-blur-2xl flex flex-col justify-between px-6 py-8 md:hidden overflow-y-auto border-t border-border animate-in fade-in slide-in-from-top-4 duration-300">
-          <nav className="flex flex-col space-y-3 pt-2">
+        <div className="flex-1 min-h-0 w-full overflow-y-auto px-5 sm:px-8 py-6 flex flex-col justify-between md:hidden bg-background animate-in fade-in duration-200">
+          <nav className="flex flex-col space-y-1 pt-1">
             {PRIMARY_NAV.map((item, idx) => {
-              const isActive = currentPath.startsWith(item.to);
+              const isActive = currentPath === item.to || (item.to !== "/" && currentPath.startsWith(item.to));
               return (
                 <Link
                   key={item.to}
                   to={item.to}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center justify-between border-b border-border/50 pb-3.5 text-2xl font-display transition-colors min-h-[44px]",
+                    "flex items-center justify-between border-b border-border/50 py-3 text-2xl font-display transition-colors min-h-[48px]",
                     isActive ? "text-accent font-normal" : "text-foreground hover:text-accent font-light",
                   )}
                 >
                   <span>{item.label}</span>
-                  <span className="text-xs font-sans tracking-widest text-muted-foreground">
+                  <span className="text-xs font-sans tracking-widest text-muted-foreground font-mono">
                     0{idx + 1}
                   </span>
                 </Link>
@@ -154,43 +163,43 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             })}
           </nav>
 
-          <div className="space-y-4 pt-5 border-t border-border">
+          <div className="space-y-3.5 pt-6 pb-6 border-t border-border mt-6 shrink-0">
+            <Link
+              to="/contact"
+              hash="consultation"
+              onClick={() => setOpen(false)}
+              className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-foreground px-4 py-3.5 text-xs tracking-[0.2em] uppercase text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              Book a Consultation <ArrowRight className="size-3.5" />
+            </Link>
+
             <Link
               to="/auth"
               onClick={() => setOpen(false)}
-              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 border border-border bg-card/60 px-6 py-3 text-xs tracking-[0.2em] uppercase text-foreground font-medium hover:border-accent hover:text-accent transition-colors"
+              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 border border-border bg-card/70 px-4 py-3 text-xs tracking-[0.18em] uppercase text-foreground font-medium hover:border-accent hover:text-accent transition-colors"
             >
               <User className="size-3.5 text-accent" />
               <span>Owner / Studio Login</span>
             </Link>
 
-            <Link
-              to="/contact"
-              hash="consultation"
-              onClick={() => setOpen(false)}
-              className="w-full min-h-[46px] inline-flex items-center justify-center gap-2 bg-foreground px-6 py-3.5 text-xs tracking-[0.2em] uppercase text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
-              Book a Consultation <ArrowRight className="size-3.5" />
-            </Link>
-
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
               <a
                 href={`https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent("Hello Right Angle Design Studio, I would like to discuss an interior design project.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[44px] flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 border border-border bg-card/40 p-2.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors text-center"
               >
-                <MessageSquare className="size-3.5 text-accent" /> WhatsApp
+                <MessageSquare className="size-3.5 text-accent shrink-0" /> <span className="truncate">WhatsApp</span>
               </a>
               <a
                 href="tel:+919820041100"
-                className="min-h-[44px] flex items-center justify-center gap-2 border border-border p-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 border border-border bg-card/40 p-2.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors text-center"
               >
-                <Phone className="size-3.5 text-accent" /> Call Studio
+                <Phone className="size-3.5 text-accent shrink-0" /> <span className="truncate">Call Studio</span>
               </a>
             </div>
 
-            <div className="text-center text-xs text-muted-foreground pt-2 border-t border-border/40">
+            <div className="text-center text-[11px] text-muted-foreground pt-2 border-t border-border/40">
               <span>Mumbai · Bengaluru · Pan-India</span>
             </div>
           </div>

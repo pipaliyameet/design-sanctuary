@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection, Document } from "mongodb";
+import { MongoClient, Db, Collection, Document, ObjectId } from "mongodb";
 import { env } from "./env.js";
 import { GOOGLE_DRIVE_PHOTOS } from "./drivePhotosRaw.js";
 
@@ -344,16 +344,29 @@ function matchesFilter(item: any, filter: any): boolean {
       continue;
     }
     const val = filter[key];
-    if (val && typeof val === "object" && !Array.isArray(val)) {
+    if (val === null || val === undefined) {
+      if (item[key] !== null && item[key] !== undefined) return false;
+      continue;
+    }
+    if (typeof val === "object" && !Array.isArray(val)) {
+      if (val instanceof ObjectId || val.constructor?.name === "ObjectId" || ("_bsontype" in val)) {
+        if (String(item[key]) !== String(val)) return false;
+        continue;
+      }
       if ("$in" in val && Array.isArray(val.$in)) {
-        if (!val.$in.includes(item[key])) return false;
+        const inList = val.$in.map((v: any) => String(v));
+        if (!inList.includes(String(item[key]))) return false;
+        continue;
       }
       if ("$regex" in val) {
         const regex = new RegExp(val.$regex, val.$options || "");
         if (!regex.test(String(item[key] || ""))) return false;
+        continue;
       }
-    } else {
-      if (item[key] !== val) return false;
+    }
+    // Direct or string equality check
+    if (item[key] !== val && String(item[key]) !== String(val)) {
+      return false;
     }
   }
   return true;
@@ -384,6 +397,22 @@ function createMemoryCollection<T extends Document = Document>(name: string): Co
         },
         limit: (count: number) => {
           results = results.slice(0, count);
+          return cursor;
+        },
+        project: (fields: any) => {
+          if (fields && typeof fields === "object") {
+            const keys = Object.keys(fields);
+            const isInclude = keys.some((k) => fields[k] === 1 || fields[k] === true);
+            if (isInclude) {
+              results = results.map((item) => {
+                const projected: any = { _id: item._id };
+                for (const k of keys) {
+                  if (fields[k]) projected[k] = item[k];
+                }
+                return projected;
+              });
+            }
+          }
           return cursor;
         },
         toArray: async () => [...results],
@@ -446,6 +475,51 @@ function createMemoryCollection<T extends Document = Document>(name: string): Co
       memoryStores.set(name, remaining);
       return { deletedCount: initialLen - remaining.length, acknowledged: true };
     },
+    findOneAndUpdate: async (filter: any, update: any, options: any = {}) => {
+      const idx = store.findIndex((item) => matchesFilter(item, filter));
+      if (idx !== -1) {
+        if (update.$set) Object.assign(store[idx], update.$set);
+        else if (update.$inc) {
+          for (const k of Object.keys(update.$inc)) {
+            store[idx][k] = (store[idx][k] || 0) + update.$inc[k];
+          }
+        } else Object.assign(store[idx], update);
+        return store[idx];
+      }
+      if (options.upsert) {
+        const newDoc = { _id: `mem_${Date.now()}`, ...(update.$set || update), ...filter };
+        store.push(newDoc);
+        return newDoc;
+      }
+      return null;
+    },
+    bulkWrite: async (operations: any[]) => {
+      let modifiedCount = 0;
+      let insertedCount = 0;
+      let deletedCount = 0;
+      for (const op of operations) {
+        if (op.updateOne) {
+          const { filter, update, upsert } = op.updateOne;
+          const idx = store.findIndex((item) => matchesFilter(item, filter));
+          if (idx !== -1) {
+            if (update.$set) Object.assign(store[idx], update.$set);
+            else Object.assign(store[idx], update);
+            modifiedCount++;
+          } else if (upsert) {
+            const newDoc = { _id: `mem_${Date.now()}`, ...(update.$set || update), ...filter };
+            store.push(newDoc);
+            insertedCount++;
+          }
+        } else if (op.deleteOne) {
+          const idx = store.findIndex((item) => matchesFilter(item, op.deleteOne.filter));
+          if (idx !== -1) {
+            store.splice(idx, 1);
+            deletedCount++;
+          }
+        }
+      }
+      return { modifiedCount, insertedCount, deletedCount, acknowledged: true };
+    },
     countDocuments: async (filter: any = {}) => {
       return store.filter((item) => matchesFilter(item, filter)).length;
     },
@@ -453,6 +527,61 @@ function createMemoryCollection<T extends Document = Document>(name: string): Co
   };
 
   return mockCol as unknown as Collection<T>;
+}
+
+export async function seedDatabaseIfEmpty(db: Db): Promise<void> {
+  try {
+    const mediaCount = await db.collection("media").countDocuments();
+    if (mediaCount === 0) {
+      console.log("🌱 Seeding initial Google Drive media into MongoDB...");
+      const initialMedia = getInitialStore("media");
+      if (initialMedia.length > 0) {
+        await db.collection("media").insertMany(initialMedia);
+      }
+    }
+
+    const settingsCount = await db.collection("siteSettings").countDocuments();
+    if (settingsCount === 0) {
+      const initialSettings = getInitialStore("siteSettings");
+      if (initialSettings.length > 0) {
+        await db.collection("siteSettings").insertMany(initialSettings);
+      }
+    }
+
+    const caseStudiesCount = await db.collection("caseStudies").countDocuments();
+    if (caseStudiesCount === 0) {
+      const initialCases = getInitialStore("caseStudies");
+      if (initialCases.length > 0) {
+        await db.collection("caseStudies").insertMany(initialCases);
+      }
+    }
+
+    const materialsCount = await db.collection("materials").countDocuments();
+    if (materialsCount === 0) {
+      const initialMaterials = getInitialStore("materials");
+      if (initialMaterials.length > 0) {
+        await db.collection("materials").insertMany(initialMaterials);
+      }
+    }
+
+    const testimonialsCount = await db.collection("testimonials").countDocuments();
+    if (testimonialsCount === 0) {
+      const initialTestimonials = getInitialStore("testimonials");
+      if (initialTestimonials.length > 0) {
+        await db.collection("testimonials").insertMany(initialTestimonials);
+      }
+    }
+
+    const journalCount = await db.collection("journalPosts").countDocuments();
+    if (journalCount === 0) {
+      const initialJournal = getInitialStore("journalPosts");
+      if (initialJournal.length > 0) {
+        await db.collection("journalPosts").insertMany(initialJournal);
+      }
+    }
+  } catch (err) {
+    console.warn("[Database Seed] Note during seeding:", err);
+  }
 }
 
 export async function connectToDatabase(): Promise<Db> {
@@ -469,7 +598,7 @@ export async function connectToDatabase(): Promise<Db> {
 
   isConnecting = true;
   try {
-    if (env.MONGODB_URI && !env.MONGODB_URI.includes("localhost") && !env.MONGODB_URI.includes("127.0.0.1")) {
+    if (env.MONGODB_URI) {
       console.log(`[MongoDB] Connecting to database: ${env.MONGODB_DB_NAME}...`);
       client = new MongoClient(env.MONGODB_URI, {
         maxPoolSize: 20,
@@ -481,14 +610,15 @@ export async function connectToDatabase(): Promise<Db> {
       await client.connect();
       dbInstance = client.db(env.MONGODB_DB_NAME);
       console.log(`[MongoDB] Successfully connected to database: ${dbInstance.databaseName}`);
+      await seedDatabaseIfEmpty(dbInstance);
       await ensureDatabaseIndexes(dbInstance);
       return dbInstance;
     } else {
-      console.log("[Database] Local/Serverless runtime: Utilizing resilient in-memory & PostgreSQL data store.");
+      console.log("[Database] No MONGODB_URI configured. Utilizing resilient in-memory store.");
       return null as any;
     }
   } catch (error) {
-    console.warn("[MongoDB] Remote connection failed, falling back gracefully to memory store:", error);
+    console.warn("[MongoDB] Database connection error, falling back gracefully to memory store:", error);
     client = null;
     dbInstance = null;
     return null as any;

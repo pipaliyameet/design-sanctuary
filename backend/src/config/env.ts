@@ -17,12 +17,31 @@ export const env = {
   COOKIE_NAME: "studio_auth_token",
 
   // Google Drive
-  GOOGLE_DRIVE_ROOT_FOLDER_ID:
-    process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID || "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze",
+  GOOGLE_DRIVE_ROOT_FOLDER_ID: (() => {
+    const raw = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID || "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze";
+    const urlMatch = raw.match(/folders\/([a-zA-Z0-9_-]+)/);
+    if (urlMatch && urlMatch[1]) {
+      return urlMatch[1];
+    }
+    return raw.trim().replace(/^['"]|['"]$/g, "");
+  })(),
   GOOGLE_PROJECT_ID: process.env.GOOGLE_PROJECT_ID || "",
   GOOGLE_CLIENT_EMAIL: process.env.GOOGLE_CLIENT_EMAIL || "",
-  GOOGLE_PRIVATE_KEY: (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
-  GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN || "",
+  GOOGLE_PRIVATE_KEY: (() => {
+    let key = process.env.GOOGLE_PRIVATE_KEY || "";
+    if (key.startsWith('"') && key.endsWith('"')) {
+      try {
+        key = JSON.parse(key);
+      } catch {
+        key = key.slice(1, -1);
+      }
+    }
+    return key.replace(/\\n/g, "\n");
+  })(),
+  GOOGLE_CLIENT_ID: (process.env.GOOGLE_CLIENT_ID || "").trim(),
+  GOOGLE_CLIENT_SECRET: (process.env.GOOGLE_CLIENT_SECRET || "").trim(),
+  GOOGLE_REFRESH_TOKEN: (process.env.GOOGLE_REFRESH_TOKEN || "").trim(),
+  GOOGLE_REDIRECT_URI: (
+    process.env.GOOGLE_REDIRECT_URI || "http://localhost:5001/api/media/oauth-callback"
+  ).trim(),
 };

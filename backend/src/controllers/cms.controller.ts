@@ -192,6 +192,13 @@ export async function listCmsProjects(req: Request, res: Response, next: NextFun
   }
 }
 
+function buildEntityQuery(id: string) {
+  if (ObjectId.isValid(id) && String(new ObjectId(id)) === id) {
+    return { $or: [{ _id: new ObjectId(id) }, { _id: id }, { slug: id }] };
+  }
+  return { $or: [{ _id: id }, { slug: id }] };
+}
+
 export async function updateCaseStudy(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -199,7 +206,7 @@ export async function updateCaseStudy(req: Request, res: Response, next: NextFun
     const caseStudiesCol = await getCollection<CaseStudyDoc>("caseStudies");
     const activityCol = await getCollection<ActivityLogDoc>("activityLogs");
 
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { slug: id };
+    const query = buildEntityQuery(id);
 
     const updates = {
       ...data,
@@ -297,7 +304,7 @@ export async function deleteCaseStudy(req: Request, res: Response, next: NextFun
   try {
     const { id } = req.params;
     const caseStudiesCol = await getCollection<CaseStudyDoc>("caseStudies");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { slug: id };
+    const query = buildEntityQuery(id);
 
     const result = await caseStudiesCol.deleteOne(query as any);
     if (result.deletedCount === 0) {
@@ -353,7 +360,7 @@ export async function updateCmsService(req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const col = await getCollection<ServiceDoc>("services");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
 
     const updates = { ...req.body, updatedAt: new Date() };
     delete updates._id;
@@ -372,7 +379,7 @@ export async function deleteCmsService(req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const col = await getCollection<ServiceDoc>("services");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
     await col.deleteOne(query as any);
     return sendSuccess(res, { deleted: true, id });
   } catch (err) {
@@ -419,7 +426,7 @@ export async function updateCmsProcess(req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const col = await getCollection<ProcessStepDoc>("processSteps");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
 
     const updates = { ...req.body, updatedAt: new Date() };
     delete updates._id;
@@ -438,7 +445,7 @@ export async function deleteCmsProcess(req: Request, res: Response, next: NextFu
   try {
     const { id } = req.params;
     const col = await getCollection<ProcessStepDoc>("processSteps");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
     await col.deleteOne(query as any);
     return sendSuccess(res, { deleted: true, id });
   } catch (err) {
@@ -461,7 +468,7 @@ export async function updateCmsTestimonial(req: Request, res: Response, next: Ne
   try {
     const { id } = req.params;
     const col = await getCollection<TestimonialDoc>("testimonials");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
 
     const updates = { ...req.body, updatedAt: new Date() };
     delete updates._id;
@@ -492,7 +499,7 @@ export async function updateEnquiryStatus(req: Request, res: Response, next: Nex
     const { id } = req.params;
     const { status } = req.body;
     const col = await getCollection<EnquiryDoc>("enquiries");
-    const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const query = buildEntityQuery(id);
 
     const result = await col.findOneAndUpdate(
       query as any,

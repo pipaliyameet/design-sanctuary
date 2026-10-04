@@ -16,8 +16,8 @@ import {
   PHOTO_CATEGORIES,
   PUBLIC_DRIVE_FOLDER_URL,
   type GoogleDrivePhoto,
-  getPublicGalleryPhotos,
 } from "@/lib/google-drive-photos";
+import { publicService } from "@/services/public.service";
 import { DriveImage } from "./DriveImage";
 import { PhotoLightboxModal } from "./PhotoLightboxModal";
 import { cn } from "@/lib/utils";
@@ -28,18 +28,44 @@ export function HomePhotoVault() {
   const [activeLightboxPhoto, setActiveLightboxPhoto] = useState<GoogleDrivePhoto | null>(null);
   const pageSize = 8;
 
-  const { data: serverGallery } = useQuery({
-    queryKey: ["public-gallery", { limit: 100 }],
-    queryFn: () => getPublicGalleryPhotos({ limit: 100 }),
-    staleTime: 60_000,
+  const { data: homepageMedia } = useQuery({
+    queryKey: ["homepage-media"],
+    queryFn: async () => {
+      try {
+        const res: any = await publicService.getHomepageMedia();
+        const payload = res?.data || res;
+        if (Array.isArray(payload) && payload.length > 0) {
+          return payload.map((p: any, idx: number) => ({
+            id: p.id || p._id || `drive_${p.driveFileId || idx}`,
+            index: p.homepageOrder ?? idx + 1,
+            fileName: p.fileName || `Photo #${idx + 1}`,
+            title: p.title || p.caption || "Architectural Work",
+            caption: p.caption || p.title || "",
+            category: p.category || "Living & Salon",
+            projectId: p.projectId || "altamount-penthouse",
+            projectTitle: p.projectTitle || p.project_title || "The Altamount Penthouse",
+            projectCode: "RA-ARC",
+            location: p.location || "Mumbai",
+            url: p.url || (p.driveFileId ? `https://lh3.googleusercontent.com/d/${p.driveFileId}` : ""),
+            thumbnailUrl: p.thumbnailUrl || p.thumbnail_url || p.url,
+            driveViewUrl: p.driveFileId ? `https://drive.google.com/file/d/${p.driveFileId}/view` : PUBLIC_DRIVE_FOLDER_URL,
+            tags: p.tags || ["Google Drive Vault"],
+          }));
+        }
+      } catch (err) {
+        // Graceful fallback
+      }
+      return GOOGLE_DRIVE_PHOTOS;
+    },
+    staleTime: 5_000,
   });
 
   const allPhotos = useMemo(() => {
-    if (serverGallery?.items && serverGallery.items.length > 0) {
-      return serverGallery.items;
+    if (homepageMedia && Array.isArray(homepageMedia) && homepageMedia.length > 0) {
+      return homepageMedia;
     }
     return GOOGLE_DRIVE_PHOTOS;
-  }, [serverGallery]);
+  }, [homepageMedia]);
 
   // Filter photos by category
   const filteredPhotos = useMemo(() => {
