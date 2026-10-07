@@ -72,7 +72,7 @@ export function HomePage() {
     heroTitle: "Architecture & Interior Sanctuary",
     heroSubtitle:
       "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India.",
-    heroImage: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+    heroImage: "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu",
     atmospherePhoto: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
     beforePhoto: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
     afterPhoto: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
@@ -123,11 +123,9 @@ export function HomePage() {
   }, [studies, selectedFilter]);
 
   // Featured flagship story project & hero image from live CMS data
-  const flagshipProject = studies[0];
   const heroImageSrc =
     data?.heroImage ||
-    flagshipProject?.hero_image ||
-    "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
+    "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu";
 
   return (
     <PublicShell overlayHeader>

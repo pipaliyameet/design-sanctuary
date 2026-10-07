@@ -333,7 +333,7 @@ function getInitialStore(name: string): any[] {
     initialData = [
       { _id: "st_1", key: "heroTitle", value: "Architecture & Interior Sanctuary" },
       { _id: "st_2", key: "heroSubtitle", value: "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India." },
-      { _id: "st_3", key: "heroImage", value: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE" },
+      { _id: "st_3", key: "heroImage", value: "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu" },
       { _id: "st_4", key: "atmospherePhoto", value: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg" },
       { _id: "st_5", key: "beforePhoto", value: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r" },
       { _id: "st_6", key: "afterPhoto", value: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE" },
@@ -670,6 +670,18 @@ export async function getDb(): Promise<Db> {
 }
 
 export async function getCollection<T extends Document = Document>(name: string): Promise<Collection<T>> {
+  if (!dbInstance && !isConnecting && env.MONGODB_URI) {
+    try {
+      await connectToDatabase();
+    } catch (err) {
+      console.warn(`[getCollection] Database connection attempt failed for ${name}:`, err);
+    }
+  } else if (isConnecting) {
+    while (isConnecting) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
   if (dbInstance) {
     return dbInstance.collection<T>(name);
   }

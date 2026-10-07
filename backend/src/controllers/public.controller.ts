@@ -162,7 +162,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
         settingsMap.heroSubtitle,
         "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."
       ),
-      heroImage: unwrapStr(settingsMap.heroImage, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
+      heroImage: unwrapStr(settingsMap.heroImage, "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu"),
       atmospherePhoto: unwrapStr(settingsMap.atmospherePhoto, "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg"),
       beforePhoto: unwrapStr(settingsMap.beforePhoto, "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r"),
       afterPhoto: unwrapStr(settingsMap.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),

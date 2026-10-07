@@ -478,7 +478,7 @@ export async function getHomeContent() {
       rawData.heroSubtitle,
       "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."
     );
-    const heroImage = unwrapStr(rawData.heroImage, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE");
+    const heroImage = unwrapStr(rawData.heroImage, "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu");
     const atmospherePhoto = unwrapStr(rawData.atmospherePhoto, "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg");
     const beforePhoto = unwrapStr(rawData.beforePhoto, "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r");
     const afterPhoto = unwrapStr(rawData.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE");
