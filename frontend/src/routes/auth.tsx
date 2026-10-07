@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginUser, getMySession, logoutUser, type SessionInfo } from "@/lib/session.functions";
-import { api } from "@/services/api";
+import { loginUser } from "@/lib/session.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Input } from "@/components/ui/input";
@@ -19,8 +18,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Building2,
-  CheckCircle2,
-  LogOut,
 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
@@ -50,50 +47,12 @@ function AuthPage() {
   const targetRedirect = search.redirect || "/studio";
   const queryClient = useQueryClient();
 
-  const [existingSession, setExistingSession] = useState<SessionInfo | null>(null);
-
   // Login Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-    getMySession()
-      .then((session) => {
-        if (isMounted) {
-          if (session && session.email) {
-            setExistingSession(session);
-          } else {
-            setExistingSession(null);
-          }
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setExistingSession(null);
-        }
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  async function handleLogoutExisting() {
-    setBusy(true);
-    try {
-      await logoutUser();
-    } catch {
-      // Ignore
-    }
-    api.clearToken();
-    await queryClient.resetQueries();
-    await queryClient.invalidateQueries();
-    setExistingSession(null);
-    setBusy(false);
-  }
 
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -125,12 +84,6 @@ function AuthPage() {
     }
   }
 
-  const fillCredentials = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setErrorMessage(null);
-  };
-
   return (
     <PublicShell>
       <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8 bg-background">
@@ -150,49 +103,8 @@ function AuthPage() {
                 </div>
               </div>
 
-              {/* Active Existing Session State */}
-              {existingSession && (
-                <div className="mt-6 p-4 rounded-lg border border-accent/30 bg-accent/5 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="size-5 text-accent shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">
-                        Currently Signed In
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {existingSession.fullName} ({existingSession.email})
-                      </p>
-                      <p className="text-[10px] uppercase font-mono text-accent mt-0.5">
-                        Role: {existingSession.roles?.join(", ") || "User"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      onClick={() => navigate({ to: targetRedirect })}
-                      className="flex-1 h-9 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground font-medium cursor-pointer"
-                    >
-                      <span>Continue to Studio Panel</span>
-                      <ArrowRight className="size-3.5 ml-1" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleLogoutExisting}
-                      disabled={busy}
-                      className="h-9 text-xs border-border hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                      title="Sign Out & Switch Account"
-                    >
-                      <LogOut className="size-3.5 mr-1" />
-                      <span>Switch</span>
-                    </Button>
-                  </div>
-                </div>
-              )}
-
               {/* Form Title */}
-              <div className="mt-6">
+              <div className="mt-8">
                 <h1 className="text-xl sm:text-2xl font-display font-light text-foreground tracking-tight">
                   Sign In to Studio Portal
                 </h1>
@@ -271,7 +183,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 text-xs tracking-[0.18em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300 font-semibold shadow-md flex items-center justify-center gap-2 mt-2"
+                  className="w-full h-11 text-xs tracking-[0.18em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300 font-semibold shadow-md flex items-center justify-center gap-2 mt-4"
                 >
                   {busy ? (
                     "Authenticating…"
@@ -282,29 +194,6 @@ function AuthPage() {
                     </>
                   )}
                 </Button>
-
-                {/* Quick Fill Demo Credentials */}
-                <div className="mt-4 pt-3 border-t border-border/60">
-                  <p className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-2">
-                    Studio Demo Credentials:
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("admin@rightangle.design", "Admin@123456")}
-                      className="px-2 py-1 text-[11px] rounded border border-border hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
-                    >
-                      Owner: admin@rightangle.design
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("tanya@ateliervermilion.com", "Admin@123456")}
-                      className="px-2 py-1 text-[11px] rounded border border-border hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
-                    >
-                      Designer: tanya@ateliervermilion.com
-                    </button>
-                  </div>
-                </div>
               </form>
             </div>
 
@@ -338,7 +227,7 @@ function AuthPage() {
                 Bespoke Interior Architecture & Project Command
               </p>
               <p className="text-xs text-white/70 font-light mt-1">
-                Mumbai · Bengaluru · Pan-India Turnkey Executions
+                Restricted access for certified studio architects, partners, and authorized client representatives.
               </p>
             </div>
           </div>
