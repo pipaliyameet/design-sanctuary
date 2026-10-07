@@ -123,8 +123,10 @@ export function HomePage() {
   }, [studies, selectedFilter]);
 
   // Featured flagship story project & hero image from live CMS data
+  const flagshipProject = studies[0] || CURATED_STUDIO_PROJECTS[0];
   const heroImageSrc =
     data?.heroImage ||
+    flagshipProject?.hero_image ||
     "https://lh3.googleusercontent.com/d/13MLCbdqy_mWAY2Rg1EYFWOh9iO38Wvwu";
 
   return (
