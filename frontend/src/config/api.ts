@@ -13,13 +13,13 @@ export function getApiBaseUrl(): string {
     return "http://localhost:5001/api";
   }
 
-  // 3. Client-side browser runtime detection (Production)
+  // 3. Client-side browser runtime detection
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host === "localhost" || host === "127.0.0.1") {
       return "http://localhost:5001/api";
     }
-    return `${window.location.origin}/api`;
+    return "https://right-angle-backend.vercel.app/api";
   }
 
   // 4. Server-side rendering (SSR) in Node/Nitro
@@ -28,16 +28,9 @@ export function getApiBaseUrl(): string {
     if (ssrUrl) {
       return ssrUrl.replace(/\/$/, "");
     }
-    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-      return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api`;
-    }
-    if (process.env.VERCEL_URL) {
-      return `https://${process.env.VERCEL_URL}/api`;
-    }
   }
 
-  // Absolute fallback for local Node SSR execution
-  return "http://localhost:5001/api";
+  return "https://right-angle-backend.vercel.app/api";
 }
 
 export const API_BASE_URL = getApiBaseUrl();
