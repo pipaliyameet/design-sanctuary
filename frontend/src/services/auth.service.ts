@@ -10,6 +10,14 @@ export const authService = {
     return data;
   },
 
+  async ownerQuickLogin(): Promise<{ user: SessionUser; token: string }> {
+    const data = await api.post<{ user: SessionUser; token: string }>("/auth/owner-login");
+    if (data?.token) {
+      api.setToken(data.token);
+    }
+    return data;
+  },
+
   async signup(payload: {
     email: string;
     password: string;

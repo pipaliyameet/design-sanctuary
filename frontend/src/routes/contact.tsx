@@ -88,7 +88,7 @@ function ContactPage() {
 
               <div className="space-y-2 text-xs text-muted-foreground border-t border-border/60 pt-4">
                 <div className="flex items-center gap-2">
-                  <Phone className="size-3.5 text-accent" /> +91 98200 41100
+                  <Phone className="size-3.5 text-accent" /> +91 95375 86804
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="size-3.5 text-accent" /> contact@rightangle.design

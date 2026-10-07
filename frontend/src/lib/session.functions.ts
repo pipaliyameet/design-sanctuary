@@ -19,6 +19,16 @@ export async function loginUser({ data }: { data: { email: string; password: str
   };
 }
 
+export async function ownerQuickLogin() {
+  const res = await authService.ownerQuickLogin();
+  return {
+    success: true,
+    user: res.user,
+    session: res.user,
+    token: res.token,
+  };
+}
+
 export async function signupUser({ data }: {
   data: {
     email: string;

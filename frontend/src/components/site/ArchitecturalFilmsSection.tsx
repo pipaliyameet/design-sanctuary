@@ -68,11 +68,11 @@ export function ArchitecturalFilmsSection() {
           </div>
         </div>
 
-        {/* Vertical Rectangle Video Showcase Layout */}
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          {/* Left / Center: Vertical Rectangular Cinema Frame (5 Cols) */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-start">
-            <div className="relative w-full max-w-[340px] sm:max-w-[390px] aspect-[9/16] rounded-2xl overflow-hidden bg-stone border-2 border-border shadow-2xl ring-1 ring-black/5 group">
+        {/* Vertical Rectangle Video Showcase Layout - Responsive Tablet Side-by-Side */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-14 items-center">
+          {/* Left: Vertical Rectangular Cinema Frame (5 Cols on Tablet & Desktop) */}
+          <div className="md:col-span-5 flex justify-center md:justify-start">
+            <div className="relative w-full max-w-[320px] sm:max-w-[350px] md:max-w-[340px] lg:max-w-[380px] aspect-[9/16] rounded-2xl overflow-hidden bg-stone border-2 border-border shadow-2xl ring-1 ring-black/5 group">
               {/* Autoplaying HTML5 Video Stream - Permanent Mute */}
               {!hasStreamError ? (
                 <video
@@ -119,64 +119,100 @@ export function ArchitecturalFilmsSection() {
             </div>
           </div>
 
-          {/* Right: Architectural Narrative & Craft Specifications (7 Cols) */}
-          <div className="lg:col-span-7 flex flex-col space-y-8">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-accent uppercase tracking-widest">
-                <Sparkles className="size-3.5" />
-                PROJECT REEL {currentVideoIndex + 1} OF {ARCHITECTURAL_FILMS.length}
-              </span>
-              <h3 className="font-display text-2xl sm:text-4xl font-light text-foreground leading-tight">
+          {/* Right: Architectural Narrative & Craft Specifications (7 Cols on Tablet & Desktop) */}
+          <div className="md:col-span-7 flex flex-col space-y-6 lg:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-accent uppercase tracking-widest">
+                  <Sparkles className="size-3.5" />
+                  REEL {currentVideoIndex + 1} OF {ARCHITECTURAL_FILMS.length}
+                </span>
+                <span className="text-muted-foreground/60 text-xs">·</span>
+                <span className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
+                  {currentFilm.category}
+                </span>
+              </div>
+
+              <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-light text-foreground leading-tight">
                 {currentFilm.title}
               </h3>
-              <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed">
+              <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-light leading-relaxed">
                 {currentFilm.description}
               </p>
             </div>
 
-            {/* Architectural Highlights Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-lg border border-border bg-card/40 space-y-1">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Location & Context</span>
-                <p className="font-medium text-foreground text-sm">{currentFilm.location}</p>
-                <p className="text-xs text-muted-foreground font-light">Detailed site planning aligned to solar daylight orientation.</p>
-              </div>
-              <div className="p-4 rounded-lg border border-border bg-card/40 space-y-1">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Discipline Scope</span>
-                <p className="font-medium text-foreground text-sm">{currentFilm.category}</p>
-                <p className="text-xs text-muted-foreground font-light">Bespoke spatial joinery, lighting & white-glove turnkey execution.</p>
-              </div>
-            </div>
-
-            {/* Sequence Dots & Live Status */}
-            <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Reels:</span>
+            {/* Interactive Reel Selector Chips (Tablet & Touch Friendly) */}
+            <div className="space-y-2">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono">
+                Select Architectural Film:
+              </span>
+              <div className="flex flex-wrap gap-2">
                 {ARCHITECTURAL_FILMS.map((film, idx) => (
                   <button
                     key={film.id}
+                    type="button"
                     onClick={() => {
                       setHasStreamError(false);
                       setCurrentVideoIndex(idx);
                     }}
                     className={cn(
-                      "h-2 rounded-full transition-all duration-500 cursor-pointer",
+                      "px-3 py-1.5 text-xs rounded border transition-all cursor-pointer min-h-[36px] flex items-center gap-1.5 font-medium",
                       idx === currentVideoIndex
-                        ? "w-8 bg-accent"
-                        : "w-2.5 bg-border hover:bg-muted-foreground"
+                        ? "border-accent bg-accent/15 text-foreground font-semibold shadow-xs"
+                        : "border-border bg-card/50 text-muted-foreground hover:border-accent/60 hover:text-foreground",
                     )}
-                    aria-label={`Switch to film ${idx + 1}`}
-                  />
+                  >
+                    <span className="font-mono text-[10px] text-accent">0{idx + 1}</span>
+                    <span className="truncate max-w-[140px] sm:max-w-[200px]">{film.title.replace("Walkthrough — ", "")}</span>
+                  </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Architectural Highlights Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="p-3.5 rounded-lg border border-border bg-card/40 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Location & Context</span>
+                <p className="font-medium text-foreground text-xs sm:text-sm">{currentFilm.location}</p>
+                <p className="text-[11px] text-muted-foreground font-light leading-snug">Daylight orientation & spatial volume alignment.</p>
+              </div>
+              <div className="p-3.5 rounded-lg border border-border bg-card/40 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Discipline Scope</span>
+                <p className="font-medium text-foreground text-xs sm:text-sm">{currentFilm.category}</p>
+                <p className="text-[11px] text-muted-foreground font-light leading-snug">Bespoke joinery, lighting & turnkey execution.</p>
+              </div>
+            </div>
+
+            {/* Quick Actions & Links */}
+            <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <a
+                  href="https://www.instagram.com/right_angle_interior_design/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded border border-border bg-card/70 px-3.5 py-2 text-xs uppercase tracking-[0.14em] text-foreground font-medium hover:border-accent hover:text-accent transition-colors min-h-[38px]"
+                >
+                  <span>Watch on Instagram</span>
+                  <ExternalLink className="size-3 text-accent" />
+                </a>
+
+                <a
+                  href="https://wa.me/919537586804?text=Hello%20Right%20Angle%20Design%20Studio%2C%20I%20am%20interested%20in%20discussing%20an%20interior%20architecture%20project."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded bg-foreground px-3.5 py-2 text-xs uppercase tracking-[0.14em] text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors min-h-[38px]"
+                >
+                  <span>Enquire on WhatsApp</span>
+                </a>
               </div>
 
               <a
                 href={GOOGLE_DRIVE_VIDEOS_FOLDER_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs uppercase tracking-[0.16em] text-accent hover:underline font-medium inline-flex items-center gap-1.5"
+                className="text-xs uppercase tracking-[0.14em] text-accent hover:underline font-medium inline-flex items-center gap-1.5"
               >
-                <span>View all videos in Google Drive</span>
+                <span>Drive Video Vault</span>
                 <ExternalLink className="size-3" />
               </a>
             </div>

@@ -13,6 +13,12 @@ import {
 } from "../services/googleDrive.service.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 import { env } from "../config/env.js";
+import {
+  getOrFetchCachedImage,
+  invalidateImageCache,
+  preloadDriveImages,
+} from "../services/imageCache.service.js";
+import { invalidatePublicCache } from "./public.controller.js";
 
 const ALLOWED_IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_VIDEO_MIMES = ["video/mp4", "video/webm", "video/quicktime"];
@@ -45,7 +51,28 @@ export async function getHomepageMedia(req: Request, res: Response, next: NextFu
       .limit(36)
       .toArray();
 
-    const formatted = items.map((m: any, idx: number) => ({
+    const seenIds = new Set<string>();
+    const seenFileNames = new Set<string>();
+    const seenUrls = new Set<string>();
+    const uniqueItems: any[] = [];
+
+    for (const m of items) {
+      const driveId = (m.driveFileId || String(m._id) || "").trim();
+      const fn = (m.fileName || "").trim().toLowerCase();
+      const u = (m.driveUrl || (m as any).url || "").trim();
+
+      if (driveId && seenIds.has(driveId)) continue;
+      if (fn && seenFileNames.has(fn)) continue;
+      if (u && seenUrls.has(u)) continue;
+
+      if (driveId) seenIds.add(driveId);
+      if (fn) seenFileNames.add(fn);
+      if (u) seenUrls.add(u);
+
+      uniqueItems.push(m);
+    }
+
+    const formatted = uniqueItems.map((m: any, idx: number) => ({
       id: String(m._id),
       _id: String(m._id),
       driveFileId: m.driveFileId,
@@ -73,6 +100,11 @@ export async function getHomepageMedia(req: Request, res: Response, next: NextFu
       createdAt: m.createdAt,
     }));
 
+    // Preload top homepage photos in memory & disk cache for instantaneous delivery
+    const driveIds = formatted.map((m: any) => m.driveFileId).filter(Boolean);
+    preloadDriveImages(driveIds);
+
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     return sendSuccess(res, formatted);
   } catch (err) {
     next(err);
@@ -172,6 +204,8 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
       detail: `Registered Google Drive asset (${mediaDoc.driveFileId}) in media vault`,
       createdAt: now,
     });
+
+    invalidatePublicCache();
 
     return sendSuccess(
       res,
@@ -606,6 +640,7 @@ export async function reorderHomepageMedia(req: Request, res: Response, next: Ne
       await mediaCol.bulkWrite(bulkOps as any);
     }
 
+    invalidatePublicCache();
     return sendSuccess(res, { reordered: true, count: bulkOps.length }, "Homepage media order updated successfully.");
   } catch (err) {
     next(err);
@@ -661,6 +696,11 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
       createdAt: new Date(),
     });
 
+    if (item.driveFileId) {
+      invalidateImageCache(item.driveFileId);
+    }
+    invalidatePublicCache();
+
     return sendSuccess(
       res,
       { deleted: true, id: String(item._id) },
@@ -672,7 +712,7 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
 }
 
 /**
- * Proxy Google Drive Images for high resilience fallback
+ * High-Speed Cached Proxy for Google Drive Images with Disk/Memory LRU & 304 Support
  */
 export async function proxyDriveImage(req: Request, res: Response, next: NextFunction) {
   try {
@@ -681,53 +721,26 @@ export async function proxyDriveImage(req: Request, res: Response, next: NextFun
       return sendError(res, "Invalid file ID", 400);
     }
 
-    const drive = getGoogleDriveClient();
-    if (drive) {
-      try {
-        const driveRes = await drive.files.get(
-          { fileId: id, alt: "media", supportsAllDrives: true },
-          { responseType: "stream" },
-        );
-        res.setHeader("Cache-Control", "public, max-age=86400, immutable");
-        res.setHeader("Content-Type", (driveRes.headers as any)?.["content-type"] || "image/jpeg");
-        return (driveRes.data as any).pipe(res);
-      } catch (apiErr: any) {
-        // Fallback to fetch upstream URLs
-      }
+    const sz = (req.query.sz as string) || "orig";
+    const cached = await getOrFetchCachedImage(id, sz);
+
+    if (!cached) {
+      return sendError(res, "Unable to load image from Google Drive source.", 404);
     }
 
-    const sz = req.query.sz || "w1600";
-    const candidateUrls = [
-      `https://lh3.googleusercontent.com/d/${id}`,
-      `https://drive.google.com/thumbnail?id=${id}&sz=${sz}`,
-      `https://drive.google.com/uc?export=view&id=${id}`,
-    ];
-
-    for (const url of candidateUrls) {
-      try {
-        const response = await fetch(url, {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          },
-        });
-
-        if (response.ok) {
-          const contentType = response.headers.get("content-type") || "image/jpeg";
-          const arrayBuffer = await response.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-
-          res.setHeader("Content-Type", contentType);
-          res.setHeader("Cache-Control", "public, max-age=86400, immutable");
-          res.setHeader("Content-Length", buffer.length.toString());
-          return res.send(buffer);
-        }
-      } catch {
-        // Try next candidate
-      }
+    // Check ETag for 304 Not Modified
+    if (req.headers["if-none-match"] && req.headers["if-none-match"] === cached.etag) {
+      return res.status(304).end();
     }
 
-    return sendError(res, "Unable to load image from Google Drive source.", 404);
+    res.setHeader("Content-Type", cached.contentType);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.setHeader("ETag", cached.etag);
+    res.setHeader("Last-Modified", cached.lastModified.toUTCString());
+    res.setHeader("X-Cache-Status", cached.from);
+    res.setHeader("Content-Length", cached.buffer.length.toString());
+
+    return res.send(cached.buffer);
   } catch (err) {
     next(err);
   }
@@ -925,4 +938,198 @@ export async function googleOAuthCallbackHandler(req: Request, res: Response) {
     `);
   }
 }
+
+/**
+ * Sync / Import All Photos from Google Drive Folder into MongoDB Database
+ */
+export async function syncGoogleDriveMediaHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const drive = getGoogleDriveClient();
+    if (!drive) {
+      return sendError(res, "Google Drive is not authenticated. Please connect Google Drive first.", 400);
+    }
+
+    // Build list of active Google Drive clients (OAuth + Service Account)
+    const clients: Array<{ name: string; client: any }> = [{ name: "OAuth Client", client: drive }];
+
+    if (env.GOOGLE_CLIENT_EMAIL && env.GOOGLE_PRIVATE_KEY) {
+      try {
+        let key = env.GOOGLE_PRIVATE_KEY;
+        if (key.startsWith('"') && key.endsWith('"')) {
+          try { key = JSON.parse(key); } catch {}
+        }
+        key = key.replace(/\\n/g, "\n");
+        const { google } = await import("googleapis");
+        const saAuth = new google.auth.JWT({
+          email: env.GOOGLE_CLIENT_EMAIL,
+          key,
+          scopes: ["https://www.googleapis.com/auth/drive"],
+        });
+        const saDrive = google.drive({ version: "v3", auth: saAuth });
+        clients.push({ name: "Service Account", client: saDrive });
+      } catch (saInitErr) {
+        console.warn("[Sync Drive] Service Account init note:", saInitErr);
+      }
+    }
+
+    const mediaCol = await getCollection<MediaDoc>("media");
+
+    const foldersToScan = Array.from(
+      new Set([
+        "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze",
+        "1mJeS8ys-QKNeKHkIjkkXV13d8WfwmDmz",
+        env.GOOGLE_DRIVE_ROOT_FOLDER_ID,
+      ].filter(Boolean)),
+    );
+
+    const CATEGORY_CYCLE = [
+      "Living & Salon",
+      "Master Bedroom & Suites",
+      "Dining & Show Kitchen",
+      "Foyer & Architectural Joinery",
+      "Courtyard & Terraces",
+      "Bath & Spa Sanctuary",
+    ];
+
+    const allDriveFilesMap = new Map<string, any>();
+
+    for (const { name, client } of clients) {
+      // 1. Scan explicit and nested folders
+      for (const folderId of foldersToScan) {
+        if (!folderId) continue;
+        try {
+          let pageToken: string | undefined = undefined;
+          do {
+            const listRes: any = await client.files.list({
+              q: `'${folderId}' in parents and trashed = false`,
+              fields: "nextPageToken, files(id, name, mimeType, size, webViewLink, webContentLink, createdTime, parents)",
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              pageSize: 100,
+              pageToken,
+            });
+
+            if (listRes.data.files) {
+              for (const file of listRes.data.files) {
+                if (file.mimeType === "application/vnd.google-apps.folder") {
+                  if (!foldersToScan.includes(file.id)) {
+                    foldersToScan.push(file.id);
+                  }
+                } else if (
+                  file.mimeType &&
+                  (file.mimeType.startsWith("image/") || file.mimeType.startsWith("video/"))
+                ) {
+                  if (!allDriveFilesMap.has(file.id)) {
+                    allDriveFilesMap.set(file.id, { ...file, parentFolderId: folderId });
+                  }
+                }
+              }
+            }
+            pageToken = listRes.data.nextPageToken || undefined;
+          } while (pageToken);
+        } catch (scanErr: any) {
+          console.warn(`[Sync Drive] Scan note for folder ${folderId} with ${name}:`, scanErr?.message);
+        }
+      }
+
+      // 2. Global search for all reachable image and video assets
+      try {
+        let pageToken: string | undefined = undefined;
+        do {
+          const listRes: any = await client.files.list({
+            q: "trashed = false and (mimeType contains 'image/' or mimeType contains 'video/')",
+            fields: "nextPageToken, files(id, name, mimeType, size, webViewLink, webContentLink, createdTime, parents)",
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+            pageSize: 100,
+            pageToken,
+          });
+
+          if (listRes.data.files) {
+            for (const file of listRes.data.files) {
+              if (!allDriveFilesMap.has(file.id)) {
+                allDriveFilesMap.set(file.id, {
+                  ...file,
+                  parentFolderId: file.parents?.[0] || env.GOOGLE_DRIVE_ROOT_FOLDER_ID,
+                });
+              }
+            }
+          }
+          pageToken = listRes.data.nextPageToken || undefined;
+        } while (pageToken);
+      } catch (globalErr: any) {
+        console.warn(`[Sync Drive] Global media search note with ${name}:`, globalErr?.message);
+      }
+    }
+
+    const allDriveFiles = Array.from(allDriveFilesMap.values());
+    let addedCount = 0;
+    let existingCount = 0;
+
+    for (let i = 0; i < allDriveFiles.length; i++) {
+      const file = allDriveFiles[i];
+      const existing = await mediaCol.findOne({ driveFileId: file.id });
+
+      if (existing) {
+        existingCount++;
+        continue;
+      }
+
+      const assignedCategory = CATEGORY_CYCLE[i % CATEGORY_CYCLE.length];
+      const cleanTitle = file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+      const isVideo = file.mimeType.startsWith("video/");
+      const mediaDoc: any = {
+        projectId: "altamount-penthouse",
+        projectTitle: "The Altamount Penthouse",
+        roomId: null,
+        fileName: file.name,
+        title: cleanTitle || `Architectural Work #${i + 1}`,
+        driveFileId: file.id,
+        driveFolderId: file.parentFolderId,
+        driveUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
+        thumbnailUrl: `https://drive.google.com/thumbnail?id=${file.id}&sz=w1600`,
+        mimeType: file.mimeType,
+        mediaType: isVideo ? "video" : "image",
+        size: parseInt(file.size || "0", 10),
+        category: assignedCategory,
+        caption: cleanTitle,
+        alt: cleanTitle,
+        tags: ["Google Drive Vault", assignedCategory, "Bespoke Architecture"],
+        visibility: "website",
+        isFeatured: i < 12,
+        isHomepageVisible: true,
+        homepageOrder: i + 1,
+        sortOrder: i,
+        uploadedBy: "Google Drive Sync",
+        status: "active",
+        createdAt: file.createdTime ? new Date(file.createdTime) : new Date(),
+        updatedAt: new Date(),
+      };
+
+      await mediaCol.insertOne(mediaDoc);
+      addedCount++;
+    }
+
+    const totalNow = await mediaCol.countDocuments({});
+
+    return sendSuccess(
+      res,
+      {
+        totalDriveFiles: allDriveFiles.length,
+        newlyAdded: addedCount,
+        existing: existingCount,
+        totalInDatabase: totalNow,
+      },
+      `Synchronized ${allDriveFiles.length} files from Google Drive vault. ${addedCount} new photo(s) added!`,
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 

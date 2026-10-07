@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { ArrowRight, Maximize2, Compass, Layers, Sparkles, MapPin, Calendar, CheckCircle2 } from "lucide-react";
 import {
   getHomeContent,
+  CURATED_STUDIO_PROJECTS,
+  CURATED_STUDIO_SERVICES,
+  CURATED_STUDIO_PROCESS,
+  CURATED_STUDIO_TESTIMONIALS,
+  CURATED_STUDIO_MATERIALS,
   type CaseCard,
   type ServiceItem,
   type ProcessStepItem,
@@ -16,20 +21,29 @@ import { EditorialProjectGrid, ProjectCard } from "@/components/site/CaseCardGri
 import { EditorialServicesSection } from "@/components/site/EditorialServices";
 import { ProcessTimeline } from "@/components/site/ProcessTimeline";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
-import { ConsultationForm } from "@/components/site/ConsultationForm";
 import { InstagramFeedSection } from "@/components/site/InstagramFeedSection";
 import { ArchitecturalFilmsSection } from "@/components/site/ArchitecturalFilmsSection";
 import { DriveImage } from "@/components/site/DriveImage";
 import { PhotoLightboxModal } from "@/components/site/PhotoLightboxModal";
+import { useCmsLiveSync } from "@/lib/cms-live-sync";
 import { cn } from "@/lib/utils";
 
 const homeQuery = queryOptions({
   queryKey: ["home-content"],
   queryFn: () => getHomeContent(),
+  staleTime: 0,
+  refetchOnWindowFocus: true,
+  refetchInterval: false,
 });
 
 export const Route = createFileRoute("/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(homeQuery),
+  loader: ({ context }) => {
+    try {
+      return context.queryClient.ensureQueryData(homeQuery);
+    } catch {
+      return null;
+    }
+  },
   component: HomePage,
   head: () => ({
     meta: [
@@ -49,25 +63,38 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  errorComponent: () => (
-    <PublicShell>
-      <div className="mx-auto max-w-xl px-5 py-28 text-center">
-        <h1 className="text-3xl font-display font-light">Right Angle Design Studio</h1>
-        <p className="mt-3 text-sm text-muted-foreground font-light">
-          Refreshing studio parameters. Please reload to view our portfolio.
-        </p>
-      </div>
-    </PublicShell>
-  ),
 });
 
 export function HomePage() {
-  const { data } = useSuspenseQuery(homeQuery);
-  const studies: CaseCard[] = data?.studies || [];
-  const services: ServiceItem[] = data?.services || [];
-  const processSteps: ProcessStepItem[] = data?.processSteps || [];
-  const testimonials: TestimonialItem[] = data?.testimonials || [];
-  const materials: MaterialItem[] = data?.materials || [];
+  useCmsLiveSync();
+  const { data: rawData } = useQuery(homeQuery);
+  const data = rawData || {
+    heroTitle: "Architecture & Interior Sanctuary",
+    heroSubtitle:
+      "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India.",
+    heroImage: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+    atmospherePhoto: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+    beforePhoto: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
+    afterPhoto: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+    ctaText: "View Projects",
+    ctaLink: "/portfolio",
+    studies: CURATED_STUDIO_PROJECTS,
+    featuredProjects: CURATED_STUDIO_PROJECTS,
+    services: CURATED_STUDIO_SERVICES,
+    processSteps: CURATED_STUDIO_PROCESS,
+    testimonials: CURATED_STUDIO_TESTIMONIALS,
+    materials: CURATED_STUDIO_MATERIALS,
+    recentJournal: [],
+    heroMedia: [],
+    homepageMedia: [],
+    settings: {},
+  };
+
+  const studies: CaseCard[] = data.studies && data.studies.length > 0 ? data.studies : CURATED_STUDIO_PROJECTS;
+  const services: ServiceItem[] = data.services && data.services.length > 0 ? data.services : CURATED_STUDIO_SERVICES;
+  const processSteps: ProcessStepItem[] = data.processSteps && data.processSteps.length > 0 ? data.processSteps : CURATED_STUDIO_PROCESS;
+  const testimonials: TestimonialItem[] = data.testimonials && data.testimonials.length > 0 ? data.testimonials : CURATED_STUDIO_TESTIMONIALS;
+  const materials: MaterialItem[] = data.materials && data.materials.length > 0 ? data.materials : CURATED_STUDIO_MATERIALS;
 
   const [activeLightboxPhoto, setActiveLightboxPhoto] = useState<GoogleDrivePhoto | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("ALL");
@@ -95,9 +122,12 @@ export function HomePage() {
     });
   }, [studies, selectedFilter]);
 
-  // Featured flagship story project
+  // Featured flagship story project & hero image from live CMS data
   const flagshipProject = studies[0];
-  const heroImageSrc = flagshipProject?.hero_image || "";
+  const heroImageSrc =
+    data?.heroImage ||
+    flagshipProject?.hero_image ||
+    "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
 
   return (
     <PublicShell overlayHeader>
@@ -149,23 +179,23 @@ export function HomePage() {
 
             {/* Main Headline */}
             <h1 className="reveal font-display text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-ink-foreground tracking-tight font-light leading-[1.08]">
-              Spaces shaped by{" "}
-              <span className="italic font-normal text-accent">light, material</span> and everyday life.
+              {data.heroTitle || "Architecture & Interior Sanctuary"}
             </h1>
 
             {/* Positioning Statement */}
             <p className="reveal mt-4 max-w-xl text-sm sm:text-base lg:text-lg leading-relaxed text-ink-foreground/85 font-light">
               {data.heroSubtitle ||
-                "Bespoke residential, commercial and turnkey interiors across India. Detailed around daylight, natural stone and quiet craft."}
+                "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."}
             </p>
 
             {/* CTAs */}
             <div className="reveal mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/portfolio"
+                to="/"
+                hash="portfolio-archive"
                 className="group inline-flex items-center gap-2.5 bg-accent px-7 py-3.5 text-xs font-semibold tracking-[0.2em] text-accent-foreground uppercase transition-all duration-300 hover:bg-ink-foreground hover:text-ink cursor-pointer"
               >
-                <span>View Projects</span>
+                <span>Explore Portfolio</span>
                 <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
@@ -270,9 +300,9 @@ export function HomePage() {
 
             {/* Studio Atmosphere Photography from Database/Drive */}
             <div className="group relative lg:col-span-5 overflow-hidden bg-stone aspect-[4/5] border border-border">
-              {studies[1]?.hero_image ? (
+              {data?.atmospherePhoto || studies[1]?.hero_image ? (
                 <DriveImage
-                  src={studies[1].hero_image}
+                  src={data?.atmospherePhoto || studies[1]?.hero_image}
                   alt="Right Angle Design Studio atmosphere and stone curation"
                   className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                   wrapperClassName="size-full"
@@ -288,9 +318,14 @@ export function HomePage() {
       </section>
 
       {/* =========================================================================
-          SECTION 03 — SELECTED PROJECTS (Editorial 12-Column Grid)
+          SECTION 02.5 — ARCHITECTURAL CINEMA & VIDEO REELS DISPATCH (Google Drive)
           ========================================================================= */}
-      <section className="py-16 sm:py-24 bg-background">
+      <ArchitecturalFilmsSection />
+
+      {/* =========================================================================
+          SECTION 03 — SELECTED PORTFOLIO PROJECTS (Editorial 12-Column Grid)
+          ========================================================================= */}
+      <section id="portfolio-archive" className="py-16 sm:py-24 bg-background scroll-mt-20">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
             <div>
@@ -345,17 +380,6 @@ export function HomePage() {
               </div>
             )}
           </div>
-
-          {studies.length > 0 && (
-            <div className="mt-14 text-center">
-              <Link
-                to="/portfolio"
-                className="inline-flex items-center gap-3 border border-foreground/30 px-8 py-3.5 text-xs uppercase tracking-[0.22em] text-foreground hover:bg-foreground hover:text-background transition-colors cursor-pointer"
-              >
-                Explore Complete Portfolio Archive ({studies.length}+ Works) <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
@@ -461,11 +485,6 @@ export function HomePage() {
           </div>
         </section>
       )}
-
-      {/* =========================================================================
-          SECTION 07.5 — ARCHITECTURAL CINEMA & VIDEO DISPATCH (Google Drive)
-          ========================================================================= */}
-      <ArchitecturalFilmsSection />
 
       {/* =========================================================================
           SECTION 08 — MATERIAL / DETAIL STORY (Tactile Curation from DB)
@@ -636,26 +655,6 @@ export function HomePage() {
           SECTION 13 — PHOTO VAULT / CURATED STRIP (Owner-Selected Google Drive Media)
           ========================================================================= */}
       <InstagramFeedSection photos={data?.homepageMedia} />
-
-      {/* =========================================================================
-          SECTION 14 — CONSULTATION INQUIRY (Real API Endpoint)
-          ========================================================================= */}
-      <section id="consultation" className="bg-card/70 py-16 sm:py-24 border-t border-border">
-        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="eyebrow">START A CONVERSATION</p>
-            <h2 className="mt-3 font-display text-3xl sm:text-5xl font-light text-foreground tracking-tight">
-              LET'S TALK ABOUT YOUR SPACE.
-            </h2>
-            <p className="mt-3 text-sm text-muted-foreground font-light">
-              Tell us about your space. Every brief is reviewed by our senior design partners within two
-              business days.
-            </p>
-          </div>
-
-          <ConsultationForm />
-        </div>
-      </section>
 
       {/* Lightbox Modal for Fullscreen Photo Exploration */}
       <PhotoLightboxModal

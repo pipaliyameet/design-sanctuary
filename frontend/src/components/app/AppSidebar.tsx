@@ -26,7 +26,7 @@ import {
   Compass,
 } from "lucide-react";
 import { logoutUser } from "@/lib/session.functions";
-import { useServerFn } from "@tanstack/react-start";
+import { api } from "@/services/api";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrandLogo } from "@/components/brand/BrandLogo";
@@ -56,15 +56,16 @@ export function AppSidebar({
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const fetchLogout = useServerFn(logoutUser);
 
   async function signOut() {
     try {
-      await fetchLogout();
+      await logoutUser();
     } catch (e) {
       console.warn("Logout error:", e);
     }
-    queryClient.clear();
+    api.clearToken();
+    await queryClient.resetQueries();
+    await queryClient.invalidateQueries();
     navigate({ to: "/auth" });
   }
 
@@ -117,7 +118,7 @@ export function AppSidebar({
                 to={item.to}
                 activeOptions={{ exact: item.exact }}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded px-3 py-2 text-xs font-medium transition-colors",
+                  "group relative flex items-center gap-3 rounded px-3 py-2 text-xs font-medium transition-colors min-h-[42px] cursor-pointer",
                   "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
                   "[&.active]:bg-accent/15 [&.active]:text-foreground [&.active]:font-semibold",
                 )}

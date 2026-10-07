@@ -93,16 +93,16 @@ export interface JournalPost {
 export const STUDIO_DETAILS = {
   name: "Right Angle Design Studio",
   tagline: "Interior Architecture & Design Studio",
-  phone: "+91 98200 41100",
+  phone: "+91 95375 86804",
   email: "contact@rightangledesign.com",
   emailAddress: "contact@rightangledesign.com",
   address: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
   officeAddress: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
-  instagram: "https://instagram.com/rightangledesignstudio",
-  instagramHandle: "@rightangledesignstudio",
-  instagramUrl: "https://instagram.com/rightangledesignstudio",
-  whatsappNumber: "+919820041100",
-  whatsappFormatted: "+91 98200 41100",
+  instagram: "https://www.instagram.com/right_angle_interior_design/",
+  instagramHandle: "@right_angle_interior_design",
+  instagramUrl: "https://www.instagram.com/right_angle_interior_design/",
+  whatsappNumber: "919537586804",
+  whatsappFormatted: "+91 95375 86804",
   consultationBookingUrl: "/contact",
 };
 
@@ -478,6 +478,12 @@ export async function getHomeContent() {
       rawData.heroSubtitle,
       "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."
     );
+    const heroImage = unwrapStr(rawData.heroImage, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE");
+    const atmospherePhoto = unwrapStr(rawData.atmospherePhoto, "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg");
+    const beforePhoto = unwrapStr(rawData.beforePhoto, "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r");
+    const afterPhoto = unwrapStr(rawData.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE");
+    const ctaText = unwrapStr(rawData.ctaText, "View Projects");
+    const ctaLink = unwrapStr(rawData.ctaLink, "/portfolio");
 
     const materialsData =
       Array.isArray(rawData.materials) && rawData.materials.length >= 3
@@ -518,6 +524,12 @@ export async function getHomeContent() {
     return {
       heroTitle,
       heroSubtitle,
+      heroImage,
+      atmospherePhoto,
+      beforePhoto,
+      afterPhoto,
+      ctaText,
+      ctaLink,
       studies,
       featuredProjects: studies,
       services: servicesData,
@@ -535,6 +547,12 @@ export async function getHomeContent() {
       heroTitle: "Architecture & Interior Sanctuary",
       heroSubtitle:
         "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India.",
+      heroImage: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+      atmospherePhoto: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+      beforePhoto: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
+      afterPhoto: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+      ctaText: "View Projects",
+      ctaLink: "/portfolio",
       studies: CURATED_STUDIO_PROJECTS,
       featuredProjects: CURATED_STUDIO_PROJECTS,
       services: CURATED_STUDIO_SERVICES,

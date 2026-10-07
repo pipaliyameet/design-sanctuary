@@ -22,9 +22,9 @@ export function getApiBaseUrl(): string {
     return `${window.location.origin}/api`;
   }
 
-  // 4. Server-side rendering (SSR) fallback in production
+  // 4. Server-side rendering (SSR) in Node/Nitro
   if (typeof process !== "undefined" && process.env) {
-    const ssrUrl = process.env.VITE_API_URL || process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+    const ssrUrl = process.env.VITE_API_URL || process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL;
     if (ssrUrl) {
       return ssrUrl.replace(/\/$/, "");
     }
@@ -36,7 +36,8 @@ export function getApiBaseUrl(): string {
     }
   }
 
-  return "/api";
+  // Absolute fallback for local Node SSR execution
+  return "http://localhost:5001/api";
 }
 
 export const API_BASE_URL = getApiBaseUrl();

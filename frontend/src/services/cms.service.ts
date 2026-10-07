@@ -28,13 +28,16 @@ export interface HomepageConfigData {
   heroTitle: string;
   heroSubtitle: string;
   heroImage: string;
+  atmospherePhoto?: string;
+  beforePhoto?: string;
+  afterPhoto?: string;
   ctaText: string;
   ctaLink: string;
-  featuredProjectSlugs: string[];
-  showServices: boolean;
-  showProcess: boolean;
-  showTestimonials: boolean;
-  showJournal: boolean;
+  featuredProjectSlugs?: string[];
+  showServices?: boolean;
+  showProcess?: boolean;
+  showTestimonials?: boolean;
+  showJournal?: boolean;
 }
 
 export interface CmsCaseStudyItem {

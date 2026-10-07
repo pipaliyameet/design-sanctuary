@@ -1,28 +1,43 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginUser, signupUser, getMySession } from "@/lib/session.functions";
+import { loginUser, getMySession, logoutUser, type SessionInfo } from "@/lib/session.functions";
+import { api } from "@/services/api";
 import { PublicShell } from "@/components/site/PublicShell";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
 import { DriveImage } from "@/components/site/DriveImage";
-import { Shield, Sparkles, CheckCircle2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Lock,
+  Mail,
+  ArrowRight,
+  ShieldCheck,
+  Building2,
+  CheckCircle2,
+  LogOut,
+} from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: (search.redirect as string) || "/studio",
+  }),
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: "Owner Access — Right Angle Design Studio" },
+      { title: "Studio Access & Login — Right Angle Design Studio" },
       {
         name: "description",
         content:
-          "Executive login to the Right Angle Design Studio command center, project controls, Google Drive vault, and finances.",
+          "Authentication portal for Right Angle Design Studio. Access project control, client portal, and design vault.",
       },
-      { property: "og:title", content: "Owner Access — Right Angle Design Studio" },
-      { property: "og:description", content: "Executive studio command center access." },
+      { property: "og:title", content: "Studio Access & Login — Right Angle Design Studio" },
+      { property: "og:description", content: "Bespoke interior architecture command portal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -31,185 +46,305 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/auth" });
+  const targetRedirect = search.redirect || "/studio";
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("a@gmail.com");
-  const [password, setPassword] = useState("password123");
-  const [fullName, setFullName] = useState("");
+
+  const [existingSession, setExistingSession] = useState<SessionInfo | null>(null);
+
+  // Login Form State
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     getMySession()
       .then((session) => {
-        if (session) {
-          navigate({ to: "/studio" });
+        if (isMounted) {
+          if (session && session.email) {
+            setExistingSession(session);
+          } else {
+            setExistingSession(null);
+          }
         }
       })
       .catch(() => {
-        // Not logged in
+        if (isMounted) {
+          setExistingSession(null);
+        }
       });
-  }, [navigate]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleLogoutExisting() {
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const res = await signupUser({
-          data: {
-            email: email.trim().toLowerCase(),
-            password,
-            fullName: fullName.trim() || "Studio Principal",
-            role: "admin",
-            title: "Studio Owner & Principal",
-          },
-        });
-        if (!res.success) throw new Error("Registration failed.");
-        await queryClient.invalidateQueries({ queryKey: ["session"] });
-        toast.success("Owner account created successfully. Welcome to Right Angle Studio!");
-        navigate({ to: "/studio" });
-      } else {
-        const res = await loginUser({
-          data: {
-            email: email.trim().toLowerCase(),
-            password,
-          },
-        });
-        if (!res.success) throw new Error("Invalid credentials.");
-        await queryClient.invalidateQueries({ queryKey: ["session"] });
-        toast.success("Signed in successfully. Welcome back to Owner Panel!");
-        navigate({ to: "/studio" });
+      await logoutUser();
+    } catch {
+      // Ignore
+    }
+    api.clearToken();
+    await queryClient.resetQueries();
+    await queryClient.invalidateQueries();
+    setExistingSession(null);
+    setBusy(false);
+  }
+
+  async function onLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setErrorMessage(null);
+    setBusy(true);
+
+    try {
+      const res = await loginUser({
+        data: {
+          email: email.trim().toLowerCase(),
+          password,
+        },
+      });
+
+      if (!res.success) {
+        throw new Error("Incorrect email address or password. Please try again.");
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed. Please check your credentials.");
+
+      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      navigate({ to: targetRedirect });
+    } catch (err: any) {
+      const message =
+        err?.message ||
+        err?.response?.data?.message ||
+        "Incorrect email or password. Please verify your credentials and try again.";
+      setErrorMessage(message);
     } finally {
       setBusy(false);
     }
   }
 
-  const fillOwnerCredentials = () => {
-    setMode("signin");
-    setEmail("a@gmail.com");
-    setPassword("password123");
-    toast.info("Filled Owner credentials (a@gmail.com / password123)");
-  };
-
-  const fillPrincipalCredentials = () => {
-    setMode("signin");
-    setEmail("admin@rightangle.design");
-    setPassword("password123");
-    toast.info("Filled Principal credentials (admin@rightangle.design / password123)");
+  const fillCredentials = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMessage(null);
   };
 
   return (
     <PublicShell>
-      <section className="mx-auto grid max-w-[1400px] gap-16 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:items-center">
-        <div>
-          <p className="eyebrow flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            Studio Executive & Owner Command Center
-          </p>
-          <h1 className="mt-4 text-4xl leading-tight sm:text-5xl font-display font-normal">
-            {mode === "signin" ? "Owner Sign In." : "Register Owner Account."}
-          </h1>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Full administrative access to client project management, live site camera feeds, Google Drive vault, finance sheets, and design approvals.
-          </p>
+      <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8 bg-background">
+        <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-12 overflow-hidden rounded-xl border border-border/80 shadow-2xl bg-card">
+          
+          {/* Left Column: Pure Luxury Login Form */}
+          <div className="lg:col-span-6 p-6 sm:p-10 lg:p-12 flex flex-col justify-between bg-card">
+            <div>
+              {/* Brand Header */}
+              <div className="flex items-center justify-between pb-6 border-b border-border/60">
+                <Link to="/" className="inline-block transition-opacity hover:opacity-80">
+                  <BrandLogo variant="horizontal" size="sm" />
+                </Link>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest text-accent bg-accent/10 border border-accent/20">
+                  <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+                  Studio Command
+                </div>
+              </div>
 
-          {/* Quick Demo Access Bar */}
-          <div className="mt-6 p-4 rounded border border-accent/40 bg-accent/5 max-w-md">
-            <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wider mb-3">
-              <Sparkles className="h-3.5 w-3.5" />
-              Quick One-Click Owner Access
+              {/* Active Existing Session State */}
+              {existingSession && (
+                <div className="mt-6 p-4 rounded-lg border border-accent/30 bg-accent/5 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="size-5 text-accent shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">
+                        Currently Signed In
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {existingSession.fullName} ({existingSession.email})
+                      </p>
+                      <p className="text-[10px] uppercase font-mono text-accent mt-0.5">
+                        Role: {existingSession.roles?.join(", ") || "User"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      onClick={() => navigate({ to: targetRedirect })}
+                      className="flex-1 h-9 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground font-medium cursor-pointer"
+                    >
+                      <span>Continue to Studio Panel</span>
+                      <ArrowRight className="size-3.5 ml-1" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleLogoutExisting}
+                      disabled={busy}
+                      className="h-9 text-xs border-border hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                      title="Sign Out & Switch Account"
+                    >
+                      <LogOut className="size-3.5 mr-1" />
+                      <span>Switch</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Title */}
+              <div className="mt-6">
+                <h1 className="text-xl sm:text-2xl font-display font-light text-foreground tracking-tight">
+                  Sign In to Studio Portal
+                </h1>
+                <p className="mt-1.5 text-xs text-muted-foreground font-light leading-relaxed">
+                  Enter your verified credentials to access projects, media assets, and executive workflows.
+                </p>
+              </div>
+
+              {/* Form Render */}
+              <form onSubmit={onLogin} className="mt-6 space-y-4">
+                <div>
+                  <Label className="eyebrow flex items-center gap-1.5 text-[11px] text-foreground/80 mb-1.5">
+                    <Mail className="size-3 text-accent" />
+                    Email Address
+                  </Label>
+                  <Input
+                    className="h-10 text-sm bg-background border-border/80 focus-visible:ring-accent transition-all"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="admin@rightangle.design"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <Label className="eyebrow flex items-center gap-1.5 text-[11px] text-foreground/80 mb-1.5">
+                    <Lock className="size-3 text-accent" />
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      className="h-10 pr-10 text-sm bg-background border-border/80 focus-visible:ring-accent transition-all"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      autoComplete="current-password"
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="size-4 text-accent" />
+                      ) : (
+                        <Eye className="size-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Error Alert */}
+                {errorMessage && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2.5 p-3 text-xs rounded border border-destructive/40 bg-destructive/10 text-destructive animate-in fade-in duration-200"
+                  >
+                    <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                    <div className="flex-1 font-medium leading-relaxed">{errorMessage}</div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full h-11 text-xs tracking-[0.18em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300 font-semibold shadow-md flex items-center justify-center gap-2 mt-2"
+                >
+                  {busy ? (
+                    "Authenticating…"
+                  ) : (
+                    <>
+                      <span>Authenticate & Sign In</span>
+                      <ArrowRight className="size-3.5" />
+                    </>
+                  )}
+                </Button>
+
+                {/* Quick Fill Demo Credentials */}
+                <div className="mt-4 pt-3 border-t border-border/60">
+                  <p className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground mb-2">
+                    Studio Demo Credentials:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fillCredentials("admin@rightangle.design", "Admin@123456")}
+                      className="px-2 py-1 text-[11px] rounded border border-border hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
+                    >
+                      Owner: admin@rightangle.design
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fillCredentials("tanya@ateliervermilion.com", "Admin@123456")}
+                      className="px-2 py-1 text-[11px] rounded border border-border hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
+                    >
+                      Designer: tanya@ateliervermilion.com
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div className="flex flex-wrap gap-2.5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={fillOwnerCredentials}
-                className="text-xs h-9 border-accent/40 bg-background hover:bg-accent hover:text-accent-foreground flex items-center gap-1.5 font-medium transition-all"
-              >
-                <Shield className="h-3.5 w-3.5 text-accent" />
-                Fill Owner (a@gmail.com)
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={fillPrincipalCredentials}
-                className="text-xs h-9 border-border bg-background hover:border-accent flex items-center gap-1.5 font-medium transition-all"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
-                Fill Principal (Ira Kapoor)
-              </Button>
+
+            {/* Bottom Security Footer */}
+            <div className="mt-8 pt-4 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="size-3.5 text-accent shrink-0" />
+                <span>256-Bit SSL Encrypted JWT Session</span>
+              </div>
+              <span className="font-mono text-[10px] text-muted-foreground/70">v2.4 Production</span>
             </div>
           </div>
 
-          <form onSubmit={onSubmit} className="mt-8 max-w-md space-y-4">
-            {mode === "signup" && (
-              <div>
-                <Label className="eyebrow">Full name</Label>
-                <Input
-                  className="mt-1.5"
-                  required
-                  placeholder="e.g. Studio Principal"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
+          {/* Right Column: Architectural Visual Sanctuary */}
+          <div className="lg:col-span-6 relative hidden lg:block bg-secondary/20 min-h-[560px]">
+            <DriveImage
+              src={GOOGLE_DRIVE_PHOTOS[2]?.url || "https://lh3.googleusercontent.com/d/1Xl45R4J6Rvhq8m7kL_wK3Wb1Z0d17_0_"}
+              alt="Right Angle Architectural Project"
+              className="absolute inset-0 size-full object-cover"
+              wrapperClassName="size-full"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+            
+            <div className="absolute bottom-8 left-8 right-8 p-6 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-accent font-semibold mb-1.5">
+                <Building2 className="size-3.5" />
+                <span>Right Angle Design Studio</span>
               </div>
-            )}
-            <div>
-              <Label className="eyebrow">Email address</Label>
-              <Input
-                className="mt-1.5"
-                type="email"
-                required
-                placeholder="a@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <p className="font-display text-lg font-light leading-snug">
+                Bespoke Interior Architecture & Project Command
+              </p>
+              <p className="text-xs text-white/70 font-light mt-1">
+                Mumbai · Bengaluru · Pan-India Turnkey Executions
+              </p>
             </div>
-            <div>
-              <Label className="eyebrow">Password</Label>
-              <Input
-                className="mt-1.5"
-                type="password"
-                required
-                minLength={6}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+          </div>
 
-            <Button
-              type="submit"
-              disabled={busy}
-              className="w-full py-6 text-xs tracking-[0.2em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-semibold shadow-md"
-            >
-              {busy ? "Authenticating…" : mode === "signin" ? "Sign in to Owner Panel" : "Create Owner Account"}
-            </Button>
-
-            <button
-              type="button"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-              className="text-xs text-muted-foreground hover:text-accent block text-center w-full cursor-pointer transition-colors pt-2"
-            >
-              {mode === "signin"
-                ? "Don't have an account yet? Register a new Owner Account"
-                : "Already have an account? Sign in directly"}
-            </button>
-          </form>
         </div>
-
-        <DriveImage
-          src={GOOGLE_DRIVE_PHOTOS[2]?.url || "https://lh3.googleusercontent.com/d/1Xl45R4J6Rvhq8m7kL_wK3Wb1Z0d17_0_"}
-          alt="A calm sunlit interior with stone flooring and oak joinery"
-          className="aspect-[4/5] w-full object-cover rounded shadow-lg border border-border"
-          wrapperClassName="hidden aspect-[4/5] w-full overflow-hidden lg:block"
-        />
-      </section>
+      </div>
     </PublicShell>
   );
 }

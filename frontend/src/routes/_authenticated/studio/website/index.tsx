@@ -4,10 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Globe,
-  Monitor,
-  Tablet,
-  Smartphone,
-  Edit3,
   Eye,
   Check,
   Save,
@@ -55,6 +51,7 @@ import {
   type CaseCard,
   type MaterialItem,
 } from "@/lib/public.functions";
+import { broadcastCmsUpdate, useCmsLiveSync } from "@/lib/cms-live-sync";
 import { AppShell, PageTitle } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,20 +81,16 @@ export const Route = createFileRoute("/_authenticated/studio/website/")({
   }),
 });
 
-type ViewportMode = "desktop" | "tablet" | "mobile";
-type ActiveTab = "home" | "photo-slots" | "portfolio" | "gallery" | "services" | "process" | "about" | "contact";
-
 const DEFAULT_HERO_IMAGE =
   GOOGLE_DRIVE_PHOTOS[0]?.url ||
   "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
 
 export function LiveVisualWebsiteEditor() {
   const queryClient = useQueryClient();
+  useCmsLiveSync();
 
   // Editor View State
-  const [activeTab, setActiveTab] = useState<ActiveTab>("home");
-  const [viewport, setViewport] = useState<ViewportMode>("desktop");
-  const [editMode, setEditMode] = useState<boolean>(true);
+  const editMode = true;
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
   // Dynamic Custom Photos Overrides in Draft
@@ -190,18 +183,26 @@ export function LiveVisualWebsiteEditor() {
     if (homeData) {
       setDraftHome({
         ...homeData,
-        heroImage:
-          homeData.heroImage && !homeData.heroImage.includes("1yKk6NqN3z5h4hL")
-            ? homeData.heroImage
-            : DEFAULT_HERO_IMAGE,
+        heroImage: homeData.heroImage || DEFAULT_HERO_IMAGE,
+        atmospherePhoto: homeData.atmospherePhoto || customAtmospherePhoto,
+        beforePhoto: homeData.beforePhoto || customBeforePhoto,
+        afterPhoto: homeData.afterPhoto || customAfterPhoto,
       });
+      if (homeData.atmospherePhoto) setCustomAtmospherePhoto(homeData.atmospherePhoto);
+      if (homeData.beforePhoto) setCustomBeforePhoto(homeData.beforePhoto);
+      if (homeData.afterPhoto) setCustomAfterPhoto(homeData.afterPhoto);
     }
   }, [homeData]);
 
   // Mutations
   const publishMutation = useMutation({
     mutationFn: async () => {
-      await cmsService.updateHomepage(draftHome);
+      await cmsService.updateHomepage({
+        ...draftHome,
+        atmospherePhoto: customAtmospherePhoto,
+        beforePhoto: customBeforePhoto,
+        afterPhoto: customAfterPhoto,
+      });
     },
     onSuccess: () => {
       toast.success("All website changes published to live site successfully!");
@@ -209,6 +210,7 @@ export function LiveVisualWebsiteEditor() {
       queryClient.invalidateQueries({ queryKey: ["cms"] });
       queryClient.invalidateQueries({ queryKey: ["public"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      broadcastCmsUpdate({ type: "publish_all" });
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : "Publishing failed.");
@@ -238,6 +240,7 @@ export function LiveVisualWebsiteEditor() {
       queryClient.invalidateQueries({ queryKey: ["cms", "projects"] });
       queryClient.invalidateQueries({ queryKey: ["public"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      broadcastCmsUpdate({ type: "case_study_cover" });
     },
     onError: (err, _variables, context) => {
       if (context?.previousProjects) {
@@ -251,16 +254,41 @@ export function LiveVisualWebsiteEditor() {
   const handleSelectMedia = (photoUrl: string) => {
     if (!activeSlotTarget) return;
 
-    const { slotType, targetId, index, title } = activeSlotTarget;
+    const { slotType, targetId, index } = activeSlotTarget;
 
     if (slotType === "hero") {
-      setDraftHome((prev) => ({ ...prev, heroImage: photoUrl }));
-      setHasUnpublishedChanges(true);
-      toast.success("Homepage hero background updated in draft! Click Publish Live to apply.");
+      const updated = { ...draftHome, heroImage: photoUrl };
+      setDraftHome(updated);
+      cmsService.updateHomepage({
+        ...updated,
+        atmospherePhoto: customAtmospherePhoto,
+        beforePhoto: customBeforePhoto,
+        afterPhoto: customAfterPhoto,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cms"] });
+        queryClient.invalidateQueries({ queryKey: ["public"] });
+        queryClient.invalidateQueries({ queryKey: ["home-content"] });
+        broadcastCmsUpdate({ type: "hero_photo", url: photoUrl });
+        toast.success("Hero photo updated & live on public website!");
+      }).catch(() => {
+        setHasUnpublishedChanges(true);
+      });
     } else if (slotType === "atmosphere") {
       setCustomAtmospherePhoto(photoUrl);
-      setHasUnpublishedChanges(true);
-      toast.success("Studio atmosphere photo updated in draft!");
+      cmsService.updateHomepage({
+        ...draftHome,
+        atmospherePhoto: photoUrl,
+        beforePhoto: customBeforePhoto,
+        afterPhoto: customAfterPhoto,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cms"] });
+        queryClient.invalidateQueries({ queryKey: ["public"] });
+        queryClient.invalidateQueries({ queryKey: ["home-content"] });
+        broadcastCmsUpdate({ type: "atmosphere_photo", url: photoUrl });
+        toast.success("Studio atmosphere photo updated & live!");
+      }).catch(() => {
+        setHasUnpublishedChanges(true);
+      });
     } else if (slotType === "project_cover" && targetId) {
       updateCaseStudyCoverMutation.mutate({
         id: targetId,
@@ -279,29 +307,80 @@ export function LiveVisualWebsiteEditor() {
         }
         return copy;
       });
-      setHasUnpublishedChanges(true);
-      toast.success(`Material texture updated in draft!`);
+      cmsService.updateHomepage({
+        ...draftHome,
+        atmospherePhoto: customAtmospherePhoto,
+        beforePhoto: customBeforePhoto,
+        afterPhoto: customAfterPhoto,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cms"] });
+        queryClient.invalidateQueries({ queryKey: ["public"] });
+        queryClient.invalidateQueries({ queryKey: ["home-content"] });
+        broadcastCmsUpdate({ type: "material_photo", url: photoUrl });
+        toast.success("Material texture updated & live!");
+      }).catch(() => {
+        setHasUnpublishedChanges(true);
+      });
     } else if (slotType === "before_image") {
       setCustomBeforePhoto(photoUrl);
-      setHasUnpublishedChanges(true);
-      toast.success("Transformation 'Before' photo updated in draft!");
+      cmsService.updateHomepage({
+        ...draftHome,
+        atmospherePhoto: customAtmospherePhoto,
+        beforePhoto: photoUrl,
+        afterPhoto: customAfterPhoto,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cms"] });
+        queryClient.invalidateQueries({ queryKey: ["public"] });
+        queryClient.invalidateQueries({ queryKey: ["home-content"] });
+        broadcastCmsUpdate({ type: "before_photo", url: photoUrl });
+        toast.success("Transformation 'Before' photo updated & live!");
+      }).catch(() => {
+        setHasUnpublishedChanges(true);
+      });
     } else if (slotType === "after_image") {
       setCustomAfterPhoto(photoUrl);
-      setHasUnpublishedChanges(true);
-      toast.success("Transformation 'After' photo updated in draft!");
+      cmsService.updateHomepage({
+        ...draftHome,
+        atmospherePhoto: customAtmospherePhoto,
+        beforePhoto: customBeforePhoto,
+        afterPhoto: photoUrl,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cms"] });
+        queryClient.invalidateQueries({ queryKey: ["public"] });
+        queryClient.invalidateQueries({ queryKey: ["home-content"] });
+        broadcastCmsUpdate({ type: "after_photo", url: photoUrl });
+        toast.success("Transformation 'After' photo updated & live!");
+      }).catch(() => {
+        setHasUnpublishedChanges(true);
+      });
     }
   };
 
   // Handle Text Save
   const handleSaveText = () => {
     if (!activeTextSlot) return;
-    setDraftHome((prev) => ({
-      ...prev,
+    const updated = {
+      ...draftHome,
       [activeTextSlot.field]: activeTextSlot.value,
-    }));
-    setHasUnpublishedChanges(true);
+    };
+    setDraftHome(updated);
     setTextEditorOpen(false);
-    toast.success(`${activeTextSlot.label} updated in draft!`);
+
+    cmsService.updateHomepage({
+      ...updated,
+      atmospherePhoto: customAtmospherePhoto,
+      beforePhoto: customBeforePhoto,
+      afterPhoto: customAfterPhoto,
+    }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["cms"] });
+      queryClient.invalidateQueries({ queryKey: ["public"] });
+      queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      broadcastCmsUpdate({ type: "text_saved", field: activeTextSlot.field });
+      toast.success(`${activeTextSlot.label} updated & live on public website!`);
+    }).catch(() => {
+      setHasUnpublishedChanges(true);
+      toast.success(`${activeTextSlot.label} updated in draft!`);
+    });
   };
 
   const rawCaseStudies: CmsCaseStudyItem[] = projectsData?.caseStudies || [];
@@ -367,359 +446,31 @@ export function LiveVisualWebsiteEditor() {
           }
         />
 
-        {/* Toolbar: Navigation Tabs, Photo Slots Manager, Device Viewport & Edit Mode Toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card shadow-xs">
-          {/* Page & Slots Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            <button
-              type="button"
-              onClick={() => setActiveTab("home")}
-              className={cn(
-                "px-3 py-1.5 text-xs uppercase tracking-wider font-medium rounded transition-colors flex items-center gap-1.5 cursor-pointer",
-                activeTab === "home"
-                  ? "bg-foreground text-background font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              )}
-            >
-              <Eye className="size-3.5" /> Customer Homepage
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("photo-slots")}
-              className={cn(
-                "px-3 py-1.5 text-xs uppercase tracking-wider font-medium rounded transition-colors flex items-center gap-1.5 cursor-pointer",
-                activeTab === "photo-slots"
-                  ? "bg-accent text-accent-foreground font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              )}
-            >
-              <Images className="size-3.5 text-accent" /> Photo Placements Manager
-            </button>
-
-            <div className="h-4 w-px bg-border mx-1" />
-
-            {(
-              [
-                { id: "portfolio", label: "Portfolio" },
-                { id: "gallery", label: "Gallery" },
-                { id: "services", label: "Services" },
-                { id: "process", label: "Process" },
-                { id: "about", label: "About" },
-                { id: "contact", label: "Contact" },
-              ] as const
-            ).map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setActiveTab(p.id)}
-                className={cn(
-                  "px-3 py-1.5 text-xs uppercase tracking-wider font-medium rounded transition-colors cursor-pointer",
-                  activeTab === p.id
-                    ? "bg-foreground text-background font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Right Controls: Viewport & Edit Switch */}
-          <div className="flex items-center gap-3">
-            {/* Viewport Switcher */}
-            <div className="flex items-center gap-1 bg-muted/40 border border-border/80 rounded p-0.5">
-              <button
-                type="button"
-                onClick={() => setViewport("desktop")}
-                className={cn(
-                  "px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors cursor-pointer",
-                  viewport === "desktop"
-                    ? "bg-card text-foreground font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Monitor className="size-3.5" /> Desktop
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewport("tablet")}
-                className={cn(
-                  "px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors cursor-pointer",
-                  viewport === "tablet"
-                    ? "bg-card text-foreground font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Tablet className="size-3.5" /> Tablet
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewport("mobile")}
-                className={cn(
-                  "px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors cursor-pointer",
-                  viewport === "mobile"
-                    ? "bg-card text-foreground font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Smartphone className="size-3.5" /> Mobile
-              </button>
-            </div>
-
-            {/* Edit Mode Toggle */}
-            <button
-              type="button"
-              onClick={() => setEditMode(!editMode)}
-              className={cn(
-                "px-3 py-1.5 rounded text-xs uppercase tracking-wider font-medium flex items-center gap-1.5 border transition-all cursor-pointer",
-                editMode
-                  ? "bg-accent/15 border-accent text-accent font-semibold"
-                  : "bg-muted/30 border-border text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Edit3 className="size-3.5" />
-              <span>{editMode ? "Edit Mode: Active" : "View Only"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* =====================================================================
-            TAB: PHOTO PLACEMENTS MANAGER (Master Overview of Every Single Photo Slot)
-            ===================================================================== */}
-        {activeTab === "photo-slots" && (
-          <div className="space-y-8 p-6 bg-card rounded-xl border border-border">
-            <div>
-              <p className="eyebrow">Master Photo Index</p>
-              <h2 className="text-2xl font-display font-light text-foreground mt-1">
-                Homepage Photo Placements & Google Drive Links
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1 font-light">
-                Click "Replace Photo" on any slot below to choose a high-resolution photo from the Google Drive Vault.
-              </p>
-            </div>
-
-            {/* Section 01: Hero & Atmosphere */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-accent border-b border-border pb-2">
-                01 / Hero & Studio Atmosphere
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Hero Photo Slot */}
-                <div className="border border-border/80 rounded-lg p-4 bg-card/60 flex items-start gap-4">
-                  <div className="aspect-[16/10] w-36 overflow-hidden rounded bg-stone border border-border/70 shrink-0">
-                    <DriveImage src={draftHome.heroImage} alt="Hero Background" className="size-full object-cover" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Badge variant="outline" className="text-[10px] font-mono">HERO BACKGROUND</Badge>
-                    <h4 className="font-display text-base font-light text-foreground">Main Homepage Cinematic Cover</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-1 font-mono text-[10px]">{draftHome.heroImage}</p>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setActiveSlotTarget({
-                          slotType: "hero",
-                          title: "Homepage Hero Background Photo",
-                          currentUrl: draftHome.heroImage,
-                        });
-                        setMediaPickerOpen(true);
-                      }}
-                      className="bg-foreground text-background text-xs h-7 cursor-pointer"
-                    >
-                      <ImageIcon className="size-3 mr-1 text-accent" /> Replace Hero Photo
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Studio Atmosphere Slot */}
-                <div className="border border-border/80 rounded-lg p-4 bg-card/60 flex items-start gap-4">
-                  <div className="aspect-[4/5] w-28 overflow-hidden rounded bg-stone border border-border/70 shrink-0">
-                    <DriveImage src={customAtmospherePhoto} alt="Studio Atmosphere" className="size-full object-cover" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Badge variant="outline" className="text-[10px] font-mono">STUDIO STATEMENT</Badge>
-                    <h4 className="font-display text-base font-light text-foreground">Atmosphere & Material Mood</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-1 font-mono text-[10px]">{customAtmospherePhoto}</p>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setActiveSlotTarget({
-                          slotType: "atmosphere",
-                          title: "Studio Statement Atmosphere Photo",
-                          currentUrl: customAtmospherePhoto,
-                        });
-                        setMediaPickerOpen(true);
-                      }}
-                      className="bg-foreground text-background text-xs h-7 cursor-pointer"
-                    >
-                      <ImageIcon className="size-3 mr-1 text-accent" /> Replace Atmosphere Photo
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 02: Featured Project Covers */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-accent border-b border-border pb-2">
-                02 / Architectural Commissions (Project Covers)
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {caseStudies.map((study) => (
-                  <div key={study.slug || study._id} className="border border-border/80 rounded-lg p-4 bg-card/60 flex flex-col justify-between space-y-3">
-                    <div className="aspect-[16/10] w-full overflow-hidden rounded bg-stone border border-border/70">
-                      <DriveImage src={study.hero_image} alt={study.title} className="size-full object-cover" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-display text-base font-light text-foreground">{study.title}</h4>
-                        <span className="text-[10px] font-mono text-muted-foreground">{study.year}</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">{study.location} · {study.space_type}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setActiveSlotTarget({
-                          slotType: "project_cover",
-                          targetId: study._id || study.slug,
-                          title: `${study.title} — Project Cover Photo`,
-                          currentUrl: study.hero_image,
-                        });
-                        setMediaPickerOpen(true);
-                      }}
-                      className="w-full bg-foreground text-background text-xs h-7 cursor-pointer"
-                    >
-                      <ImageIcon className="size-3 mr-1 text-accent" /> Replace Project Cover
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 03: Material Provenances */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-accent border-b border-border pb-2">
-                03 / Material Textures & Provenances
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {customMaterials.map((mat, mIdx) => (
-                  <div key={mat._id || mIdx} className="border border-border/80 rounded-lg p-4 bg-card/60 flex flex-col justify-between space-y-3">
-                    <div className="aspect-[4/3] w-full overflow-hidden rounded bg-stone border border-border/70">
-                      <DriveImage src={mat.image} alt={mat.name} className="size-full object-cover" />
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-mono text-accent uppercase">{mat.category} · {mat.provenance}</span>
-                      <h4 className="font-display text-base font-light text-foreground">{mat.name}</h4>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setActiveSlotTarget({
-                          slotType: "material",
-                          index: mIdx,
-                          title: `Material ${mIdx + 1}: ${mat.name} Texture`,
-                          currentUrl: mat.image,
-                        });
-                        setMediaPickerOpen(true);
-                      }}
-                      className="w-full bg-foreground text-background text-xs h-7 cursor-pointer"
-                    >
-                      <ImageIcon className="size-3 mr-1 text-accent" /> Replace Material Photo
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 04: Before & After Transformation */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-accent border-b border-border pb-2">
-                04 / Before & After Transformation Dual Slider
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="border border-border/80 rounded-lg p-4 bg-card/60 space-y-3">
-                  <Badge variant="outline" className="text-[10px] font-mono">BEFORE TRANSFORMATION (BARE SHELL)</Badge>
-                  <div className="aspect-[16/10] w-full overflow-hidden rounded bg-stone border border-border/70">
-                    <DriveImage src={customBeforePhoto} alt="Before Execution" className="size-full object-cover" />
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setActiveSlotTarget({
-                        slotType: "before_image",
-                        title: "Transformation 'Before Execution' Photo",
-                        currentUrl: customBeforePhoto,
-                      });
-                      setMediaPickerOpen(true);
-                    }}
-                    className="w-full bg-foreground text-background text-xs h-7 cursor-pointer"
-                  >
-                    <ImageIcon className="size-3 mr-1 text-accent" /> Replace 'Before' Photo
-                  </Button>
-                </div>
-
-                <div className="border border-border/80 rounded-lg p-4 bg-card/60 space-y-3">
-                  <Badge variant="outline" className="text-[10px] font-mono text-accent border-accent/40">AFTER TRANSFORMATION (COMPLETED SANCTUARY)</Badge>
-                  <div className="aspect-[16/10] w-full overflow-hidden rounded bg-stone border border-border/70">
-                    <DriveImage src={customAfterPhoto} alt="Completed Sanctuary" className="size-full object-cover" />
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setActiveSlotTarget({
-                        slotType: "after_image",
-                        title: "Transformation 'Completed Sanctuary' Photo",
-                        currentUrl: customAfterPhoto,
-                      });
-                      setMediaPickerOpen(true);
-                    }}
-                    className="w-full bg-foreground text-background text-xs h-7 cursor-pointer"
-                  >
-                    <ImageIcon className="size-3 mr-1 text-accent" /> Replace 'After' Photo
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* =====================================================================
             LIVE CUSTOMER VIEW CANVAS
             ===================================================================== */}
-        {activeTab !== "photo-slots" && (
-          <div className="border border-border/80 bg-stone-900/30 rounded-xl p-3 sm:p-6 flex justify-center min-h-[750px] overflow-hidden">
-            <div
-              className={cn(
-                "transition-all duration-300 bg-background text-foreground shadow-2xl border border-border/70 overflow-hidden relative",
-                viewport === "desktop"
-                  ? "w-full max-w-[1720px] rounded"
-                  : viewport === "tablet"
-                    ? "w-[768px] rounded-lg my-2 border-2 border-border"
-                    : "w-[390px] rounded-2xl my-2 border-4 border-foreground/20",
-              )}
-            >
-              {/* Simulated Public Header */}
-              <header className="border-b border-border/60 bg-background/95 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30">
-                <BrandLogo variant="horizontal" size="sm" />
-                <nav className="hidden sm:flex items-center gap-6 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  <span>Work</span>
-                  <span>Gallery</span>
-                  <span>Services</span>
-                  <span>Process</span>
-                  <span>About</span>
-                  <span>Contact</span>
-                </nav>
-                <Button size="sm" variant="outline" className="text-[11px] uppercase tracking-wider h-7 pointer-events-none">
-                  Book a Consultation
-                </Button>
-              </header>
+        <div className="border border-border/80 bg-stone-900/30 rounded-xl p-3 sm:p-6 flex justify-center min-h-[750px] overflow-hidden">
+          <div className="w-full max-w-[1720px] rounded transition-all duration-300 bg-background text-foreground shadow-2xl border border-border/70 overflow-hidden relative">
+            {/* Simulated Public Header */}
+            <header className="border-b border-border/60 bg-background/95 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+              <BrandLogo variant="horizontal" size="sm" />
+              <nav className="hidden sm:flex items-center gap-6 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                <span>Work</span>
+                <span>Gallery</span>
+                <span>Services</span>
+                <span>Process</span>
+                <span>About</span>
+                <span>Contact</span>
+              </nav>
+              <Button size="sm" variant="outline" className="text-[11px] uppercase tracking-wider h-7 pointer-events-none">
+                Book a Consultation
+              </Button>
+            </header>
 
-              {/* ===================================================================
-                  PAGE: HOMEPAGE (/) - FULL CUSTOMER VIEW CANVAS
-                  =================================================================== */}
-              {activeTab === "home" && (
-                <div className="space-y-16 sm:space-y-24 pb-20">
+            {/* ===================================================================
+                PAGE: HOMEPAGE (/) - FULL CUSTOMER VIEW CANVAS
+                =================================================================== */}
+            <div className="space-y-16 sm:space-y-24 pb-20">
                   {/* 1. HERO SECTION WITH CLICK-TO-EDIT PHOTO & TEXT */}
                   <section className="relative min-h-[65vh] sm:min-h-[82vh] overflow-hidden flex flex-col justify-end p-6 sm:p-12 lg:p-16 border-b border-border bg-[#0f0e0d]">
                     <DriveImage
@@ -1075,146 +826,9 @@ export function LiveVisualWebsiteEditor() {
                     />
                   </section>
                 </div>
-              )}
-
-              {/* ===================================================================
-                  PAGE: PORTFOLIO (/portfolio)
-                  =================================================================== */}
-              {activeTab === "portfolio" && (
-                <div className="p-6 sm:p-12 space-y-12">
-                  <div className="border-b border-border pb-6">
-                    <p className="eyebrow">Portfolio Index</p>
-                    <h1 className="font-display text-3xl sm:text-5xl font-light text-foreground mt-2">
-                      Completed Works & Architectural Case Studies
-                    </h1>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {caseStudies.map((study) => (
-                      <div key={study._id || study.slug} className="border border-border bg-card/40 overflow-hidden group rounded">
-                        <div className="relative aspect-[16/10] overflow-hidden">
-                          <DriveImage
-                            src={study.hero_image}
-                            alt={study.title}
-                            className="size-full object-cover"
-                          />
-                          {editMode && (
-                            <div className="absolute top-3 right-3 z-20">
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setActiveSlotTarget({
-                                    slotType: "project_cover",
-                                    targetId: study._id || study.slug,
-                                    title: `${study.title} — Portfolio Cover Photo`,
-                                    currentUrl: study.hero_image,
-                                  });
-                                  setMediaPickerOpen(true);
-                                }}
-                                className="bg-black/85 hover:bg-black text-white text-[11px] border border-white/20 h-7 cursor-pointer"
-                              >
-                                <ImageIcon className="size-3 mr-1 text-accent" /> Change Photo
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-5">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-display text-xl text-foreground font-light">{study.title}</h3>
-                            <Badge variant="outline" className="text-[10px]">{study.year}</Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{study.location} · {study.space_type}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ===================================================================
-                  PAGE: GALLERY (/gallery)
-                  =================================================================== */}
-              {activeTab === "gallery" && (
-                <div className="p-6 sm:p-12 space-y-8">
-                  <div className="border-b border-border pb-6">
-                    <p className="eyebrow">Media Vault</p>
-                    <h1 className="font-display text-3xl sm:text-5xl font-light text-foreground mt-2">
-                      Architectural Photography Archive
-                    </h1>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {(galleryMedia?.items || galleryMedia?.photos || GOOGLE_DRIVE_PHOTOS.slice(0, 8)).map((photo: any, i: number) => (
-                      <div key={i} className="aspect-[4/3] relative overflow-hidden border border-border bg-stone rounded">
-                        <DriveImage src={photo.url} alt={photo.title || "Gallery photo"} className="size-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ===================================================================
-                  PAGE: SERVICES (/services)
-                  =================================================================== */}
-              {activeTab === "services" && (
-                <div className="p-6 sm:p-12 space-y-12">
-                  <div className="border-b border-border pb-6">
-                    <p className="eyebrow">Disciplines</p>
-                    <h1 className="font-display text-3xl sm:text-5xl font-light text-foreground mt-2">
-                      Interior Architecture & Turnkey Execution
-                    </h1>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {services.map((service, idx) => (
-                      <div key={service._id || service.number || idx} className="border border-border p-8 bg-card/40 space-y-4 rounded">
-                        <Badge variant="outline" className="text-xs font-mono">{service.number || `0${idx + 1}`}</Badge>
-                        <h3 className="font-display text-2xl font-light text-foreground">{service.title}</h3>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{service.shortDesc}</p>
-                        <p className="text-xs text-muted-foreground/80 leading-relaxed font-light">{service.fullDesc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ===================================================================
-                  PAGE: PROCESS (/process)
-                  =================================================================== */}
-              {activeTab === "process" && (
-                <div className="p-6 sm:p-12 space-y-12">
-                  <div className="border-b border-border pb-6">
-                    <p className="eyebrow">Methodology</p>
-                    <h1 className="font-display text-3xl sm:text-5xl font-light text-foreground mt-2">
-                      Architectural Design Process
-                    </h1>
-                  </div>
-
-                  <div className="space-y-6">
-                    {(processSteps.length > 0 ? processSteps : [
-                      { id: "1", number: "01", title: "Discovery & Briefing", description: "In-depth consultation mapping spatial requirements.", timeline: "Week 1-2" },
-                      { id: "2", number: "02", title: "Concept & Spatial Planning", description: "3D architectural visualizations and functional layouts.", timeline: "Week 3-4" },
-                      { id: "3", number: "03", title: "Material Specifications", description: "Finishes curation and detailed BOQ drawings.", timeline: "Week 5-6" },
-                      { id: "4", number: "04", title: "Site Execution & Handover", description: "On-site supervision and milestone handover.", timeline: "Week 7+" },
-                    ]).map((step, sIdx) => (
-                      <div key={step.id || sIdx} className="border border-border p-6 bg-card/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded">
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono text-sm text-accent font-semibold">{step.number}</span>
-                            <h3 className="font-display text-xl text-foreground font-light">{step.title}</h3>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2 max-w-2xl">{step.description}</p>
-                        </div>
-                        <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">{step.timeline}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
-        )}
-      </div>
 
       {/* Media Picker Modal for Google Drive Photos Selection */}
       <MediaPickerModal

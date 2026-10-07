@@ -13,6 +13,42 @@ import {
   MediaDoc,
 } from "../models/types.js";
 import { sendSuccess, sendError } from "../utils/response.js";
+import { preloadDriveImages } from "../services/imageCache.service.js";
+
+// In-Memory Response Cache for fast 0ms public queries
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+const publicResponseCache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
+
+export function invalidatePublicCache(keyPrefix?: string) {
+  if (!keyPrefix) {
+    publicResponseCache.clear();
+    return;
+  }
+  for (const k of Array.from(publicResponseCache.keys())) {
+    if (k.startsWith(keyPrefix)) {
+      publicResponseCache.delete(k);
+    }
+  }
+}
+
+function getCached<T>(key: string): T | null {
+  const entry = publicResponseCache.get(key);
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL_MS) {
+    return entry.data;
+  }
+  if (entry) {
+    publicResponseCache.delete(key);
+  }
+  return null;
+}
+
+function setCached<T>(key: string, data: T) {
+  publicResponseCache.set(key, { data, timestamp: Date.now() });
+}
 
 const enquirySchema = z.object({
   name: z.string().trim().min(2, "Name is required"),
@@ -28,6 +64,8 @@ const enquirySchema = z.object({
 
 export async function getHomeData(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
     const [caseStudiesCol, journalCol, mediaCol, servicesCol, processCol, testimonialsCol, materialsCol, settingsCol] =
       await Promise.all([
         getCollection<CaseStudyDoc>("caseStudies"),
@@ -112,12 +150,24 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       createdAt: m.createdAt,
     }));
 
-    return sendSuccess(res, {
+    // Preload top homepage images in background
+    const preloadIds = homepageMedia
+      .map((m) => m.driveFileId)
+      .filter(Boolean) as string[];
+    preloadDriveImages(preloadIds);
+
+    const payload = {
       heroTitle: unwrapStr(settingsMap.heroTitle, "Architecture & Interior Sanctuary"),
       heroSubtitle: unwrapStr(
         settingsMap.heroSubtitle,
         "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."
       ),
+      heroImage: unwrapStr(settingsMap.heroImage, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
+      atmospherePhoto: unwrapStr(settingsMap.atmospherePhoto, "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg"),
+      beforePhoto: unwrapStr(settingsMap.beforePhoto, "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r"),
+      afterPhoto: unwrapStr(settingsMap.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
+      ctaText: unwrapStr(settingsMap.ctaText, "View Projects"),
+      ctaLink: unwrapStr(settingsMap.ctaLink, "/portfolio"),
       featuredProjects,
       recentJournal,
       heroMedia,
@@ -127,7 +177,9 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       testimonials,
       materials,
       settings: settingsMap,
-    });
+    };
+
+    return sendSuccess(res, payload);
   } catch (err) {
     next(err);
   }
@@ -135,6 +187,8 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
 
 export async function getSiteSettings(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
     const settingsCol = await getCollection<SiteSettingsDoc>("siteSettings");
     const settingsDocs = await settingsCol.find({}).toArray();
     const settingsMap: Record<string, any> = {};
@@ -142,15 +196,17 @@ export async function getSiteSettings(req: Request, res: Response, next: NextFun
       settingsMap[doc.key] = doc.value;
     }
 
-    return sendSuccess(res, {
+    const payload = {
       studioName: "Right-Angle-Design-Studio",
       tagline: "Architecture & Interior Sanctuary",
-      phone: "+91 98200 41100",
+      phone: "+91 95375 86804",
       email: "contact@rightangle.design",
       address: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
-      instagram: "https://instagram.com/rightangledesignstudio",
+      instagram: "https://www.instagram.com/right_angle_interior_design/",
       ...settingsMap,
-    });
+    };
+
+    return sendSuccess(res, payload);
   } catch (err) {
     next(err);
   }
@@ -158,7 +214,15 @@ export async function getSiteSettings(req: Request, res: Response, next: NextFun
 
 export async function listCaseStudies(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
     const { category } = req.query;
+    const cacheKey = `case_studies_${category || "all"}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const caseStudiesCol = await getCollection<CaseStudyDoc>("caseStudies");
 
     const query: Record<string, any> = {};
@@ -168,6 +232,7 @@ export async function listCaseStudies(req: Request, res: Response, next: NextFun
     }
 
     const studies = await caseStudiesCol.find(query).sort({ publishedAt: -1 }).toArray();
+    setCached(cacheKey, studies);
     return sendSuccess(res, studies);
   } catch (err) {
     next(err);
@@ -176,7 +241,15 @@ export async function listCaseStudies(req: Request, res: Response, next: NextFun
 
 export async function getCaseStudy(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
     const { slug } = req.params;
+    const cacheKey = `study_${slug}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const caseStudiesCol = await getCollection<CaseStudyDoc>("caseStudies");
 
     const study = await caseStudiesCol.findOne({ slug });
@@ -190,12 +263,15 @@ export async function getCaseStudy(req: Request, res: Response, next: NextFuncti
     const nextStudy = currentIndex < allStudies.length - 1 ? allStudies[currentIndex + 1] : allStudies[0];
     const related = allStudies.filter((s) => s.slug !== slug).slice(0, 3);
 
-    return sendSuccess(res, {
+    const payload = {
       study,
       prev,
       next: nextStudy,
       related,
-    });
+    };
+
+    setCached(cacheKey, payload);
+    return sendSuccess(res, payload);
   } catch (err) {
     next(err);
   }
@@ -203,8 +279,18 @@ export async function getCaseStudy(req: Request, res: Response, next: NextFuncti
 
 export async function listServices(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const cacheKey = "services_list";
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const servicesCol = await getCollection<ServiceDoc>("services");
     const services = await servicesCol.find({ published: true }).sort({ sortOrder: 1 }).toArray();
+
+    setCached(cacheKey, services);
     return sendSuccess(res, services);
   } catch (err) {
     next(err);
@@ -213,8 +299,18 @@ export async function listServices(req: Request, res: Response, next: NextFuncti
 
 export async function listProcessSteps(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const cacheKey = "process_steps";
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const processCol = await getCollection<ProcessStepDoc>("processSteps");
     const steps = await processCol.find({ published: true }).sort({ sortOrder: 1 }).toArray();
+
+    setCached(cacheKey, steps);
     return sendSuccess(res, steps);
   } catch (err) {
     next(err);
@@ -223,8 +319,18 @@ export async function listProcessSteps(req: Request, res: Response, next: NextFu
 
 export async function listTestimonials(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const cacheKey = "testimonials_list";
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const testimonialsCol = await getCollection<TestimonialDoc>("testimonials");
     const testimonials = await testimonialsCol.find({ approved: true }).sort({ sortOrder: 1 }).toArray();
+
+    setCached(cacheKey, testimonials);
     return sendSuccess(res, testimonials);
   } catch (err) {
     next(err);
@@ -233,18 +339,43 @@ export async function listTestimonials(req: Request, res: Response, next: NextFu
 
 export async function listMaterials(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const cacheKey = "materials_list";
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const materialsCol = await getCollection<MaterialDoc>("materials");
-    const materials = await materialsCol.find({}).toArray();
+    const materials = await materialsCol.find({}).sort({ category: 1, name: 1 }).toArray();
+
+    setCached(cacheKey, materials);
     return sendSuccess(res, materials);
   } catch (err) {
     next(err);
   }
 }
 
-export async function listJournal(req: Request, res: Response, next: NextFunction) {
+export async function listJournalPosts(req: Request, res: Response, next: NextFunction) {
   try {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const { tag } = req.query;
+    const cacheKey = `journal_${tag || "all"}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
+
     const journalCol = await getCollection<JournalPostDoc>("journalPosts");
-    const posts = await journalCol.find({}).sort({ publishedAt: -1 }).toArray();
+    const query: Record<string, any> = {};
+    if (tag && typeof tag === "string") {
+      query.tags = tag;
+    }
+    const posts = await journalCol.find(query).sort({ publishedAt: -1 }).toArray();
+
+    setCached(cacheKey, posts);
     return sendSuccess(res, posts);
   } catch (err) {
     next(err);
@@ -253,132 +384,118 @@ export async function listJournal(req: Request, res: Response, next: NextFunctio
 
 export async function getJournalPost(req: Request, res: Response, next: NextFunction) {
   try {
-    const { slug } = req.params;
-    const journalCol = await getCollection<JournalPostDoc>("journalPosts");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    const post = await journalCol.findOne({ slug });
-    if (!post) {
-      return sendError(res, "Journal article not found.", 404, "NOT_FOUND");
+    const { slug } = req.params;
+    const cacheKey = `journal_post_${slug}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
     }
 
-    const recent = await journalCol.find({ slug: { $ne: slug } }).sort({ publishedAt: -1 }).limit(3).toArray();
+    const journalCol = await getCollection<JournalPostDoc>("journalPosts");
+    const post = await journalCol.findOne({ slug });
+    if (!post) {
+      return sendError(res, "Post not found", 404, "NOT_FOUND");
+    }
 
-    return sendSuccess(res, {
-      post,
-      recent,
-    });
+    setCached(cacheKey, post);
+    return sendSuccess(res, post);
   } catch (err) {
     next(err);
   }
 }
 
-export async function submitEnquiry(req: Request, res: Response, next: NextFunction) {
+export async function createEnquiry(req: Request, res: Response, next: NextFunction) {
   try {
-    const body = enquirySchema.parse(req.body);
-    const enquiriesCol = await getCollection<EnquiryDoc>("enquiries");
-    const activityCol = await getCollection<any>("activityLogs");
+    const data = enquirySchema.parse(req.body);
+    const enquiryCol = await getCollection<EnquiryDoc>("enquiries");
 
-    const now = new Date();
     const doc: EnquiryDoc = {
-      name: body.name,
-      email: body.email.toLowerCase(),
-      phone: body.phone,
-      city: body.city || null,
-      spaceType: body.spaceType || null,
-      scope: body.scope || null,
-      budgetBand: body.budgetBand || null,
-      estimatedTimeline: body.estimatedTimeline || null,
-      notes: body.notes || null,
+      ...data,
       status: "new",
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
-    const insertResult = await enquiriesCol.insertOne(doc as any);
-
-    await activityCol.insertOne({
-      actorLabel: "Website Visitor",
-      action: "New Consultation Enquiry",
-      entity: "enquiry",
-      entityId: String(insertResult.insertedId),
-      entityTitle: `${body.name} (${body.spaceType || "General"})`,
-      detail: `New enquiry received from ${body.email} / ${body.phone}`,
-      createdAt: now,
-    });
-
-    return sendSuccess(
-      res,
-      {
-        id: String(insertResult.insertedId),
-        received: true,
-      },
-      "Thank you. Our studio partner will contact you shortly.",
-      201,
-    );
+    const result = await enquiryCol.insertOne(doc);
+    return sendSuccess(res, { id: String(result.insertedId) }, "Enquiry submitted successfully.", 201);
   } catch (err) {
     next(err);
   }
 }
 
-export async function getPublicGallery(req: Request, res: Response, next: NextFunction) {
+export async function listPublicMedia(req: Request, res: Response, next: NextFunction) {
   try {
-    const { category, tag, search, page = 1, limit = 12, sortBy = "newest" } = req.query;
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const { category, tag, search, page = "1", limit = "12" } = req.query;
+    const cacheKey = `public_media_${category || ""}_${tag || ""}_${search || ""}_${page}_${limit}`;
+    const cached = getCached<any>(cacheKey);
+    if (cached) {
+      return sendSuccess(res, cached);
+    }
 
     const mediaCol = await getCollection<MediaDoc>("media");
 
-    const filter: Record<string, any> = {
-      $or: [
-        { visibility: "website" },
-        { visibility: "public" },
-        { isVisible: true },
-        { isHomepageVisible: true },
-      ],
+    const query: Record<string, any> = {
+      visibility: { $in: ["website", "client_only"] },
     };
 
     if (category && typeof category === "string" && category.toLowerCase() !== "all") {
-      filter.category = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+      query.category = category;
     }
 
     if (tag && typeof tag === "string" && tag.toLowerCase() !== "all") {
-      filter.tags = new RegExp(tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      query.tags = tag;
     }
 
-    if (search && typeof search === "string" && search.trim().length > 0) {
-      const reg = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-      filter.$or = [
-        { fileName: reg },
-        { caption: reg },
-        { alt: reg },
-        { tags: reg },
-        { projectTitle: reg },
-        { category: reg },
+    if (search && typeof search === "string" && search.trim()) {
+      const s = search.trim();
+      query.$or = [
+        { title: { $regex: s, $options: "i" } },
+        { caption: { $regex: s, $options: "i" } },
+        { projectTitle: { $regex: s, $options: "i" } },
+        { tags: { $regex: s, $options: "i" } },
+        { fileName: { $regex: s, $options: "i" } },
       ];
     }
 
-    let sortObj: Record<string, 1 | -1> = { sortOrder: 1, createdAt: -1 };
-    if (sortBy === "oldest") {
-      sortObj = { createdAt: 1 };
-    } else if (sortBy === "title") {
-      sortObj = { caption: 1 };
-    } else if (sortBy === "project") {
-      sortObj = { projectTitle: 1 };
+    const allItems = await mediaCol.find(query).sort({ homepageOrder: 1, sortOrder: 1, createdAt: -1 }).toArray();
+
+    const seenIds = new Set<string>();
+    const seenFileNames = new Set<string>();
+    const seenUrls = new Set<string>();
+    const uniqueItems: any[] = [];
+
+    for (const m of allItems) {
+      const driveId = (m.driveFileId || String(m._id) || "").trim();
+      const fn = (m.fileName || "").trim().toLowerCase();
+      const u = (m.driveUrl || (m as any).url || "").trim();
+
+      if (driveId && seenIds.has(driveId)) continue;
+      if (fn && seenFileNames.has(fn)) continue;
+      if (u && seenUrls.has(u)) continue;
+
+      if (driveId) seenIds.add(driveId);
+      if (fn) seenFileNames.add(fn);
+      if (u) seenUrls.add(u);
+
+      uniqueItems.push(m);
     }
 
+    const totalCount = uniqueItems.length;
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 12));
     const skip = (pageNum - 1) * limitNum;
+    const paginatedItems = uniqueItems.slice(skip, skip + limitNum);
 
-    const [items, totalCount, allDocs] = await Promise.all([
-      mediaCol.find(filter).sort(sortObj).skip(skip).limit(limitNum).toArray(),
-      mediaCol.countDocuments(filter),
-      mediaCol.find({ visibility: "website" }).project({ category: 1, tags: 1 }).toArray(),
-    ]);
+    const allDocs = await mediaCol.find({ visibility: { $in: ["website", "client_only"] } } as any).project({ category: 1, tags: 1 }).toArray();
 
     const allCategories = ["All", ...Array.from(new Set(allDocs.map((d: any) => d.category).filter(Boolean)))];
     const allTags = ["All", ...Array.from(new Set(allDocs.flatMap((d: any) => d.tags || []).filter((t: string) => t && t !== "Google Drive Vault")))];
 
-    const formattedItems = items.map((m: any, idx: number) => {
-      const driveId = m.driveFileId || String(m._id);
+    const formattedItems = paginatedItems.map((m: any, idx: number) => {
       return {
         id: String(m._id),
         _id: String(m._id),
@@ -399,7 +516,7 @@ export async function getPublicGallery(req: Request, res: Response, next: NextFu
       };
     });
 
-    return sendSuccess(res, {
+    const payload = {
       items: formattedItems,
       total: totalCount,
       totalCount,
@@ -411,8 +528,16 @@ export async function getPublicGallery(req: Request, res: Response, next: NextFu
       allCategories,
       allTags,
       totalDriveAssets: totalCount,
-    });
+    };
+
+    setCached(cacheKey, payload);
+    return sendSuccess(res, payload);
   } catch (err) {
     next(err);
   }
 }
+
+// Aliases for route bindings
+export const listJournal = listJournalPosts;
+export const submitEnquiry = createEnquiry;
+export const getPublicGallery = listPublicMedia;

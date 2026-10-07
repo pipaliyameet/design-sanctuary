@@ -23,7 +23,42 @@ export interface GoogleDrivePhoto {
 export const PUBLIC_DRIVE_FOLDER_ID = "1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze";
 export const PUBLIC_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${PUBLIC_DRIVE_FOLDER_ID}`;
 
-export const GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = rawDriveData as GoogleDrivePhoto[];
+export function deduplicatePhotos<T extends { id?: string; _id?: string; driveFileId?: string; fileName?: string; url?: string; title?: string }>(
+  list: T[],
+): T[] {
+  if (!Array.isArray(list)) return [];
+  const seenIds = new Set<string>();
+  const seenFiles = new Set<string>();
+  const seenUrls = new Set<string>();
+  const results: T[] = [];
+
+  for (const item of list) {
+    if (!item) continue;
+    const id = (item.id || item._id || item.driveFileId || "").trim();
+    const fileName = (item.fileName || "").trim().toLowerCase();
+    const url = (item.url || "").trim();
+
+    if (id && seenIds.has(id)) continue;
+    if (fileName && seenFiles.has(fileName)) continue;
+    if (url && seenUrls.has(url)) continue;
+
+    if (id) seenIds.add(id);
+    if (fileName) seenFiles.add(fileName);
+    if (url) seenUrls.add(url);
+
+    results.push(item);
+  }
+
+  return results;
+}
+
+export const RAW_GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = rawDriveData as GoogleDrivePhoto[];
+export const GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = deduplicatePhotos(RAW_GOOGLE_DRIVE_PHOTOS).map(
+  (p, idx) => ({
+    ...p,
+    index: idx + 1,
+  }),
+);
 
 export const PHOTO_CATEGORIES = [
   "All",
@@ -71,7 +106,8 @@ export function getPaginatedGoogleDrivePhotos(
     sortBy = "default",
   } = params;
 
-  const sourceList = customPhotos && customPhotos.length > 0 ? customPhotos : GOOGLE_DRIVE_PHOTOS;
+  const rawSource = customPhotos && customPhotos.length > 0 ? customPhotos : GOOGLE_DRIVE_PHOTOS;
+  const sourceList = deduplicatePhotos(rawSource).map((p, idx) => ({ ...p, index: idx + 1 }));
 
   const allCategories = ["All", ...Array.from(new Set(sourceList.map((p) => p.category)))];
   const allTags = [
@@ -163,8 +199,9 @@ export async function getPublicGalleryPhotos(
     });
 
     if (res && Array.isArray(res.items) && res.items.length > 0) {
+      const distinctItems = deduplicatePhotos(res.items);
       return {
-        items: res.items.map((item: any, idx: number) => ({
+        items: distinctItems.map((item: any, idx: number) => ({
           id: item.id || item._id,
           index: (Number(params.page || 1) - 1) * Number(params.limit || 12) + idx + 1,
           fileName: item.fileName || item.title || "",
@@ -185,15 +222,15 @@ export async function getPublicGalleryPhotos(
           size: item.size,
           uploadedAt: item.createdAt,
         })),
-        total: res.total || res.totalCount || res.items.length,
+        total: res.total || res.totalCount || distinctItems.length,
         page: res.currentPage || res.page || params.page || 1,
         limit: res.pageSize || res.limit || params.limit || 12,
-        totalPages: res.totalPages || Math.ceil((res.total || res.items.length) / (params.limit || 12)),
+        totalPages: res.totalPages || Math.ceil((res.total || distinctItems.length) / (params.limit || 12)),
         hasNextPage: res.hasNextPage ?? false,
         hasPrevPage: res.hasPrevPage ?? false,
         allCategories: res.allCategories || PHOTO_CATEGORIES,
         allTags: res.allTags || [],
-        totalDriveAssets: res.totalDriveAssets || res.total || res.items.length,
+        totalDriveAssets: res.totalDriveAssets || res.total || distinctItems.length,
       };
     }
   } catch (err) {

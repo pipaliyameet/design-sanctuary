@@ -337,4 +337,23 @@
   }
 }
 
+/* Customer Protection: Disable text selection, image dragging, callout */
+.public-site-guard {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+.public-site-guard img,
+.public-site-guard video,
+.public-site-guard picture {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+}
+
 

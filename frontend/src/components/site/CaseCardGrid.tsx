@@ -75,15 +75,15 @@ export function ProjectCard({
     return (
       <div
         className={cn(
-          "grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center",
+          "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-center",
           className,
         )}
       >
-        {/* Large Dominant Image (7-8 columns on desktop) */}
+        {/* Large Dominant Image (7 cols on tablet, 8 on desktop) */}
         <Link
           to="/portfolio/$slug"
           params={{ slug: project.slug }}
-          className="group block lg:col-span-8 overflow-hidden bg-stone cursor-pointer"
+          className="group block md:col-span-7 lg:col-span-8 overflow-hidden bg-stone cursor-pointer"
         >
           <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden">
             <DriveImage
@@ -95,8 +95,8 @@ export function ProjectCard({
           </div>
         </Link>
 
-        {/* Supporting Editorial Story (4-5 columns on desktop) */}
-        <div className="lg:col-span-4 flex flex-col justify-center space-y-4">
+        {/* Supporting Editorial Story (5 cols on tablet, 4 on desktop) */}
+        <div className="md:col-span-5 lg:col-span-4 flex flex-col justify-center space-y-3.5 lg:space-y-4">
           <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
             <span className="font-mono text-accent font-semibold">{formattedIndex}</span>
             <span>·</span>
@@ -121,7 +121,7 @@ export function ProjectCard({
           </p>
 
           {showSummary && project.summary && (
-            <p className="text-sm leading-relaxed text-muted-foreground font-light pt-1">
+            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground font-light pt-1 line-clamp-3">
               {project.summary}
             </p>
           )}
@@ -145,12 +145,12 @@ export function ProjectCard({
     return (
       <div
         className={cn(
-          "grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center",
+          "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-center",
           className,
         )}
       >
-        {/* Supporting Editorial Story (4 columns on desktop, placed first on desktop) */}
-        <div className="lg:col-span-4 order-2 lg:order-1 flex flex-col justify-center space-y-4">
+        {/* Supporting Editorial Story (5 cols on tablet, 4 on desktop, placed first on tablet/desktop) */}
+        <div className="md:col-span-5 lg:col-span-4 order-2 md:order-1 flex flex-col justify-center space-y-3.5 lg:space-y-4">
           <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
             <span className="font-mono text-accent font-semibold">{formattedIndex}</span>
             <span>·</span>
@@ -175,7 +175,7 @@ export function ProjectCard({
           </p>
 
           {showSummary && project.summary && (
-            <p className="text-sm leading-relaxed text-muted-foreground font-light pt-1">
+            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground font-light pt-1 line-clamp-3">
               {project.summary}
             </p>
           )}
@@ -192,11 +192,11 @@ export function ProjectCard({
           </div>
         </div>
 
-        {/* Large Dominant Image (8 columns on desktop) */}
+        {/* Large Dominant Image (7 cols on tablet, 8 on desktop) */}
         <Link
           to="/portfolio/$slug"
           params={{ slug: project.slug }}
-          className="group block lg:col-span-8 order-1 lg:order-2 overflow-hidden bg-stone cursor-pointer"
+          className="group block md:col-span-7 lg:col-span-8 order-1 md:order-2 overflow-hidden bg-stone cursor-pointer"
         >
           <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden">
             <DriveImage

@@ -329,6 +329,37 @@ function getInitialStore(name: string): any[] {
         tags: ["Daylight", "Biophilic", "Spatial Design"],
       },
     ];
+  } else if (name === "siteSettings") {
+    initialData = [
+      { _id: "st_1", key: "heroTitle", value: "Architecture & Interior Sanctuary" },
+      { _id: "st_2", key: "heroSubtitle", value: "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India." },
+      { _id: "st_3", key: "heroImage", value: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE" },
+      { _id: "st_4", key: "atmospherePhoto", value: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg" },
+      { _id: "st_5", key: "beforePhoto", value: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r" },
+      { _id: "st_6", key: "afterPhoto", value: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE" },
+      { _id: "st_7", key: "ctaText", value: "View Projects" },
+      { _id: "st_8", key: "ctaLink", value: "/portfolio" },
+      { _id: "st_9", key: "showServices", value: true },
+      { _id: "st_11", key: "showTestimonials", value: true },
+      { _id: "st_12", key: "showJournal", value: true },
+    ];
+  } else if (name === "users") {
+    initialData = [
+      {
+        _id: "usr_owner_principal",
+        email: "owner@rightangle.design",
+        passwordHash: "$2b$10$ep5uGkSbgWk34hL1bO3Wqeu138mE5aJt1t2kQeYhS3F0jYvW6yVb6", // Hash for Admin@123456
+        fullName: "Ar. Meet Pipaliya",
+        title: "Principal Architect & Founder",
+        phone: "+91 98200 41100",
+        roles: ["admin", "designer", "project_manager"],
+        isStaff: true,
+        clientIds: [],
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
   }
 
   memoryStores.set(name, initialData);

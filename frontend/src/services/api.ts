@@ -43,6 +43,7 @@ class ApiClient {
       ...options,
       headers,
       credentials: "include", // Send HTTP-only cookies across requests
+      cache: "no-store", // Ensure real-time parallel updates across panels without browser cache lag
     };
 
     let response: Response;
@@ -64,6 +65,9 @@ class ApiClient {
     }
 
     if (!response.ok || json.success === false) {
+      if (response.status === 401) {
+        this.clearToken();
+      }
       const errorMsg = json.message || `Request failed with status ${response.status}`;
       const err = new Error(errorMsg) as Error & { code?: string; details?: any; status: number };
       err.code = json.code;

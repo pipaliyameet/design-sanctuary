@@ -57,6 +57,11 @@ export function SiteFooter() {
             <p className="eyebrow text-foreground/80">Navigation</p>
             <ul className="mt-4 space-y-2.5 text-xs uppercase tracking-[0.16em]">
               <li>
+                <Link to="/" className="text-muted-foreground hover:text-accent transition-colors">
+                  Portfolio
+                </Link>
+              </li>
+              <li>
                 <Link to="/gallery" className="text-muted-foreground hover:text-accent transition-colors">
                   Gallery
                 </Link>
@@ -92,8 +97,8 @@ export function SiteFooter() {
                 <div>
                   <p className="font-semibold text-foreground">Mumbai Studio</p>
                   <p>14 Sun Mill Compound, Lower Parel, Mumbai 400013</p>
-                  <a href="tel:+919820041100" className="mt-0.5 inline-block text-accent hover:underline">
-                    +91 98200 41100
+                  <a href={`tel:${STUDIO_DETAILS.phone}`} className="mt-0.5 inline-block text-accent hover:underline">
+                    {STUDIO_DETAILS.phone}
                   </a>
                 </div>
                 <div>

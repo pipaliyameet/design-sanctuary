@@ -14,6 +14,7 @@ import {
   streamVideo,
   getGoogleOAuthUrlHandler,
   googleOAuthCallbackHandler,
+  syncGoogleDriveMediaHandler,
 } from "../controllers/media.controller.js";
 import { requireAuth, requireStaff } from "../middleware/role.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
@@ -27,6 +28,8 @@ router.get("/drive-image/:id", proxyDriveImage);
 router.get("/stream-video/:id", streamVideo);
 router.get("/connect-google-drive", getGoogleOAuthUrlHandler);
 router.get("/oauth-callback", googleOAuthCallbackHandler);
+router.post("/sync-drive", requireAuth, requireStaff, syncGoogleDriveMediaHandler);
+router.get("/sync-drive", requireAuth, requireStaff, syncGoogleDriveMediaHandler);
 
 // Authenticated owner media management
 router.post("/upload", requireAuth, requireStaff, upload.any(), uploadMedia);

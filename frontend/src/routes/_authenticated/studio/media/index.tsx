@@ -312,6 +312,27 @@ export function MediaLibraryPage() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Order update failed"),
   });
 
+  // Mutation to Sync Drive Vault
+  const syncDriveMutation = useMutation({
+    mutationFn: async () => {
+      return mediaService.syncDrive();
+    },
+    onSuccess: (res: any) => {
+      const added = res?.newlyAdded ?? 0;
+      const total = res?.totalDriveFiles ?? res?.totalInDatabase ?? 104;
+      toast.success(`Google Drive Synced! ${total} photos connected (${added} newly added).`);
+      queryClient.invalidateQueries({ queryKey: ["studio", "media"] });
+      queryClient.invalidateQueries({ queryKey: ["public-gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["home-content"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-media"] });
+      queryClient.invalidateQueries({ queryKey: ["public"] });
+      refetch();
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to sync Google Drive photos.");
+    },
+  });
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -319,37 +340,15 @@ export function MediaLibraryPage() {
     const projTitle =
       customProjectTitle.trim() || selectedProjObj?.title.split(" (")[0] || "The Altamount Penthouse";
 
-    if (uploadMode === "device") {
-      if (selectedFiles.length === 0) {
-        toast.error("Please choose or drop image files from your device.");
-        return;
-      }
-      uploadDevicePhotosMutation.mutate({
-        files: selectedFiles,
-        metadata: {
-          title: photoTitle.trim() || selectedFiles[0]?.name || "Architectural Work",
-          caption: photoCaption.trim() || photoTitle.trim() || "Architectural View",
-          alt: photoCaption.trim() || photoTitle.trim(),
-          category: photoCategory,
-          projectId: photoProject,
-          projectTitle: projTitle,
-          tags: photoTags.split(",").map((t) => t.trim()).filter(Boolean),
-          visibility: publishToWebsite ? "website" : "internal",
-          isHomepageVisible: featureOnHomepage,
-          homepageOrder: homepageOrderInput,
-        },
-      });
-    } else {
-      if (!driveInput.trim()) {
-        toast.error("Please enter a Google Drive link, File ID, or Image URL.");
-        return;
-      }
-      addPhotoMutation.mutate({
-        driveLink: driveInput.trim(),
-        driveFileId: extractedDriveFileId,
-        url: driveInput.startsWith("http") && !extractedDriveFileId ? driveInput : undefined,
-        title: photoTitle.trim() || "Bespoke Architectural Work",
-        caption: photoCaption.trim() || photoTitle.trim() || "Architectural Photograph",
+    if (selectedFiles.length === 0) {
+      toast.error("Please choose or drop image files from your device.");
+      return;
+    }
+    uploadDevicePhotosMutation.mutate({
+      files: selectedFiles,
+      metadata: {
+        title: photoTitle.trim() || selectedFiles[0]?.name || "Architectural Work",
+        caption: photoCaption.trim() || photoTitle.trim() || "Architectural View",
         alt: photoCaption.trim() || photoTitle.trim(),
         category: photoCategory,
         projectId: photoProject,
@@ -358,8 +357,8 @@ export function MediaLibraryPage() {
         visibility: publishToWebsite ? "website" : "internal",
         isHomepageVisible: featureOnHomepage,
         homepageOrder: homepageOrderInput,
-      });
-    }
+      },
+    });
   };
 
   const filteredMedia = useMemo(() => {
@@ -412,6 +411,17 @@ export function MediaLibraryPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            onClick={() => syncDriveMutation.mutate()}
+            disabled={syncDriveMutation.isPending}
+            variant="outline"
+            className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 gap-1.5 font-medium text-xs h-9 px-3.5 cursor-pointer transition-all"
+            title="Scan Google Drive folder and sync all photos with database"
+          >
+            <RefreshCw className={`size-3.5 ${syncDriveMutation.isPending ? "animate-spin" : ""}`} />
+            <span>{syncDriveMutation.isPending ? "Syncing Drive..." : "Sync Drive Vault"}</span>
+          </Button>
+
           <Button
             onClick={() => {
               resetForm();
@@ -586,19 +596,6 @@ export function MediaLibraryPage() {
                         <span className="bg-black/75 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-medium">
                           {asset.category?.replace(/_/g, " ")}
                         </span>
-
-                        <div className="flex items-center gap-1">
-                          {isHomepage ? (
-                            <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 shadow-xs font-mono">
-                              <Star className="h-3 w-3 fill-amber-300 text-amber-300" />
-                              <span>CUSTOMER SCREEN #{asset.homepageOrder ?? 1}</span>
-                            </span>
-                          ) : (
-                            <span className="bg-black/70 text-zinc-300 px-1.5 py-0.5 rounded text-[9px] font-mono">
-                              Drive Vault Only
-                            </span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Hover action overlay */}
@@ -622,44 +619,6 @@ export function MediaLibraryPage() {
                         {asset.description || asset.caption || "Architectural photograph in Google Drive vault."}
                       </p>
 
-                      {/* Customer Screen Position / Order Control */}
-                      {isHomepage && (
-                        <div className="rounded bg-accent/15 border border-accent/40 px-2.5 py-1.5 flex items-center justify-between text-[11px]">
-                          <span className="text-foreground font-semibold flex items-center gap-1">
-                            <ArrowUpDown className="size-3 text-accent" /> Customer Order:
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="number"
-                              min="1"
-                              max="999"
-                              defaultValue={asset.homepageOrder ?? 1}
-                              onBlur={(e) => {
-                                const val = Number(e.target.value);
-                                if (val > 0 && val !== asset.homepageOrder) {
-                                  updateOrderMutation.mutate({
-                                    id: asset.id || asset._id,
-                                    homepageOrder: val,
-                                  });
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  const val = Number((e.target as HTMLInputElement).value);
-                                  if (val > 0) {
-                                    updateOrderMutation.mutate({
-                                      id: asset.id || asset._id,
-                                      homepageOrder: val,
-                                    });
-                                  }
-                                }
-                              }}
-                              className="w-12 rounded border border-border bg-background px-1.5 py-0.5 text-center text-xs font-mono font-bold text-foreground focus:border-accent"
-                            />
-                          </div>
-                        </div>
-                      )}
-
                       {/* Action Bar: Toggle Customer Screen Visibility & Delete */}
                       <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
                         <Button
@@ -680,13 +639,13 @@ export function MediaLibraryPage() {
                         >
                           {isHomepage ? (
                             <>
-                              <Check className="h-3.5 w-3.5 mr-1 text-accent-foreground" />
-                              <span>✓ On Customer Screen</span>
+                              <Check className="h-3.5 w-3.5 mr-1.5 text-accent-foreground" />
+                              <span>Featured on Homepage</span>
                             </>
                           ) : (
                             <>
-                              <Plus className="h-3.5 w-3.5 mr-1 text-accent" />
-                              <span>+ Set for Customer Screen</span>
+                              <Plus className="h-3.5 w-3.5 mr-1.5 text-accent" />
+                              <span>Show on Homepage</span>
                             </>
                           )}
                         </Button>
@@ -785,149 +744,75 @@ export function MediaLibraryPage() {
 
             {/* Modal Body Form */}
             <form onSubmit={handleAddSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Upload Mode Selector */}
-              <div className="grid grid-cols-2 gap-2 p-1 rounded-md bg-muted/60 border border-border">
-                <button
-                  type="button"
-                  onClick={() => setUploadMode("device")}
-                  className={`flex items-center justify-center gap-2 py-2 rounded text-xs font-medium transition-colors cursor-pointer ${
-                    uploadMode === "device"
-                      ? "bg-card text-foreground shadow-xs font-semibold border border-border/80"
-                      : "text-muted-foreground hover:text-foreground"
+              {/* Device Multi-file Dropzone */}
+              <div className="space-y-3">
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    handleFilesChange(e.dataTransfer.files);
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
+                    isDragging
+                      ? "border-accent bg-accent/10"
+                      : "border-border hover:border-accent/60 bg-muted/20"
                   }`}
                 >
-                  <Smartphone className="size-3.5" />
-                  <span>Upload Files from Device</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUploadMode("drive")}
-                  className={`flex items-center justify-center gap-2 py-2 rounded text-xs font-medium transition-colors cursor-pointer ${
-                    uploadMode === "drive"
-                      ? "bg-card text-foreground shadow-xs font-semibold border border-border/80"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <HardDrive className="size-3.5" />
-                  <span>Link Google Drive File ID</span>
-                </button>
-              </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={(e) => handleFilesChange(e.target.files)}
+                    className="hidden"
+                  />
 
-              {/* Mode A: Device Multi-file Dropzone */}
-              {uploadMode === "device" && (
-                <div className="space-y-3">
-                  <div
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setIsDragging(true);
-                    }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      setIsDragging(false);
-                      handleFilesChange(e.dataTransfer.files);
-                    }}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`relative rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-                      isDragging
-                        ? "border-accent bg-accent/10"
-                        : "border-border hover:border-accent/60 bg-muted/20"
-                    }`}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept="image/*,video/*"
-                      onChange={(e) => handleFilesChange(e.target.files)}
-                      className="hidden"
-                    />
-
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="size-12 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
-                        <UploadCloud className="size-6" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-foreground">
-                          Click to select photos/videos or drag & drop here
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
-                          Select one or multiple high-res photographs (JPG, PNG, WEBP, MP4)
-                        </p>
-                      </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="size-12 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
+                      <UploadCloud className="size-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">
+                        Click to select photos/videos or drag & drop here
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Select one or multiple high-res photographs (JPG, PNG, WEBP, MP4)
+                      </p>
                     </div>
                   </div>
-
-                  {/* Previews Strip */}
-                  {selectedFiles.length > 0 && (
-                    <div className="rounded border border-border bg-muted/40 p-3 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-medium text-foreground">
-                        <span>Selected Files ({selectedFiles.length})</span>
-                        <span className="text-[11px] text-muted-foreground font-mono">
-                          {(selectedFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB total
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-36 overflow-y-auto pt-1">
-                        {filePreviews.map((url, idx) => (
-                          <div
-                            key={idx}
-                            className="relative aspect-square rounded overflow-hidden border border-border bg-black"
-                          >
-                            <img src={url} alt="preview" className="size-full object-cover" />
-                            <span className="absolute bottom-0.5 right-0.5 rounded bg-black/80 px-1 text-[8px] text-white font-mono">
-                              #{idx + 1}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-              )}
 
-              {/* Mode B: Google Drive Link Input */}
-              {uploadMode === "drive" && (
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-foreground flex items-center justify-between">
-                      <span>Google Drive Share URL or File ID *</span>
-                    </label>
-                    <div className="relative">
-                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                      <Input
-                        placeholder="e.g. https://drive.google.com/file/d/1ix9RDbXHK0JVqsxPyfxYL8M1bCdHdBze/view"
-                        value={driveInput}
-                        onChange={(e) => setDriveInput(e.target.value)}
-                        className="pl-9 text-xs bg-background"
-                      />
+                {/* Previews Strip */}
+                {selectedFiles.length > 0 && (
+                  <div className="rounded border border-border bg-muted/40 p-3 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-medium text-foreground">
+                      <span>Selected Files ({selectedFiles.length})</span>
+                      <span className="text-[11px] text-muted-foreground font-mono">
+                        {(selectedFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB total
+                      </span>
                     </div>
-                  </div>
-
-                  {previewThumbnailUrl && (
-                    <div className="rounded border border-border bg-muted/40 p-3 flex items-center gap-4">
-                      <div className="relative size-16 rounded overflow-hidden bg-black/40 shrink-0 border border-border">
-                        <DriveImage
-                          src={previewThumbnailUrl}
-                          alt="Drive preview"
-                          className="size-full object-cover"
-                          wrapperClassName="size-full"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 text-emerald-500 text-[11px] font-medium">
-                          <CheckCircle2 className="size-3.5 shrink-0" />
-                          <span>Google Drive asset verified</span>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-36 overflow-y-auto pt-1">
+                      {filePreviews.map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="relative aspect-square rounded overflow-hidden border border-border bg-black"
+                        >
+                          <img src={url} alt="preview" className="size-full object-cover" />
+                          <span className="absolute bottom-0.5 right-0.5 rounded bg-black/80 px-1 text-[8px] text-white font-mono">
+                            #{idx + 1}
+                          </span>
                         </div>
-                        {extractedDriveFileId && (
-                          <p className="text-[10px] font-mono text-muted-foreground truncate mt-0.5">
-                            File ID: {extractedDriveFileId}
-                          </p>
-                        )}
-                      </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
               {/* Title & Category */}
               <div className="grid sm:grid-cols-2 gap-3 pt-1">
@@ -956,31 +841,6 @@ export function MediaLibraryPage() {
                 </div>
               </div>
 
-              {/* Project Selection */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground">Assigned Project</label>
-                <select
-                  value={photoProject}
-                  onChange={(e) => setPhotoProject(e.target.value)}
-                  className="w-full rounded border border-border bg-background px-3 py-2 text-xs text-foreground cursor-pointer"
-                >
-                  {POPULAR_PROJECTS.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title}
-                    </option>
-                  ))}
-                  <option value="custom">Other / Custom Project...</option>
-                </select>
-                {photoProject === "custom" && (
-                  <Input
-                    placeholder="Type custom project name..."
-                    value={customProjectTitle}
-                    onChange={(e) => setCustomProjectTitle(e.target.value)}
-                    className="mt-2 text-xs bg-background"
-                  />
-                )}
-              </div>
-
               {/* Caption / Description */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-foreground">
@@ -1007,42 +867,6 @@ export function MediaLibraryPage() {
                 />
               </div>
 
-              {/* Homepage Visibility Toggles */}
-              <div className="pt-2 border-t border-border space-y-3 bg-muted/20 p-3 rounded">
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={featureOnHomepage}
-                    onChange={(e) => setFeatureOnHomepage(e.target.checked)}
-                    className="rounded border-border accent-accent size-4"
-                  />
-                  <div>
-                    <span className="font-medium text-foreground flex items-center gap-1.5 text-xs">
-                      <Star className="size-3.5 text-accent fill-accent" />
-                      Show on Public Homepage
-                    </span>
-                    <p className="text-[11px] text-muted-foreground">
-                      Presents this photo directly in the customer homepage portfolio & gallery
-                    </p>
-                  </div>
-                </label>
-
-                {featureOnHomepage && (
-                  <div className="flex items-center gap-3 pt-1">
-                    <label className="text-xs text-muted-foreground font-medium">
-                      Homepage Display Order:
-                    </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={homepageOrderInput}
-                      onChange={(e) => setHomepageOrderInput(Number(e.target.value))}
-                      className="w-20 text-xs bg-background h-7"
-                    />
-                  </div>
-                )}
-              </div>
-
               {/* Submit Buttons */}
               <div className="pt-4 border-t border-border flex items-center justify-end gap-2.5">
                 <Button
@@ -1058,7 +882,7 @@ export function MediaLibraryPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={uploadDevicePhotosMutation.isPending || addPhotoMutation.isPending}
+                  disabled={uploadDevicePhotosMutation.isPending}
                   className="bg-accent text-accent-foreground hover:bg-accent/90 text-xs px-5 cursor-pointer gap-1.5 font-medium"
                 >
                   {uploadDevicePhotosMutation.isPending ? (
@@ -1066,20 +890,10 @@ export function MediaLibraryPage() {
                       <RefreshCw className="size-3.5 animate-spin" />
                       <span>Uploading to Google Drive…</span>
                     </>
-                  ) : addPhotoMutation.isPending ? (
-                    <>
-                      <RefreshCw className="size-3.5 animate-spin" />
-                      <span>Saving to Vault…</span>
-                    </>
-                  ) : uploadMode === "device" ? (
+                  ) : (
                     <>
                       <UploadCloud className="size-3.5" />
                       <span>Upload to Drive ({selectedFiles.length || 1} Photo)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="size-3.5" />
-                      <span>Add to Vault & Publish</span>
                     </>
                   )}
                 </Button>

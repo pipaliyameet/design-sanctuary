@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useSession } from "@/hooks/useSession";
 import { logoutUser } from "@/lib/session.functions";
-import { useServerFn } from "@tanstack/react-start";
+import { api } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -51,9 +51,13 @@ export function AppShell({
   const { data: session } = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const fetchLogout = useServerFn(logoutUser);
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [quickActionModal, setQuickActionModal] = useState<{
@@ -68,11 +72,13 @@ export function AppShell({
 
   async function signOut() {
     try {
-      await fetchLogout();
+      await logoutUser();
     } catch (e) {
       console.warn("Logout error:", e);
     }
-    queryClient.clear();
+    api.clearToken();
+    await queryClient.resetQueries();
+    await queryClient.invalidateQueries();
     navigate({ to: "/auth" });
   }
 

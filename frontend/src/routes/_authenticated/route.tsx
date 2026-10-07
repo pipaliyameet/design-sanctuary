@@ -10,23 +10,24 @@ export const Route = createFileRoute("/_authenticated")({
       session = null;
     }
 
-    if (session) {
-      if (location.pathname.startsWith("/portal")) {
-        throw redirect({ to: "/studio" });
-      }
+    if (session && session.email) {
+      const userId = session.userId || (session as any).id || "usr_owner_principal";
       return {
         session,
         user: {
-          id: session.userId,
+          id: userId,
           email: session.email,
           user_metadata: { full_name: session.fullName },
         },
       };
     }
 
-    // Unauthenticated access redirects to owner login
+    // Unauthenticated access strictly redirects to login page
     throw redirect({
       to: "/auth",
+      search: {
+        redirect: location.href,
+      },
     });
   },
   component: () => <Outlet />,

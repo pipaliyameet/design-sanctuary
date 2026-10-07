@@ -14,6 +14,7 @@ import "../styles.css";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Toaster } from "@/components/ui/sonner";
+import { useCmsLiveSync } from "@/lib/cms-live-sync";
 
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -157,6 +158,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useCmsLiveSync(queryClient);
 
   return (
     <QueryClientProvider client={queryClient}>

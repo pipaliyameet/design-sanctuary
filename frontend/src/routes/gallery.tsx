@@ -71,7 +71,7 @@ function GalleryPage() {
   const { data: serverGallery } = useQuery({
     queryKey: ["public-gallery", { category, tag: selectedTag, search, page, limit, sortBy }],
     queryFn: () => getPublicGalleryPhotos({ category, tag: selectedTag, search, page, limit, sortBy }),
-    staleTime: 0,
+    staleTime: 1000 * 60 * 15,
   });
 
   // Compute pagination (uses server data when available and populated, otherwise local paginator)
@@ -141,7 +141,7 @@ function GalleryPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
                 <Sparkles className="size-3.5" />
-                <span>Curated Architectural Visual Archive (50 Works)</span>
+                <span>Curated Architectural Visual Archive ({paginated.totalDriveAssets || 100} Works)</span>
               </div>
               <h1 className="mt-3 font-display text-3xl sm:text-5xl lg:text-6xl font-light text-foreground tracking-tight leading-[1.15]">
                 Architectural Photo Gallery & Vault.

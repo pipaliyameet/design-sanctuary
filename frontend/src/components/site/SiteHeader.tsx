@@ -7,7 +7,7 @@ import { STUDIO_DETAILS } from "@/lib/public.functions";
 
 // Refined Primary Navigation
 const PRIMARY_NAV = [
-  { to: "/portfolio", label: "Projects" },
+  { to: "/", label: "Portfolio" },
   { to: "/gallery", label: "Gallery" },
   { to: "/services", label: "Services" },
   { to: "/process", label: "Process" },
@@ -60,7 +60,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     >
       <div
         className={cn(
-          "mx-auto flex h-20 w-full max-w-[1720px] items-center justify-between px-5 sm:px-8 lg:px-12 xl:px-16 shrink-0 transition-colors",
+          "mx-auto flex h-20 w-full max-w-[1720px] items-center justify-between gap-3 lg:gap-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 shrink-0 transition-colors",
           open && "border-b border-border/80",
         )}
       >
@@ -69,7 +69,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           to="/"
           aria-label="Right Angle Design Studio — Home"
           onClick={() => setOpen(false)}
-          className="group flex items-center transition-opacity hover:opacity-90"
+          className="group flex items-center transition-opacity hover:opacity-90 shrink-0"
         >
           <BrandLogo
             variant="horizontal"
@@ -79,13 +79,13 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden items-center gap-6 lg:gap-8 md:flex">
+        <nav className="hidden items-center gap-3 xl:gap-6 2xl:gap-8 lg:flex shrink-0">
           {PRIMARY_NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               className={cn(
-                "text-xs uppercase tracking-[0.18em] transition-colors hover:text-accent font-medium relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-accent after:scale-x-0 after:transition-transform hover:after:scale-x-100",
+                "text-[11px] xl:text-xs uppercase tracking-[0.14em] xl:tracking-[0.18em] transition-colors hover:text-accent font-medium relative py-1 whitespace-nowrap shrink-0 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-accent after:scale-x-0 after:transition-transform hover:after:scale-x-100",
                 solid ? "text-foreground/85" : "text-ink-foreground/90",
               )}
               activeProps={{ className: "text-accent after:scale-x-100 font-semibold" }}
@@ -95,52 +95,52 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           ))}
         </nav>
 
-        {/* Desktop Action CTAs */}
-        <div className="hidden md:flex items-center gap-3 lg:gap-4">
+        {/* Action CTAs (Desktop & Tablet) */}
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-3.5 xl:gap-4 shrink-0">
           <Link
             to="/auth"
             className={cn(
-              "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs tracking-[0.16em] uppercase transition-colors font-medium border rounded-none",
+              "hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-[11px] xl:text-xs tracking-[0.14em] uppercase transition-colors font-medium border rounded-none min-h-[38px] whitespace-nowrap shrink-0",
               solid
                 ? "border-border/80 text-foreground hover:border-accent hover:text-accent bg-transparent"
                 : "border-ink-foreground/30 text-ink-foreground hover:border-accent hover:text-accent bg-ink/20 backdrop-blur-xs",
             )}
           >
             <User className="size-3.5" />
-            <span>Owner Login</span>
+            <span>Login</span>
           </Link>
 
           <Link
             to="/contact"
             hash="consultation"
             className={cn(
-              "inline-flex items-center gap-2 px-5 lg:px-6 py-2.5 text-xs tracking-[0.18em] uppercase transition-all duration-300 font-medium",
+              "hidden md:inline-flex items-center gap-1.5 lg:gap-2 px-3.5 xl:px-5 py-2 lg:py-2.5 text-[11px] xl:text-xs tracking-[0.14em] xl:tracking-[0.18em] uppercase transition-all duration-300 font-medium min-h-[38px] whitespace-nowrap shrink-0",
               solid
                 ? "bg-foreground text-background hover:bg-accent hover:text-accent-foreground"
                 : "bg-accent text-accent-foreground hover:bg-ink-foreground hover:text-ink",
             )}
           >
-            Book a Consultation <ArrowRight className="size-3" />
+            <span className="hidden xl:inline">Book a </span>Consultation <ArrowRight className="size-3 shrink-0" />
           </Link>
-        </div>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          type="button"
-          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-          onClick={() => setOpen((v) => !v)}
-          className={cn(
-            "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center md:hidden transition-colors focus:outline-none cursor-pointer",
-            solid || open ? "text-foreground" : "text-ink-foreground",
-          )}
-        >
-          {open ? <X className="size-6 text-foreground" /> : <Menu className="size-6" />}
-        </button>
+          {/* Tablet / Mobile Hamburger Button */}
+          <button
+            type="button"
+            aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setOpen((v) => !v)}
+            className={cn(
+              "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center lg:hidden transition-colors focus:outline-none cursor-pointer rounded shrink-0",
+              solid || open ? "text-foreground" : "text-ink-foreground",
+            )}
+          >
+            {open ? <X className="size-6 text-foreground" /> : <Menu className="size-6" />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Fullscreen Menu Drawer Body */}
+      {/* Mobile & Tablet Fullscreen Menu Drawer Body */}
       {open && (
-        <div className="flex-1 min-h-0 w-full overflow-y-auto px-5 sm:px-8 py-6 flex flex-col justify-between md:hidden bg-background animate-in fade-in duration-200">
+        <div className="flex-1 min-h-0 w-full overflow-y-auto px-5 sm:px-8 py-6 flex flex-col justify-between lg:hidden bg-background animate-in fade-in duration-200">
           <nav className="flex flex-col space-y-1 pt-1">
             {PRIMARY_NAV.map((item, idx) => {
               const isActive = currentPath === item.to || (item.to !== "/" && currentPath.startsWith(item.to));
@@ -179,7 +179,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 border border-border bg-card/70 px-4 py-3 text-xs tracking-[0.18em] uppercase text-foreground font-medium hover:border-accent hover:text-accent transition-colors"
             >
               <User className="size-3.5 text-accent" />
-              <span>Owner / Studio Login</span>
+              <span>Login</span>
             </Link>
 
             <div className="grid grid-cols-2 gap-2.5 pt-1">
@@ -192,7 +192,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 <MessageSquare className="size-3.5 text-accent shrink-0" /> <span className="truncate">WhatsApp</span>
               </a>
               <a
-                href="tel:+919820041100"
+                href={`tel:${STUDIO_DETAILS.phone}`}
                 className="min-h-[44px] flex items-center justify-center gap-1.5 border border-border bg-card/40 p-2.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-accent transition-colors text-center"
               >
                 <Phone className="size-3.5 text-accent shrink-0" /> <span className="truncate">Call Studio</span>

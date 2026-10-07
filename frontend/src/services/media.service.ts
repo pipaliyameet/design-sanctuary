@@ -83,4 +83,13 @@ export const mediaService = {
   async delete(id: string): Promise<{ deleted: boolean }> {
     return api.delete(`/media/${id}`);
   },
+
+  async syncDrive(): Promise<{
+    totalDriveFiles: number;
+    newlyAdded: number;
+    existing: number;
+    totalInDatabase: number;
+  }> {
+    return api.post("/media/sync-drive", {});
+  },
 };

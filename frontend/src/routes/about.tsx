@@ -220,7 +220,7 @@ function AboutPage() {
                 14 Sun Mill Compound, Tulsi Pipe Road, Lower Parel, Mumbai 400013
               </p>
               <div className="pt-2 text-xs space-y-1 text-muted-foreground font-mono">
-                <p>Phone: +91 98200 41100</p>
+                <p>Phone: +91 95375 86804</p>
                 <p>Email: contact@rightangle.design</p>
               </div>
             </div>

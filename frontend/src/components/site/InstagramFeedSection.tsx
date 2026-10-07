@@ -2,6 +2,7 @@ import { ArrowUpRight, Instagram, Image as ImageIcon } from "lucide-react";
 import { STUDIO_DETAILS, getHomepageMedia } from "@/lib/public.functions";
 import { useQuery } from "@tanstack/react-query";
 import { DriveImage } from "./DriveImage";
+import { cn } from "@/lib/utils";
 
 interface InstagramFeedSectionProps {
   photos?: Array<{
@@ -49,14 +50,17 @@ export function InstagramFeedSection({ photos: propPhotos }: InstagramFeedSectio
           </a>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
           {displayPhotos.slice(0, 6).map((item, idx) => (
             <a
               key={idx}
               href={STUDIO_DETAILS.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-square overflow-hidden bg-secondary/30 border border-border/60"
+              className={cn(
+                "group relative aspect-square overflow-hidden bg-secondary/30 border border-border/60",
+                idx >= 4 && "hidden lg:block", // Show 4 on tablet, 6 on desktop
+              )}
             >
               <DriveImage
                 src={item.url}

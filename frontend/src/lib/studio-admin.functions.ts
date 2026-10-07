@@ -5,7 +5,7 @@ import { mediaService } from "../services/media.service";
 import { financeService } from "../services/finance.service";
 import { studioService } from "../services/studio.service";
 import { api } from "../services/api";
-import { GOOGLE_DRIVE_PHOTOS } from "./google-drive-photos";
+import { GOOGLE_DRIVE_PHOTOS, deduplicatePhotos } from "./google-drive-photos";
 
 // 1. Overview
 export async function getStudioAdminOverview() {
@@ -198,7 +198,8 @@ export async function deleteStudioClient({ data }: { data: { id: string } }) {
 // 5. Media Vault
 export async function listStudioMedia(params?: any) {
   const items = await mediaService.list(params);
-  return (items || []).map((m: any, idx: number) => ({
+  const distinct = deduplicatePhotos(items || []);
+  return distinct.map((m: any, idx: number) => ({
     ...m,
     id: m.id || String(m._id) || m.driveFileId,
     _id: String(m._id || m.id),

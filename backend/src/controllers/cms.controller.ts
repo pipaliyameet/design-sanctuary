@@ -15,6 +15,7 @@ import {
   ActivityLogDoc,
 } from "../models/types.js";
 import { sendSuccess, sendError } from "../utils/response.js";
+import { invalidatePublicCache } from "./public.controller.js";
 
 // 1. Overview Statistics
 export async function getCmsOverview(req: Request, res: Response, next: NextFunction) {
@@ -110,7 +111,10 @@ export async function getHomepageConfig(req: Request, res: Response, next: NextF
         map.heroSubtitle,
         "Spaces shaped by light, material and everyday life. Bespoke residential, commercial and turnkey interiors across India."
       ),
-      heroImage: unwrap(map.heroImage, "https://lh3.googleusercontent.com/d/1yKk6NqN3z5h4hL-yW_7E3iZ9u3R4O_3"),
+      heroImage: unwrap(map.heroImage, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
+      atmospherePhoto: unwrap(map.atmospherePhoto, "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg"),
+      beforePhoto: unwrap(map.beforePhoto, "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r"),
+      afterPhoto: unwrap(map.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
       ctaText: unwrap(map.ctaText, "Initiate a Commission"),
       ctaLink: unwrap(map.ctaLink, "/contact"),
       featuredProjectSlugs: map.featuredProjectSlugs || [],
@@ -135,6 +139,9 @@ export async function updateHomepageConfig(req: Request, res: Response, next: Ne
       "heroTitle",
       "heroSubtitle",
       "heroImage",
+      "atmospherePhoto",
+      "beforePhoto",
+      "afterPhoto",
       "ctaText",
       "ctaLink",
       "featuredProjectSlugs",
@@ -166,6 +173,7 @@ export async function updateHomepageConfig(req: Request, res: Response, next: Ne
       createdAt: now,
     });
 
+    invalidatePublicCache();
     return sendSuccess(res, body, "Homepage configuration updated successfully.");
   } catch (err) {
     next(err);

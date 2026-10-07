@@ -15,6 +15,7 @@ import {
   GOOGLE_DRIVE_PHOTOS,
   PHOTO_CATEGORIES,
   PUBLIC_DRIVE_FOLDER_URL,
+  deduplicatePhotos,
   type GoogleDrivePhoto,
 } from "@/lib/google-drive-photos";
 import { publicService } from "@/services/public.service";
@@ -35,7 +36,8 @@ export function HomePhotoVault() {
         const res: any = await publicService.getHomepageMedia();
         const payload = res?.data || res;
         if (Array.isArray(payload) && payload.length > 0) {
-          return payload.map((p: any, idx: number) => ({
+          const distinctPayload = deduplicatePhotos(payload);
+          return distinctPayload.map((p: any, idx: number) => ({
             id: p.id || p._id || `drive_${p.driveFileId || idx}`,
             index: p.homepageOrder ?? idx + 1,
             fileName: p.fileName || `Photo #${idx + 1}`,
@@ -62,7 +64,7 @@ export function HomePhotoVault() {
 
   const allPhotos = useMemo(() => {
     if (homepageMedia && Array.isArray(homepageMedia) && homepageMedia.length > 0) {
-      return homepageMedia;
+      return deduplicatePhotos(homepageMedia);
     }
     return GOOGLE_DRIVE_PHOTOS;
   }, [homepageMedia]);
@@ -99,7 +101,7 @@ export function HomePhotoVault() {
               <p className="eyebrow">ARCHITECTURAL PHOTO VAULT</p>
             </div>
             <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
-              Explore 50 Architectural Works & Spatial Details
+              Explore Architectural Works & Spatial Details
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light max-w-xl">
               Click on any photograph to open the high-resolution lightbox viewer and inspect project
@@ -112,7 +114,7 @@ export function HomePhotoVault() {
               to="/gallery"
               className="inline-flex items-center gap-2 rounded bg-foreground px-5 py-2.5 text-xs uppercase tracking-widest text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
             >
-              <span>Explore All 50 Works</span>
+              <span>Explore All {allPhotos.length} Works</span>
               <ArrowRight className="size-3.5" />
             </Link>
           </div>

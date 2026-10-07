@@ -47,7 +47,9 @@ dist-ssr/
 *service*account*.json
 *credentials*.json
 *-uploader-*.json
-gcp-key.json
-
 .vercel
 .env*
+.cache/
+uploads/
+*.bin
+*.meta.json

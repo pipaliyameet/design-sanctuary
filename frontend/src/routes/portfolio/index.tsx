@@ -1,8 +1,8 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ArrowRight, SlidersHorizontal, RotateCcw, ChevronDown, MapPin, Calendar, Layers } from "lucide-react";
-import { listCaseStudies, type CaseCard } from "@/lib/public.functions";
+import { listCaseStudies, CURATED_STUDIO_PROJECTS, type CaseCard } from "@/lib/public.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { DriveImage } from "@/components/site/DriveImage";
 import { cn } from "@/lib/utils";
@@ -10,10 +10,17 @@ import { cn } from "@/lib/utils";
 const portfolioQuery = queryOptions({
   queryKey: ["case-studies"],
   queryFn: () => listCaseStudies(),
+  staleTime: 1000 * 60 * 5,
 });
 
 export const Route = createFileRoute("/portfolio/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(portfolioQuery),
+  loader: ({ context }) => {
+    try {
+      return context.queryClient.ensureQueryData(portfolioQuery);
+    } catch {
+      return null;
+    }
+  },
   component: PortfolioPage,
   head: () => ({
     meta: [
@@ -33,32 +40,11 @@ export const Route = createFileRoute("/portfolio/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  errorComponent: () => (
-    <PublicShell>
-      <div className="mx-auto max-w-xl px-5 py-32 text-center">
-        <p className="eyebrow text-accent">PORTFOLIO</p>
-        <h1 className="mt-3 text-3xl font-display font-light text-foreground">
-          Unable to Load Portfolio Archive
-        </h1>
-        <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed">
-          We encountered an issue retrieving the latest studio commissions. Please refresh to try again.
-        </p>
-        <div className="mt-8">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 border border-foreground/30 px-6 py-2.5 text-xs uppercase tracking-widest text-foreground hover:bg-foreground hover:text-background transition-colors"
-          >
-            Return to Studio
-          </Link>
-        </div>
-      </div>
-    </PublicShell>
-  ),
 });
 
 export function PortfolioPage() {
-  const { data } = useSuspenseQuery(portfolioQuery);
-  const studies: CaseCard[] = Array.isArray(data) ? data : [];
+  const { data } = useQuery(portfolioQuery);
+  const studies: CaseCard[] = Array.isArray(data) && data.length > 0 ? data : CURATED_STUDIO_PROJECTS;
 
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [selectedCity, setSelectedCity] = useState<string>("ALL");
