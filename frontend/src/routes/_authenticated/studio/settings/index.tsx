@@ -193,7 +193,7 @@ function StudioSettingsPage() {
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Meet Pipaliya"
+                placeholder="e.g. Ravi Pipaliya"
                 className="mt-1.5"
                 required
               />

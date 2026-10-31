@@ -58,7 +58,7 @@ export function QuickActionModal({
     area_sqft: 2500,
     budget_amount: 2000000,
     target_date: "2026-12-31",
-    lead_designer_name: "Ira Kapoor",
+    lead_designer_name: "Ravi Pipaliya",
     description: "",
   });
 

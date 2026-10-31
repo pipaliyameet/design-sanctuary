@@ -38,6 +38,35 @@ export interface HomepageConfigData {
   showProcess?: boolean;
   showTestimonials?: boolean;
   showJournal?: boolean;
+  ribbonText1?: string;
+  ribbonText2?: string;
+  statementTitle?: string;
+  statementText1?: string;
+  statementText2?: string;
+  stat1Value?: string;
+  stat1Label?: string;
+  stat2Value?: string;
+  stat2Label?: string;
+  stat3Value?: string;
+  stat3Label?: string;
+  stat4Value?: string;
+  stat4Label?: string;
+  beforeAfterCaption?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  philosophy1Title?: string;
+  philosophy1Heading?: string;
+  philosophy1Text?: string;
+  philosophy2Title?: string;
+  philosophy2Heading?: string;
+  philosophy2Text?: string;
+  philosophy3Title?: string;
+  philosophy3Heading?: string;
+  philosophy3Text?: string;
+  consultationHeading?: string;
+  consultationPhone?: string;
+  consultationEmail?: string;
+  [key: string]: any;
 }
 
 export interface CmsCaseStudyItem {

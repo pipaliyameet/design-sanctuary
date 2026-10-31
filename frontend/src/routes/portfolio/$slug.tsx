@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Compass, Sparkles, Layers, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Layers, Clock, MapPin } from "lucide-react";
 import { getCaseStudy, type FullCaseStudy, type CaseCard } from "@/lib/public.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";

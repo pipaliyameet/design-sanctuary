@@ -30,6 +30,7 @@ import {
   updateProjectStageAndProgress,
   updateMediaPublishStatus,
 } from "@/lib/studio-admin.functions";
+import { DriveImage } from "@/components/site/DriveImage";
 import {
   AppShell,
   EmptyState,
@@ -141,10 +142,12 @@ function SingleProjectWorkspace() {
       {/* PROJECT HEADER BANNER */}
       <div className="relative mb-8 overflow-hidden rounded-lg border border-border bg-card">
         <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-muted">
-          <img
+          <DriveImage
             src={project.cover_image}
             alt={project.title}
             className="h-full w-full object-cover"
+            wrapperClassName="size-full"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
@@ -424,10 +427,11 @@ function SingleProjectWorkspace() {
                     className="flex flex-col sm:flex-row gap-4 border border-border p-4 rounded bg-background"
                   >
                     {site.photos.length > 0 && (
-                      <img
+                      <DriveImage
                         src={site.photos[0]}
                         alt={site.title}
-                        className="h-28 w-44 rounded object-cover border border-border shrink-0"
+                        className="size-full object-cover"
+                        wrapperClassName="h-28 w-44 rounded border border-border shrink-0"
                       />
                     )}
                     <div className="space-y-1 text-xs">
@@ -517,10 +521,11 @@ function SingleProjectWorkspace() {
                 className="rounded border border-border bg-card p-4 space-y-3 hover:border-accent/50 transition-colors"
               >
                 {room.hero_image && (
-                  <img
+                  <DriveImage
                     src={room.hero_image}
                     alt={room.name}
-                    className="h-36 w-full rounded object-cover border border-border"
+                    className="size-full object-cover"
+                    wrapperClassName="h-36 w-full rounded border border-border"
                   />
                 )}
                 <div>
@@ -556,10 +561,11 @@ function SingleProjectWorkspace() {
                     key={asset.id}
                     className="rounded border border-border bg-background overflow-hidden group"
                   >
-                    <img
+                    <DriveImage
                       src={asset.url}
                       alt={asset.title}
-                      className="h-60 w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      wrapperClassName="h-60 w-full"
                     />
                     <div className="p-4 space-y-2 text-xs">
                       <div className="flex items-center justify-between">
@@ -602,7 +608,12 @@ function SingleProjectWorkspace() {
                   key={item.id}
                   className="rounded border border-border bg-background overflow-hidden"
                 >
-                  <img src={item.url} alt={item.title} className="h-44 w-full object-cover" />
+                  <DriveImage
+                    src={item.url}
+                    alt={item.title}
+                    className="size-full object-cover"
+                    wrapperClassName="h-44 w-full"
+                  />
                   <div className="p-3 text-xs space-y-1">
                     <p className="font-medium text-foreground truncate">{item.title}</p>
                     <p className="text-[11px] text-muted-foreground">
@@ -703,11 +714,12 @@ function SingleProjectWorkspace() {
                   {update.photos.length > 0 && (
                     <div className="flex flex-wrap gap-3 pt-2">
                       {update.photos.map((p: string, idx: number) => (
-                        <img
+                        <DriveImage
                           key={idx}
                           src={p}
                           alt="Site snapshot"
-                          className="h-32 w-48 rounded object-cover border border-border"
+                          className="size-full object-cover"
+                          wrapperClassName="h-32 w-48 rounded border border-border"
                         />
                       ))}
                     </div>

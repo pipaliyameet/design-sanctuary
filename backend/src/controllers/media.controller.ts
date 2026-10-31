@@ -111,6 +111,7 @@ export async function getHomepageMedia(req: Request, res: Response, next: NextFu
   }
 }
 
+
 /**
  * Register media via Google Drive link or file ID (Owner / Admin)
  */
@@ -225,6 +226,7 @@ export async function createMedia(req: Request, res: Response, next: NextFunctio
     next(err);
   }
 }
+
 
 /**
  * Upload single or multiple files directly to Google Drive permanent storage
@@ -460,6 +462,7 @@ export async function listMedia(req: Request, res: Response, next: NextFunction)
   }
 }
 
+
 /**
  * Get media by ID
  */
@@ -486,6 +489,7 @@ export async function getMediaById(req: Request, res: Response, next: NextFuncti
     next(err);
   }
 }
+
 
 /**
  * Update media metadata (homepage visibility, order, title, etc.)
@@ -526,6 +530,7 @@ export async function updateMedia(req: Request, res: Response, next: NextFunctio
     next(err);
   }
 }
+
 
 /**
  * Replace media file: Uploads replacement file to Google Drive, updates MongoDB, and removes old file.
@@ -647,6 +652,7 @@ export async function reorderHomepageMedia(req: Request, res: Response, next: Ne
   }
 }
 
+
 /**
  * Permanent Delete Media: Deletes from Google Drive first, then deletes from MongoDB Atlas
  */
@@ -666,22 +672,21 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
       return sendError(res, "Media asset not found in database.", 404, "NOT_FOUND");
     }
 
-    // 1. Delete file from Google Drive first
+    // 1. Attempt to delete file from Google Drive
+    let driveDeleteSuccess = true;
+    let driveErrorMsg: string | null = null;
+
     if (item.driveFileId) {
       try {
         await deleteFileFromDrive(item.driveFileId);
       } catch (driveErr: any) {
-        console.error(`[Google Drive] Error deleting file ${item.driveFileId}:`, driveErr);
-        return sendError(
-          res,
-          `Google Drive deletion failed: ${driveErr?.message || "Could not remove file from Google Drive"}. Database record was preserved.`,
-          502,
-          "DRIVE_DELETE_FAILED",
-        );
+        driveDeleteSuccess = false;
+        driveErrorMsg = driveErr?.message || "Could not delete from Google Drive";
+        console.warn(`[Google Drive] Could not delete file ${item.driveFileId} from Drive:`, driveErrorMsg);
       }
     }
 
-    // 2. Delete MongoDB metadata
+    // 2. Delete MongoDB metadata so website does not remain stuck with undeletable media
     await mediaCol.deleteOne({ _id: item._id });
 
     await activityCol.insertOne({
@@ -692,7 +697,9 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
       entity: "media",
       entityId: String(item._id),
       entityTitle: item.fileName,
-      detail: `Deleted photo (${item.caption || item.driveFileId}) permanently from Google Drive & database`,
+      detail: driveDeleteSuccess
+        ? `Deleted photo (${item.caption || item.driveFileId}) permanently from Google Drive & database`
+        : `Removed photo (${item.caption || item.driveFileId}) from studio database. Note: Drive file could not be deleted (${driveErrorMsg}).`,
       createdAt: new Date(),
     });
 
@@ -703,13 +710,23 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
 
     return sendSuccess(
       res,
-      { deleted: true, id: String(item._id) },
-      "Media asset deleted permanently from Google Drive and database.",
+      {
+        deleted: true,
+        id: String(item._id),
+        driveDeleted: driveDeleteSuccess,
+        warning: driveDeleteSuccess
+          ? undefined
+          : `Removed from studio website, but original Google Drive file could not be deleted due to permissions (${driveErrorMsg}).`,
+      },
+      driveDeleteSuccess
+        ? "Media asset deleted permanently from Google Drive and database."
+        : "Media asset removed from studio database and website.",
     );
   } catch (err) {
     next(err);
   }
 }
+
 
 /**
  * High-Speed Cached Proxy for Google Drive Images with Disk/Memory LRU & 304 Support
@@ -746,6 +763,7 @@ export async function proxyDriveImage(req: Request, res: Response, next: NextFun
   }
 }
 
+
 /**
  * Stream Google Drive Video with Byte-Range & Inline Playback support
  */
@@ -766,45 +784,57 @@ export async function streamVideo(req: Request, res: Response, next: NextFunctio
       headers.Range = req.headers.range;
     }
 
-    const driveRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`, {
-      headers: {
-        Authorization: `Bearer ${(await (drive.context._options.auth as any).getAccessToken()).token}`,
-        ...headers,
-      },
-    });
-
-    if (!driveRes.ok) {
-      return res.redirect(`https://drive.google.com/uc?id=${id}`);
-    }
-
-    const status = driveRes.status;
-    res.status(status);
-
-    for (const [key, val] of driveRes.headers.entries()) {
-      if (["content-type", "content-length", "content-range", "accept-ranges"].includes(key.toLowerCase())) {
-        res.setHeader(key, val);
+    try {
+      const auth = (drive.context._options.auth as any);
+      let token = "";
+      if (auth && typeof auth.getAccessToken === "function") {
+        const tokenRes = await auth.getAccessToken();
+        token = tokenRes?.token || "";
       }
-    }
-    res.setHeader("Cache-Control", "public, max-age=3600");
 
-    if (driveRes.body) {
-      const reader = driveRes.body.getReader();
-      const pump = async () => {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          res.write(value);
+      const driveRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...headers,
+        },
+      });
+
+      if (!driveRes.ok) {
+        return res.redirect(`https://drive.google.com/uc?id=${id}`);
+      }
+
+      const status = driveRes.status;
+      res.status(status);
+
+      for (const [key, val] of driveRes.headers.entries()) {
+        if (["content-type", "content-length", "content-range", "accept-ranges"].includes(key.toLowerCase())) {
+          res.setHeader(key, val);
         }
+      }
+      res.setHeader("Cache-Control", "public, max-age=3600");
+
+      if (driveRes.body) {
+        const reader = driveRes.body.getReader();
+        const pump = async () => {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            res.write(value);
+          }
+          res.end();
+        };
+        await pump();
+      } else {
         res.end();
-      };
-      await pump();
-    } else {
-      res.end();
+      }
+    } catch {
+      return res.redirect(`https://drive.google.com/uc?id=${id}`);
     }
   } catch (err) {
     next(err);
   }
 }
+
 
 /**
  * 1-Click Connect Google Drive OAuth: Generates Google OAuth authorization URL
@@ -1130,6 +1160,45 @@ export async function syncGoogleDriveMediaHandler(req: Request, res: Response, n
     next(err);
   }
 }
+
+/**
+ * Serves locally stored fallback media files with caching
+ */
+export async function serveLocalMedia(req: Request, res: Response) {
+  try {
+    const { filename } = req.params;
+    if (!filename || filename.includes("..")) {
+      return res.status(400).send("Invalid filename");
+    }
+
+    const fs = await import("fs");
+    const path = await import("path");
+    const filePath = path.resolve(process.cwd(), "uploads", filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send("File not found");
+    }
+
+    const ext = path.extname(filename).toLowerCase();
+    const mimeMap: Record<string, string> = {
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".webp": "image/webp",
+      ".gif": "image/gif",
+      ".mp4": "video/mp4",
+      ".webm": "video/webm",
+      ".mov": "video/quicktime",
+    };
+
+    res.setHeader("Content-Type", mimeMap[ext] || "application/octet-stream");
+    res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+    return fs.createReadStream(filePath).pipe(res);
+  } catch (err: any) {
+    return res.status(500).send(err?.message || "Internal server error");
+  }
+}
+
 
 
 

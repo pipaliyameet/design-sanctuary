@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   FolderKanban,
-  UserCheck,
   Users,
   Image as ImageIcon,
   FileText,
@@ -40,10 +39,8 @@ interface NavItem {
 }
 
 const PRIMARY_STUDIO_NAV: NavItem[] = [
-  { to: "/studio", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/studio/website", label: "Customer Homepage", icon: Globe, badge: "Live" },
   { to: "/studio/media", label: "Drive Media Vault", icon: ImageIcon },
-  { to: "/studio/leads", label: "Enquiries", icon: UserCheck, badge: "New" },
+  { to: "/studio/website", label: "Customer Homepage", icon: Globe, badge: "Live" },
   { to: "/studio/settings", label: "Settings", icon: Settings },
 ];
 
@@ -119,7 +116,7 @@ export function AppSidebar({
                 activeOptions={{ exact: item.exact }}
                 className={cn(
                   "group relative flex items-center gap-3.5 rounded-md px-3.5 py-3 text-[15px] font-medium transition-colors min-h-[48px] cursor-pointer",
-                  "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                  "text-foreground/80 hover:bg-muted/80 hover:text-foreground",
                   "[&.active]:bg-accent/15 [&.active]:text-foreground [&.active]:font-semibold",
                 )}
               >
@@ -131,9 +128,9 @@ export function AppSidebar({
                     {item.badge !== undefined && (
                       <span
                         className={cn(
-                          "ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide",
+                          "ml-auto rounded-full px-2 py-0.5 text-xs font-semibold tracking-wide",
                           typeof item.badge === "number"
-                            ? "bg-muted text-muted-foreground"
+                            ? "bg-muted text-foreground/75"
                             : "bg-accent/20 text-accent border border-accent/30",
                         )}
                       >
@@ -177,9 +174,9 @@ export function AppSidebar({
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-xs font-semibold text-foreground">Live Studio Mode</span>
                 </div>
-                <span className="text-xs text-muted-foreground">All Synced</span>
+                <span className="text-xs text-foreground/75 font-medium">All Synced</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground leading-tight">
+              <p className="mt-1 text-xs text-foreground/70 leading-tight font-normal">
                 Operating Right Angle Studio HQ
               </p>
             </div>
@@ -191,7 +188,7 @@ export function AppSidebar({
               to="/"
               target="_blank"
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors",
+                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-foreground font-medium transition-colors",
                 collapsed && "justify-center",
               )}
             >
@@ -202,7 +199,7 @@ export function AppSidebar({
             <button
               onClick={signOut}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors text-left w-full",
+                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-destructive/10 hover:text-destructive font-medium transition-colors text-left w-full cursor-pointer",
                 collapsed && "justify-center",
               )}
             >

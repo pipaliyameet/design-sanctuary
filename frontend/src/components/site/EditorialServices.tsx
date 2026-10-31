@@ -198,13 +198,13 @@ export function EditorialServicesSection({
                     </p>
                   )}
 
-                  {/* Active Service Deliverables Pill Strip */}
+                  {/* Active Service Deliverables Strip */}
                   {isActive && service.deliverables && service.deliverables.length > 0 && (
                     <div className="mt-4 pl-12 flex flex-wrap gap-2 animate-in fade-in duration-300">
                       {service.deliverables.slice(0, 3).map((del, dIdx) => (
                         <span
                           key={dIdx}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border/80 px-2.5 py-0.5 text-[11px] text-muted-foreground font-light"
+                          className="inline-flex items-center gap-1.5 rounded bg-background/80 border border-border/80 px-2.5 py-0.5 text-[11px] text-muted-foreground font-light"
                         >
                           <span className="size-1 rounded-full bg-accent" />
                           <span>{del}</span>
@@ -274,7 +274,7 @@ export function EditorialServicesSection({
               {/* Top Controls Overlay: Discipline Tag */}
               <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-auto">
                 <div className="inline-flex items-center gap-2 rounded bg-ink/75 backdrop-blur-md px-2.5 py-1 text-[10px] uppercase tracking-widest text-ink-foreground font-mono border border-ink-foreground/15">
-                  <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+                  <span className="size-1.5 rounded-full bg-accent" />
                   <span>
                     Discipline {currentService?.number || `0${activeHoverIdx + 1}`}
                   </span>

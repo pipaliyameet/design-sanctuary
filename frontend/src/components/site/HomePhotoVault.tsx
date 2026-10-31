@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Sparkles,
   ArrowRight,
   Maximize2,
   FolderOpen,
@@ -96,10 +95,7 @@ export function HomePhotoVault() {
         {/* Header Strip */}
         <div className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-border">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block size-2 rounded-full bg-accent animate-pulse" />
-              <p className="eyebrow">ARCHITECTURAL PHOTO VAULT</p>
-            </div>
+            <p className="eyebrow">ARCHITECTURAL PHOTO VAULT</p>
             <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
               Explore Architectural Works & Spatial Details
             </h2>

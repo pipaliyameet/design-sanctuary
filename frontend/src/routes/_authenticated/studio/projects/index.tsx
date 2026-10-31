@@ -17,6 +17,7 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import { getStudioProjects } from "@/lib/studio-admin.functions";
+import { DriveImage } from "@/components/site/DriveImage";
 import {
   AppShell,
   EmptyState,
@@ -200,10 +201,11 @@ function ProjectsRegister() {
               className="group rounded border border-border bg-card overflow-hidden flex flex-col transition-all hover:border-accent/60"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                <img
+                <DriveImage
                   src={p.cover_image}
                   alt={p.title}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -303,10 +305,11 @@ function ProjectsRegister() {
               className="group flex flex-col md:flex-row items-center justify-between gap-5 rounded border border-border bg-card p-4 transition-all hover:border-accent/60"
             >
               <div className="flex items-center gap-4 w-full md:w-auto">
-                <img
+                <DriveImage
                   src={p.cover_image}
                   alt={p.title}
-                  className="h-16 w-24 rounded object-cover border border-border shrink-0"
+                  className="size-full object-cover"
+                  wrapperClassName="h-16 w-24 rounded border border-border shrink-0"
                 />
                 <div>
                   <div className="flex items-center gap-2">

@@ -18,10 +18,32 @@
  * 2. Register it in @theme inline as --color-<name>: var(--<name>)
  */
 
+@font-face {
+  font-family: 'City Blueprint';
+  src: url('/fonts/CityBlueprint.woff2') format('woff2'),
+       url('/fonts/CityBlueprint.woff') format('woff'),
+       url('/fonts/CityBlueprint.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CityBlueprint';
+  src: url('/fonts/CityBlueprint.woff2') format('woff2'),
+       url('/fonts/CityBlueprint.woff') format('woff'),
+       url('/fonts/CityBlueprint.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --font-editorial: "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "City Blueprint", "CityBlueprint", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "City Blueprint", "CityBlueprint", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "City Blueprint", "CityBlueprint", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "City Blueprint", "CityBlueprint", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "City Blueprint", "CityBlueprint", ui-monospace, monospace, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -85,19 +107,19 @@
   --brass-foreground: oklch(0.2 0.012 55);
 
   --background: oklch(0.978 0.006 86);
-  --foreground: oklch(0.218 0.012 55);
+  --foreground: oklch(0.18 0.012 55);
   --card: oklch(0.988 0.004 86);
-  --card-foreground: oklch(0.218 0.012 55);
+  --card-foreground: oklch(0.18 0.012 55);
   --popover: oklch(0.988 0.004 86);
-  --popover-foreground: oklch(0.218 0.012 55);
-  --primary: oklch(0.22 0.012 55);
+  --popover-foreground: oklch(0.18 0.012 55);
+  --primary: oklch(0.18 0.012 55);
   --primary-foreground: oklch(0.978 0.006 86);
   --secondary: oklch(0.932 0.010 82);
-  --secondary-foreground: oklch(0.22 0.012 55);
+  --secondary-foreground: oklch(0.18 0.012 55);
   --muted: oklch(0.942 0.008 82);
-  --muted-foreground: oklch(0.52 0.014 62);
-  --accent: oklch(0.68 0.068 74);
-  --accent-foreground: oklch(0.2 0.012 55);
+  --muted-foreground: oklch(0.28 0.012 55);
+  --accent: oklch(0.52 0.11 65);
+  --accent-foreground: oklch(0.98 0.006 86);
   --destructive: oklch(0.512 0.166 27);
   --destructive-foreground: oklch(0.98 0.006 84);
   --success: oklch(0.531 0.084 152);
@@ -149,9 +171,9 @@
   --secondary: oklch(0.272 0.013 58);
   --secondary-foreground: oklch(0.945 0.007 84);
   --muted: oklch(0.272 0.013 58);
-  --muted-foreground: oklch(0.708 0.012 76);
-  --accent: oklch(0.735 0.098 76);
-  --accent-foreground: oklch(0.2 0.014 58);
+  --muted-foreground: oklch(0.85 0.008 84);
+  --accent: oklch(0.78 0.11 76);
+  --accent-foreground: oklch(0.18 0.014 58);
   --destructive: oklch(0.62 0.17 27);
   --destructive-foreground: oklch(0.98 0.006 84);
   --success: oklch(0.65 0.09 152);
@@ -181,25 +203,41 @@
 
   html {
     width: 100%;
+    max-width: 100%;
     margin: 0;
     padding: 0;
+    overflow-x: clip;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     width: 100%;
+    max-width: 100%;
     min-height: 100%;
     margin: 0;
     padding: 0;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+    word-spacing: 0.04em;
     font-feature-settings: "ss01" 1;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    position: relative;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: clip;
   }
 
   img,
@@ -218,24 +256,87 @@
   h1,
   h2,
   h3,
-  h4 {
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
-    font-weight: 300;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    word-spacing: 0.03em;
+    line-height: 1.15;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  p,
+  span,
+  li,
+  label {
+    word-spacing: 0.03em;
+  }
+
+  /* Automatically elevate tiny font sizes (8px, 9px, 10px, 11px) for City Blueprint clarity */
+  [class*="text-[8px]"],
+  [class*="text-[9px]"],
+  [class*="text-[10px]"] {
+    font-size: 0.75rem !important; /* 12px min */
+    line-height: 1.15rem !important;
+    font-weight: 500 !important;
+  }
+
+  [class*="text-[11px]"] {
+    font-size: 0.8125rem !important; /* 13px */
+    line-height: 1.25rem !important;
+    font-weight: 500 !important;
+  }
+
+  /* Normalize wide tracking so words don't get disjointed in architectural drafting font */
+  [class*="tracking-[0.2"],
+  [class*="tracking-[0.3"],
+  [class*="tracking-widest"] {
+    letter-spacing: 0.08em !important;
+    word-spacing: 0.06em !important;
+  }
+
+  [class*="tracking-[0.1"] {
+    letter-spacing: 0.05em !important;
+    word-spacing: 0.04em !important;
   }
 }
 
 @utility eyebrow {
-  font-size: 0.6875rem;
-  letter-spacing: 0.24em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  word-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--muted-foreground);
-  font-weight: 500;
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+
+@utility font-light {
+  font-weight: 400;
 }
 
 @utility font-editorial {
   font-family: var(--font-editorial);
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility font-sans {
+  font-family: var(--font-sans);
+}
+
+@utility font-mono {
+  font-family: var(--font-mono);
 }
 
 @utility hero-headline {
@@ -337,23 +438,57 @@
   }
 }
 
-/* Customer Protection: Disable text selection, image dragging, callout */
-.public-site-guard {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
-  -webkit-touch-callout: none !important;
+/* Elegant, branded text selection across the site */
+::selection {
+  background-color: oklch(0.68 0.068 74 / 0.28);
+  color: var(--color-foreground);
+}
+::-moz-selection {
+  background-color: oklch(0.68 0.068 74 / 0.28);
+  color: var(--color-foreground);
 }
 
-.public-site-guard img,
-.public-site-guard video,
-.public-site-guard picture {
-  -webkit-user-drag: none !important;
-  -khtml-user-drag: none !important;
-  -moz-user-drag: none !important;
-  -o-user-drag: none !important;
-  user-drag: none !important;
+/* Toast Notifications: Right-most placement with prominent, easy-to-click close cross */
+[data-sonner-toast] {
+  padding-right: 44px !important;
 }
+
+[data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  left: auto !important;
+  right: 10px !important;
+  top: 10px !important;
+  transform: none !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  opacity: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  background-color: var(--color-card, #ffffff) !important;
+  color: var(--color-foreground, #1c1917) !important;
+  border: 1px solid var(--color-border, #e7e5e4) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  z-index: 20 !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background-color: var(--color-muted, #f5f5f4) !important;
+  color: var(--color-foreground, #000000) !important;
+  transform: scale(1.08) !important;
+  border-color: var(--color-accent, #c27803) !important;
+}
+
+[data-sonner-toast] [data-close-button] svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke-width: 2.5 !important;
+}
+
 
 

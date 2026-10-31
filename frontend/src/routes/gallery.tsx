@@ -15,7 +15,6 @@ import {
   Download,
   Info,
   X,
-  Sparkles,
   Layers,
   ArrowRight,
   Eye,
@@ -32,7 +31,6 @@ import {
 } from "@/lib/google-drive-photos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DriveImage } from "@/components/site/DriveImage";
 
@@ -57,9 +55,9 @@ function GalleryPage() {
   const [selectedTag, setSelectedTag] = useState<string>("All");
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(12);
+  const [limit, setLimit] = useState<number>(24);
   const [sortBy, setSortBy] = useState<"default" | "newest" | "title" | "project">("default");
-  const [layout, setLayout] = useState<LayoutMode>("grid");
+  const [layout, setLayout] = useState<LayoutMode>("masonry");
   const [lightboxPhoto, setLightboxPhoto] = useState<GoogleDrivePhoto | null>(null);
 
   // Reset to page 1 whenever filter changes
@@ -134,39 +132,10 @@ function GalleryPage() {
 
   return (
     <PublicShell>
-      {/* Editorial Hero Section */}
-      <div className="border-b border-border bg-card/20 pt-28 pb-10 sm:pt-36 sm:pb-14">
-        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
-                <Sparkles className="size-3.5" />
-                <span>Curated Architectural Visual Archive ({paginated.totalDriveAssets || 100} Works)</span>
-              </div>
-              <h1 className="mt-3 font-display text-3xl sm:text-5xl lg:text-6xl font-light text-foreground tracking-tight leading-[1.15]">
-                Architectural Photo Gallery & Vault.
-              </h1>
-              <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed font-light">
-                High-resolution documentation of bespoke residential and commercial commissions.
-                Filter room by room, inspect materials, and view full-scale architectural photographs.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                to="/portfolio"
-                className="inline-flex items-center gap-2 rounded bg-foreground px-5 py-2.5 text-xs uppercase tracking-widest text-background font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <span>Projects Portfolio</span>
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <h1 className="sr-only">Architectural Photo Gallery & Vault - Right Angle Design Studio</h1>
 
       {/* Main Gallery Workspace */}
-      <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 py-8">
+      <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 py-6 sm:py-8">
         {/* Category Tab Strip */}
         <div className="no-scrollbar overflow-x-auto border-b border-border pb-4 -mx-5 px-5 sm:mx-0 sm:px-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-max">
@@ -211,61 +180,15 @@ function GalleryPage() {
             )}
           </div>
 
-          {/* Right Controls: Tag Filter, Sort, Layout & Items Per Page */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Tag Filter */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground hidden sm:inline">Tag:</span>
-              <select
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value)}
-                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent"
-              >
-                {paginated.allTags.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort Order */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground hidden sm:inline">Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent"
-              >
-                <option value="default">Curated Flow</option>
-                <option value="newest">Newest First</option>
-                <option value="title">Space / Room Name</option>
-                <option value="project">Project Name</option>
-              </select>
-            </div>
-
-            {/* Items Per Page */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground hidden sm:inline">Per page:</span>
-              <select
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
-                className="rounded border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent"
-              >
-                <option value={12}>12 photos</option>
-                <option value={24}>24 photos</option>
-                <option value={36}>36 photos</option>
-                <option value={48}>48 photos</option>
-              </select>
-            </div>
-
+          {/* Right Controls: Layout Switcher */}
+          <div className="flex items-center gap-3">
             {/* Layout Switcher */}
             <div className="hidden sm:flex items-center rounded border border-border bg-card p-0.5">
               <button
                 onClick={() => setLayout("masonry")}
                 title="Masonry Layout"
                 className={cn(
-                  "p-1.5 rounded transition-colors",
+                  "p-1.5 rounded transition-colors cursor-pointer",
                   layout === "masonry" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -275,7 +198,7 @@ function GalleryPage() {
                 onClick={() => setLayout("grid")}
                 title="Grid Layout"
                 className={cn(
-                  "p-1.5 rounded transition-colors",
+                  "p-1.5 rounded transition-colors cursor-pointer",
                   layout === "grid" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -285,7 +208,7 @@ function GalleryPage() {
                 onClick={() => setLayout("cinematic")}
                 title="Cinematic Wide View"
                 className={cn(
-                  "p-1.5 rounded transition-colors",
+                  "p-1.5 rounded transition-colors cursor-pointer",
                   layout === "cinematic" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -370,6 +293,8 @@ function GalleryPage() {
                 setCategory("All");
                 setSelectedTag("All");
                 setSearch("");
+                setSortBy("default");
+                setLimit(24);
               }}
               className="mt-6 rounded border border-foreground/30 px-5 py-2 text-xs uppercase tracking-widest text-foreground hover:bg-foreground hover:text-background transition-colors"
             >
@@ -446,9 +371,7 @@ function GalleryPage() {
         {/* Consultation Callout Footer */}
         <div className="mt-20 rounded border border-border bg-card/40 p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
-            <Badge variant="outline" className="text-[10px] text-accent border-accent/40 mb-2">
-              Studio Commissions
-            </Badge>
+            <p className="eyebrow mb-2">Studio Commissions</p>
             <h3 className="font-display text-2xl sm:text-3xl text-foreground font-light">
               Commission bespoke architecture for your residence.
             </h3>
@@ -536,9 +459,9 @@ function GalleryPage() {
             <div className="w-full lg:w-96 p-6 flex flex-col justify-between space-y-5 bg-card border-t lg:border-t-0 lg:border-l border-border overflow-y-auto max-h-[40vh] lg:max-h-[88vh]">
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <Badge variant="outline" className="text-[10px] text-accent border-accent/40">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-accent font-medium">
                     {lightboxPhoto.category}
-                  </Badge>
+                  </span>
                   <span className="font-mono text-[10px] text-muted-foreground">
                     Photo {lightboxPhoto.index} / {GOOGLE_DRIVE_PHOTOS.length}
                   </span>
@@ -594,8 +517,8 @@ function GalleryPage() {
                   hash="consultation"
                   className="w-full inline-flex items-center justify-center gap-2 rounded bg-foreground px-4 py-2.5 text-xs text-background uppercase tracking-widest font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
-                  <Sparkles className="size-3.5" />
                   <span>Enquire for Your Space</span>
+                  <ArrowRight className="size-3.5" />
                 </Link>
 
                 <Link

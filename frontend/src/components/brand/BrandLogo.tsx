@@ -7,6 +7,7 @@ export interface BrandLogoProps extends React.SVGProps<SVGSVGElement> {
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   showTagline?: boolean;
   className?: string;
+  bracketColor?: string;
 }
 
 /**
@@ -19,20 +20,16 @@ export function RightAngleSymbol({
   className,
   theme = "auto",
   size = 36,
+  bracketColor,
   ...props
 }: {
   className?: string;
   theme?: "light" | "dark" | "auto";
   size?: number | string;
+  bracketColor?: string;
 } & React.SVGProps<SVGSVGElement>) {
-  // Theme color for black/dark stroke: adapts to dark backgrounds when specified
-  const primaryColor =
-    theme === "light"
-      ? "#FFFFFF"
-      : theme === "dark"
-        ? "#000000"
-        : "currentColor";
-
+  // Brand color for outer right-angle bracket: Always Black (#000000)
+  const primaryColor = bracketColor || "#000000";
   const orangeColor = "#F58220";
 
   const numHeight = typeof size === "number" ? size : parseInt(String(size), 10) || 36;
@@ -77,6 +74,7 @@ export function BrandLogo({
   size = "md",
   showTagline = true,
   className,
+  bracketColor,
   ...props
 }: BrandLogoProps) {
   const sizeMap = {
@@ -92,7 +90,7 @@ export function BrandLogo({
   if (variant === "symbol") {
     return (
       <div className={cn("inline-flex items-center", className)}>
-        <RightAngleSymbol size={currentSize.symbol} theme={theme} />
+        <RightAngleSymbol size={currentSize.symbol} theme={theme} bracketColor={bracketColor} />
       </div>
     );
   }
@@ -100,7 +98,7 @@ export function BrandLogo({
   if (variant === "stacked" || variant === "full") {
     return (
       <div className={cn("inline-flex flex-col items-start gap-2", className)}>
-        <RightAngleSymbol size={currentSize.symbol} theme={theme} />
+        <RightAngleSymbol size={currentSize.symbol} theme={theme} bracketColor={bracketColor} />
         <div className="flex flex-col leading-none">
           <span
             className={cn(
@@ -114,8 +112,9 @@ export function BrandLogo({
           {showTagline && (
             <span
               className={cn(
-                "font-sans font-normal tracking-[0.28em] uppercase text-accent mt-1",
-                currentSize.subtext
+                "font-sans font-normal tracking-[0.28em] uppercase mt-1",
+                currentSize.subtext,
+                theme === "light" ? "text-stone-200" : "text-accent"
               )}
             >
               DESIGN STUDIO
@@ -129,7 +128,7 @@ export function BrandLogo({
   // Default: Horizontal Layout
   return (
     <div className={cn("inline-flex items-center", currentSize.gap, className)}>
-      <RightAngleSymbol size={currentSize.symbol} theme={theme} />
+      <RightAngleSymbol size={currentSize.symbol} theme={theme} bracketColor={bracketColor} />
       <div className="flex flex-col leading-none">
         <span
           className={cn(
@@ -143,8 +142,9 @@ export function BrandLogo({
         {showTagline && (
           <span
             className={cn(
-              "font-sans font-normal tracking-[0.24em] uppercase text-accent mt-1 transition-colors",
-              currentSize.subtext
+              "font-sans font-normal tracking-[0.24em] uppercase mt-1 transition-colors",
+              currentSize.subtext,
+              theme === "light" ? "text-stone-200" : "text-accent"
             )}
           >
             DESIGN STUDIO

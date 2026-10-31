@@ -36,7 +36,7 @@ export function InstagramFeedSection({ photos: propPhotos }: InstagramFeedSectio
             <p className="eyebrow flex items-center gap-2">
               <Instagram className="size-3 text-accent" /> STUDIO DISPATCH
             </p>
-            <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground">
+            <h2 className="mt-2 text-2xl sm:text-4xl font-display font-normal text-foreground">
               Material Studies & Site Dispatch
             </h2>
           </div>
@@ -44,7 +44,7 @@ export function InstagramFeedSection({ photos: propPhotos }: InstagramFeedSectio
             href={STUDIO_DETAILS.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent hover:underline font-medium"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm uppercase tracking-[0.08em] text-accent hover:underline font-semibold"
           >
             Follow the studio on Instagram <ArrowUpRight className="size-3.5" />
           </a>
@@ -69,8 +69,8 @@ export function InstagramFeedSection({ photos: propPhotos }: InstagramFeedSectio
                 className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 wrapperClassName="size-full"
               />
-              <div className="absolute inset-0 bg-ink/75 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3">
-                <p className="text-[11px] text-ink-foreground line-clamp-3 leading-snug font-light">
+              <div className="absolute inset-0 bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3">
+                <p className="text-xs text-white line-clamp-3 leading-snug font-medium">
                   {item.caption || item.title || "Right Angle Design Studio"}
                 </p>
               </div>

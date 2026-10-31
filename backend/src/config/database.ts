@@ -349,7 +349,7 @@ function getInitialStore(name: string): any[] {
         _id: "usr_owner_principal",
         email: "owner@rightangle.design",
         passwordHash: "$2b$10$ep5uGkSbgWk34hL1bO3Wqeu138mE5aJt1t2kQeYhS3F0jYvW6yVb6", // Hash for Admin@123456
-        fullName: "Ar. Meet Pipaliya",
+        fullName: "Ravi Pipaliya",
         title: "Principal Architect & Founder",
         phone: "+91 98200 41100",
         roles: ["admin", "designer", "project_manager"],

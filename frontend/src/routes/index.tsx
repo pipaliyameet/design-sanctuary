@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { ArrowRight, Maximize2, Compass, Layers, Sparkles, MapPin, Calendar, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Maximize2, Compass, Layers, MapPin, Calendar, CheckCircle2, Phone, Mail } from "lucide-react";
 import {
   getHomeContent,
   CURATED_STUDIO_PROJECTS,
@@ -32,6 +32,7 @@ const homeQuery = queryOptions({
   queryKey: ["home-content"],
   queryFn: () => getHomeContent(),
   staleTime: 0,
+  refetchOnMount: "always",
   refetchOnWindowFocus: true,
   refetchInterval: false,
 });
@@ -122,8 +123,15 @@ export function HomePage() {
     });
   }, [studies, selectedFilter]);
 
-  // Featured flagship story project & hero image from live CMS data
-  const flagshipProject = studies[0] || CURATED_STUDIO_PROJECTS[0];
+  // Featured flagship story project (editorial spotlight configured in CMS) & hero image from live CMS data
+  const spotlightSlug = data?.spotlightProjectSlug || data?.settings?.spotlightProjectSlug;
+  const flagshipProject =
+    (spotlightSlug
+      ? studies.find((s) => s.slug === spotlightSlug || s._id === spotlightSlug)
+      : null) ||
+    studies.find((s) => s.slug === "mehta-executive-suite") ||
+    studies[0] ||
+    CURATED_STUDIO_PROJECTS[0];
   const heroImageSrc =
     data?.heroImage ||
     flagshipProject?.hero_image ||
@@ -213,14 +221,10 @@ export function HomePage() {
         <div className="relative border-t border-ink-foreground/15 bg-ink/65 backdrop-blur-md py-3 text-ink-foreground/75 text-[11px] sm:text-xs">
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-5 sm:px-8">
             <div className="flex items-center gap-4 sm:gap-6 font-light">
-              <span>Mumbai · Bengaluru · Pan India</span>
-              <span>·</span>
-              <span>12+ Years Practice</span>
+              <span>{data.ribbonText1 || data.settings?.ribbonText1 || "Mumbai · Bengaluru · Pan India · 12+ Years Practice"}</span>
             </div>
             <div className="flex items-center gap-4 sm:gap-6 font-light">
-              <span>28+ Architectural Commissions</span>
-              <span>·</span>
-              <span>Single-Source Turnkey Accountability</span>
+              <span>{data.ribbonText2 || data.settings?.ribbonText2 || "28+ Architectural Commissions · Single-Source Turnkey Accountability"}</span>
             </div>
           </div>
         </div>
@@ -229,26 +233,28 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 02 — STUDIO STATEMENT
           ========================================================================= */}
-      <section className="py-16 sm:py-24 bg-card/30 border-b border-border">
+      <section className="pt-14 sm:pt-20 pb-12 sm:pb-14 bg-card/30 border-b border-border">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="grid gap-12 lg:grid-cols-12 items-center">
             <div className="lg:col-span-7 space-y-6">
               <p className="eyebrow">THE STUDIO</p>
               <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-light text-foreground leading-[1.15] tracking-tight">
-                We create considered residential and commercial interiors where{" "}
-                <span className="italic text-accent font-normal">
-                  material, proportion and light work together.
-                </span>
+                {data.statementTitle || data.settings?.statementTitle || (
+                  <>
+                    We create considered residential and commercial interiors where{" "}
+                    <span className="italic text-accent font-normal">
+                      material, proportion and light work together.
+                    </span>
+                  </>
+                )}
               </h2>
               <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light max-w-2xl">
-                Every project we undertake starts by stripping away the non-essential. We avoid
-                ephemeral trends and disposable finishes in pursuit of spaces that breathe: natural
-                vein-cut stone with tactile depth, hand-troweled lime plaster that catches the changing sun,
-                and bespoke millwork resolved with millimeter precision.
+                {data.statementText1 || data.settings?.statementText1 ||
+                  "Every project we undertake starts by stripping away the non-essential. We avoid ephemeral trends and disposable finishes in pursuit of spaces that breathe: natural vein-cut stone with tactile depth, hand-troweled lime plaster that catches the changing sun, and bespoke millwork resolved with millimeter precision."}
               </p>
               <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light max-w-2xl">
-                Operating across Mumbai and Bengaluru, our practice provides single-source turnkey accountability
-                from measured drawing sets through to final white-glove styling.
+                {data.statementText2 || data.settings?.statementText2 ||
+                  "Operating across Mumbai and Bengaluru, our practice provides single-source turnkey accountability from measured drawing sets through to final white-glove styling."}
               </p>
 
               <div>
@@ -265,34 +271,34 @@ export function HomePage() {
               <div className="pt-8 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-6">
                 <div>
                   <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
-                    28+
+                    {data.stat1Value || data.settings?.stat1Value || "28+"}
                   </span>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
-                    Commissions
+                    {data.stat1Label || data.settings?.stat1Label || "Commissions"}
                   </p>
                 </div>
                 <div>
                   <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
-                    12+
+                    {data.stat2Value || data.settings?.stat2Value || "12+"}
                   </span>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
-                    Years Active
+                    {data.stat2Label || data.settings?.stat2Label || "Years Active"}
                   </p>
                 </div>
                 <div>
                   <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
-                    06
+                    {data.stat3Value || data.settings?.stat3Value || "06"}
                   </span>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
-                    Disciplines
+                    {data.stat3Label || data.settings?.stat3Label || "Disciplines"}
                   </p>
                 </div>
                 <div>
                   <span className="font-display text-2xl sm:text-3xl font-light text-foreground">
-                    11
+                    {data.stat4Value || data.settings?.stat4Value || "11"}
                   </span>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
-                    Cities
+                    {data.stat4Label || data.settings?.stat4Label || "Cities"}
                   </p>
                 </div>
               </div>
@@ -320,12 +326,12 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 02.5 — ARCHITECTURAL CINEMA & VIDEO REELS DISPATCH (Google Drive)
           ========================================================================= */}
-      <ArchitecturalFilmsSection />
+      <ArchitecturalFilmsSection films={data?.architecturalFilms} />
 
       {/* =========================================================================
           SECTION 03 — SELECTED PORTFOLIO PROJECTS (Editorial 12-Column Grid)
           ========================================================================= */}
-      <section id="portfolio-archive" className="py-16 sm:py-24 bg-background scroll-mt-20">
+      <section id="portfolio-archive" className="pt-8 sm:pt-10 pb-16 sm:pb-24 bg-background scroll-mt-20">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
             <div>
@@ -439,10 +445,10 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 06 — SERVICES (Database-Driven)
           ========================================================================= */}
-      {services.length > 0 && (
-        <section className="py-16 sm:py-24 bg-background border-t border-border">
+      {data?.showServices !== false && services.length > 0 && (
+        <section className="py-10 sm:py-14 bg-background border-t border-border">
           <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-            <div className="flex flex-wrap items-end justify-between gap-6 pb-10 border-b border-border">
+            <div className="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-border">
               <div>
                 <p className="eyebrow">PRACTICE DISCIPLINES</p>
                 <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground tracking-tight">
@@ -457,7 +463,7 @@ export function HomePage() {
               </Link>
             </div>
 
-            <div className="pt-10">
+            <div className="pt-6">
               <EditorialServicesSection services={services} />
             </div>
           </div>
@@ -467,7 +473,7 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 07 — PROCESS / METHODOLOGY (Database-Driven)
           ========================================================================= */}
-      {processSteps.length > 0 && (
+      {data?.showProcess !== false && processSteps.length > 0 && (
         <section className="border-t border-border bg-card/30 py-16 sm:py-24">
           <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
             <div className="max-w-2xl pb-10">
@@ -546,7 +552,7 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 09 — BEFORE / AFTER TRANSFORMATION
           ========================================================================= */}
-      {studies[2]?.hero_image && studies[0]?.hero_image && (
+      {(data.beforePhoto || data.afterPhoto || (studies[2]?.hero_image && studies[0]?.hero_image)) && (
         <section className="border-t border-border bg-card/20 py-16 sm:py-24">
           <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
             <div className="max-w-2xl pb-10">
@@ -560,11 +566,11 @@ export function HomePage() {
             </div>
 
             <BeforeAfterSlider
-              beforeUrl={studies[2].hero_image}
-              afterUrl={studies[0].hero_image}
-              beforeLabel="BEFORE EXECUTION"
-              afterLabel="COMPLETED SANCTUARY"
-              caption="The Shah Residence, Ahmedabad · 6,400 sq ft transformation"
+              beforeUrl={data.beforePhoto || studies[2]?.hero_image}
+              afterUrl={data.afterPhoto || studies[0]?.hero_image}
+              beforeLabel={data.beforeLabel || data.settings?.beforeLabel || "BEFORE EXECUTION"}
+              afterLabel={data.afterLabel || data.settings?.afterLabel || "COMPLETED SANCTUARY"}
+              caption={data.beforeAfterCaption || data.settings?.beforeAfterCaption || "The Shah Residence, Ahmedabad · 6,400 sq ft transformation"}
               aspectRatio="aspect-[16/9] sm:aspect-[21/10]"
             />
           </div>
@@ -578,29 +584,41 @@ export function HomePage() {
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div className="border-t border-accent/60 pt-6 space-y-3">
-              <span className="font-mono text-xs text-accent font-semibold">01 / HONEST MATERIALS</span>
-              <h4 className="font-display text-xl text-foreground font-light">Stone, Timber & Lime</h4>
+              <span className="font-mono text-xs text-accent font-semibold">
+                {data.philosophy1Title || data.settings?.philosophy1Title || "01 / HONEST MATERIALS"}
+              </span>
+              <h4 className="font-display text-xl text-foreground font-light">
+                {data.philosophy1Heading || data.settings?.philosophy1Heading || "Stone, Timber & Lime"}
+              </h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-light">
-                We select genuine materials that age with grace. Vein-cut Roman travertine, fumed European oak,
-                and patinated architectural bronze.
+                {data.philosophy1Text || data.settings?.philosophy1Text ||
+                  "We select genuine materials that age with grace. Vein-cut Roman travertine, fumed European oak, and patinated architectural bronze."}
               </p>
             </div>
 
             <div className="border-t border-accent/60 pt-6 space-y-3">
-              <span className="font-mono text-xs text-accent font-semibold">02 / LIGHT & VOLUME</span>
-              <h4 className="font-display text-xl text-foreground font-light">Daylight as Structure</h4>
+              <span className="font-mono text-xs text-accent font-semibold">
+                {data.philosophy2Title || data.settings?.philosophy2Title || "02 / LIGHT & VOLUME"}
+              </span>
+              <h4 className="font-display text-xl text-foreground font-light">
+                {data.philosophy2Heading || data.settings?.philosophy2Heading || "Daylight as Structure"}
+              </h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-light">
-                Every space is shaped around natural illumination vectors and low-glare 2400K–2700K ambient
-                luminaire layers for evening calm.
+                {data.philosophy2Text || data.settings?.philosophy2Text ||
+                  "Every space is shaped around natural illumination vectors and low-glare 2400K–2700K ambient luminaire layers for evening calm."}
               </p>
             </div>
 
             <div className="border-t border-accent/60 pt-6 space-y-3">
-              <span className="font-mono text-xs text-accent font-semibold">03 / TURNKEY RIGOR</span>
-              <h4 className="font-display text-xl text-foreground font-light">End-to-End Custody</h4>
+              <span className="font-mono text-xs text-accent font-semibold">
+                {data.philosophy3Title || data.settings?.philosophy3Title || "03 / TURNKEY RIGOR"}
+              </span>
+              <h4 className="font-display text-xl text-foreground font-light">
+                {data.philosophy3Heading || data.settings?.philosophy3Heading || "End-to-End Custody"}
+              </h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-light">
-                From structural drawings to bespoke furniture fabrication and white-glove styling, our single-source
-                governance guarantees zero friction.
+                {data.philosophy3Text || data.settings?.philosophy3Text ||
+                  "From structural drawings to bespoke furniture fabrication and white-glove styling, our single-source governance guarantees zero friction."}
               </p>
             </div>
           </div>
@@ -610,7 +628,7 @@ export function HomePage() {
       {/* =========================================================================
           SECTION 11 — CLIENT PERSPECTIVES (Only when approved in DB)
           ========================================================================= */}
-      {testimonials.length > 0 && (
+      {data?.showTestimonials !== false && testimonials.length > 0 && (
         <section className="border-t border-border bg-card/30 py-16 sm:py-20">
           <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
             <p className="eyebrow text-center mb-10">CLIENT PERSPECTIVES</p>
@@ -648,6 +666,50 @@ export function HomePage() {
           </div>
         </section>
       )}
+
+      {/* =========================================================================
+          SECTION 12 — CONSULTATION & INITIATING A COMMISSION
+          ========================================================================= */}
+      <section id="consultation" className="border-t border-border bg-card/40 py-16 sm:py-24">
+        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
+          <div className="grid gap-12 lg:grid-cols-12 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <p className="eyebrow">INITIATE AN ARCHITECTURAL COMMISSION</p>
+              <h3 className="font-display text-2xl sm:text-4xl text-foreground font-light leading-tight">
+                {data.consultationHeading || "Ready to begin your architectural sanctuary?"}
+              </h3>
+              <p className="text-sm text-muted-foreground font-light max-w-xl">
+                Founded and directed by Principal Architect <strong className="text-foreground font-medium">Ravi Pipaliya</strong>, Right Angle Design Studio provides single-source turnkey accountability across India.
+              </p>
+              <div className="pt-4 flex flex-wrap gap-6 text-xs uppercase tracking-wider text-foreground font-medium">
+                <a
+                  href={`tel:${(data.consultationPhone || "+91 95375 86804").replace(/\s+/g, "")}`}
+                  className="flex items-center gap-2 hover:text-accent transition-colors"
+                >
+                  <Phone className="size-3.5 text-accent" />
+                  <span>{data.consultationPhone || "+91 95375 86804"}</span>
+                </a>
+                <a
+                  href={`mailto:${data.consultationEmail || "contact@rightangle.design"}`}
+                  className="flex items-center gap-2 hover:text-accent transition-colors"
+                >
+                  <Mail className="size-3.5 text-accent" />
+                  <span>{data.consultationEmail || "contact@rightangle.design"}</span>
+                </a>
+              </div>
+            </div>
+            <div className="lg:col-span-4 flex justify-start lg:justify-end">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2.5 bg-foreground px-7 py-4 text-xs uppercase tracking-[0.2em] text-background hover:bg-accent hover:text-accent-foreground transition-all font-medium shadow-md"
+              >
+                <span>Initiate a Commission</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
 
 

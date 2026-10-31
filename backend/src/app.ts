@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import path from "path";
 import { env } from "./config/env.js";
 import { authenticate } from "./middleware/auth.middleware.js";
 import { errorHandler } from "./middleware/error.middleware.js";
@@ -62,6 +63,7 @@ app.use((morgan as any)(env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use((cookieParser as any)());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
 // 2. Authentication extraction
 app.use(authenticate);

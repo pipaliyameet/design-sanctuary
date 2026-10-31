@@ -128,7 +128,7 @@ export async function ownerLogin(req: Request, res: Response, next: NextFunction
       const newUserDoc: UserDoc = {
         email: ownerEmail,
         passwordHash,
-        fullName: "Ar. Meet Pipaliya",
+        fullName: "Ravi Pipaliya",
         title: "Principal Architect & Founder",
         phone: "+91 98200 41100",
         roles: ["admin", "designer", "project_manager"],

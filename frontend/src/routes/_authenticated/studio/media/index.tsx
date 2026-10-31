@@ -180,6 +180,20 @@ export function MediaLibraryPage() {
     }
   };
 
+  const handleRemoveSelectedFile = (indexToRemove: number) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setFilePreviews((prev) => {
+      const urlToRemove = prev[indexToRemove];
+      if (urlToRemove && urlToRemove.startsWith("blob:")) {
+        URL.revokeObjectURL(urlToRemove);
+      }
+      return prev.filter((_, idx) => idx !== indexToRemove);
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   // Derived Google Drive Preview File ID from link or input
   const extractedDriveFileId = useMemo(() => {
     if (!driveInput) return "";
@@ -421,6 +435,15 @@ export function MediaLibraryPage() {
             <RefreshCw className={`size-3.5 ${syncDriveMutation.isPending ? "animate-spin" : ""}`} />
             <span>{syncDriveMutation.isPending ? "Syncing Drive..." : "Sync Drive Vault"}</span>
           </Button>
+
+          <a
+            href="http://localhost:5001/api/media/connect-google-drive?redirect=true"
+            className="inline-flex items-center gap-1.5 rounded border border-border bg-card/80 px-3.5 py-2 text-xs text-foreground font-medium hover:border-accent hover:text-accent transition-colors h-9 cursor-pointer"
+            title="Authorize or reconnect your personal Google Drive account"
+          >
+            <HardDrive className="size-3.5 text-accent" />
+            <span>Connect Google Drive</span>
+          </a>
 
           <Button
             onClick={() => {
@@ -801,10 +824,26 @@ export function MediaLibraryPage() {
                       {filePreviews.map((url, idx) => (
                         <div
                           key={idx}
-                          className="relative aspect-square rounded overflow-hidden border border-border bg-black"
+                          className="group relative aspect-square rounded overflow-hidden border border-border bg-black shadow-xs"
                         >
                           <img src={url} alt="preview" className="size-full object-cover" />
-                          <span className="absolute bottom-0.5 right-0.5 rounded bg-black/80 px-1 text-[8px] text-white font-mono">
+
+                          {/* Cross button to cancel / remove this photo */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleRemoveSelectedFile(idx);
+                            }}
+                            title="Remove this photo"
+                            aria-label="Remove photo"
+                            className="absolute top-1 right-1 z-10 flex size-5 items-center justify-center rounded-full bg-black/85 text-white hover:bg-destructive hover:text-white transition-all shadow-md border border-white/30 cursor-pointer"
+                          >
+                            <X className="size-3" />
+                          </button>
+
+                          <span className="absolute bottom-0.5 right-0.5 rounded bg-black/80 px-1 text-[8px] text-white font-mono pointer-events-none">
                             #{idx + 1}
                           </span>
                         </div>
@@ -907,7 +946,7 @@ export function MediaLibraryPage() {
       {/* 2. SAFETY CONFIRMATION DELETE MODAL */}
       {/* ========================================================================= */}
       {assetToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm animate-in fade-in">
           <div className="relative max-w-md w-full rounded border border-destructive/40 bg-card p-5 shadow-2xl space-y-4">
             <div className="flex items-start gap-3">
               <div className="size-10 rounded-full bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
@@ -918,8 +957,7 @@ export function MediaLibraryPage() {
                   Delete Photograph Permanently?
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  This will permanently delete the file from your Google Drive folder and remove the
-                  photo from your website.
+                  This will permanently delete the photograph and remove it from your website and studio vault.
                 </p>
               </div>
             </div>
@@ -960,12 +998,17 @@ export function MediaLibraryPage() {
               <Button
                 size="sm"
                 variant="destructive"
-                onClick={() => deletePhotoMutation.mutate(assetToDelete.id || assetToDelete._id)}
+                onClick={() => {
+                  const targetId = assetToDelete.id || assetToDelete._id || assetToDelete.driveFileId;
+                  if (targetId) {
+                    deletePhotoMutation.mutate(String(targetId));
+                  }
+                }}
                 disabled={deletePhotoMutation.isPending}
                 className="text-xs gap-1.5 cursor-pointer"
               >
                 <Trash2 className="size-3.5" />
-                <span>{deletePhotoMutation.isPending ? "Deleting from Drive…" : "Delete"}</span>
+                <span>{deletePhotoMutation.isPending ? "Deleting…" : "Delete Permanently"}</span>
               </Button>
             </div>
           </div>
@@ -1077,7 +1120,9 @@ export function MediaLibraryPage() {
                       variant="destructive"
                       className="text-xs gap-1 cursor-pointer"
                       onClick={() => {
-                        setAssetToDelete(selectedAsset);
+                        const target = selectedAsset;
+                        setSelectedAsset(null);
+                        setAssetToDelete(target);
                       }}
                     >
                       <Trash2 className="h-3.5 w-3.5" />

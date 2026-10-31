@@ -10,7 +10,7 @@ import {
   ZoomIn,
   ZoomOut,
   MapPin,
-  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import type { GoogleDrivePhoto } from "@/lib/google-drive-photos";
 import { DriveImage } from "./DriveImage";
@@ -198,8 +198,7 @@ export function PhotoLightboxModal({
         <div className="w-full lg:w-84 border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-6 flex flex-col justify-between overflow-y-auto max-h-[350px] lg:max-h-[85vh] bg-card">
           <div className="space-y-4">
             <div>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-accent font-semibold">
-                <Sparkles className="size-3" />
+              <div className="text-xs uppercase tracking-widest text-accent font-semibold font-mono">
                 <span>{photo.category}</span>
               </div>
               <h3 className="mt-1 font-display text-lg sm:text-xl font-light text-foreground leading-snug">
@@ -251,8 +250,8 @@ export function PhotoLightboxModal({
               href="/contact#consultation"
               className="w-full inline-flex items-center justify-center gap-2 rounded bg-foreground px-4 py-2.5 text-xs text-background uppercase tracking-widest font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
             >
-              <Sparkles className="size-3.5" />
               <span>Enquire About This Space</span>
+              <ArrowRight className="size-3.5" />
             </a>
           </div>
         </div>

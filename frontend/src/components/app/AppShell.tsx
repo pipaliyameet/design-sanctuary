@@ -146,12 +146,12 @@ export function AppShell({
             {/* Global Search Trigger (Cmd + K) */}
             <button
               onClick={() => setSearchModalOpen(true)}
-              className="group flex items-center gap-3 rounded-md border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-accent hover:bg-muted"
+              className="group flex items-center gap-3 rounded-md border border-border bg-muted/40 px-3.5 py-1.5 text-xs sm:text-sm text-foreground/80 font-medium transition-colors hover:border-accent hover:bg-muted"
             >
-              <Search className="h-3.5 w-3.5 group-hover:text-accent transition-colors" />
+              <Search className="h-4 w-4 group-hover:text-accent transition-colors" />
               <span className="hidden sm:inline">Search projects, leads, BOQ, materials...</span>
               <span className="sm:hidden">Search studio...</span>
-              <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-card px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+              <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-card px-2 py-0.5 text-xs font-mono text-foreground/80 font-semibold">
                 ⌘K
               </kbd>
             </button>
@@ -164,55 +164,55 @@ export function AppShell({
               <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
-                  className="h-8 gap-1.5 px-3 text-xs bg-primary text-primary-foreground"
+                  className="h-9 gap-1.5 px-3.5 text-xs sm:text-sm font-semibold bg-primary text-primary-foreground"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">New Action</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                <DropdownMenuLabel className="text-xs uppercase tracking-[0.08em] text-foreground/75 font-semibold">
                   Quick Create
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => openQuickAction("project")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <FolderPlus className="h-4 w-4 text-accent" />
                   <span>New Interior Project</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => openQuickAction("lead")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <UserPlus className="h-4 w-4 text-accent" />
                   <span>Add Lead Enquiry</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => openQuickAction("media")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <ImagePlus className="h-4 w-4 text-accent" />
                   <span>Upload Media / Render</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => openQuickAction("quotation")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <Receipt className="h-4 w-4 text-accent" />
                   <span>Create Quotation / BOQ</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => openQuickAction("expense")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <CircleDollarSign className="h-4 w-4 text-accent" />
                   <span>Record Studio Expense</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => openQuickAction("site_update")}
-                  className="gap-2 cursor-pointer text-xs"
+                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
                 >
                   <HardHat className="h-4 w-4 text-accent" />
                   <span>Post Daily Site Update</span>
@@ -397,7 +397,7 @@ export function StatCard({
       >
         {value}
       </p>
-      {hint && <p className="mt-2 text-[11px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-2 text-xs text-foreground/80 font-medium">{hint}</p>}
     </div>
   );
 }
@@ -416,7 +416,7 @@ export function Panel({
   return (
     <section className={cn("rounded border border-border bg-card overflow-hidden", className)}>
       <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-muted/20">
-        <h2 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground">
+        <h2 className="text-xs sm:text-sm font-semibold tracking-[0.08em] uppercase text-foreground/85">
           {title}
         </h2>
         {action}
@@ -427,13 +427,13 @@ export function Panel({
 }
 
 export function EmptyState({ message }: { message: string }) {
-  return <p className="py-8 text-center text-xs text-muted-foreground italic">{message}</p>;
+  return <p className="py-8 text-center text-sm text-foreground/75 italic">{message}</p>;
 }
 
 export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="space-y-3 py-12 text-center">
-      <p className="text-xs text-muted-foreground uppercase tracking-widest">{label}</p>
+      <p className="text-xs sm:text-sm text-foreground/80 uppercase tracking-[0.08em] font-semibold">{label}</p>
       <div className="h-0.5 w-36 mx-auto animate-pulse bg-accent" />
     </div>
   );
@@ -442,11 +442,11 @@ export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
 export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   return (
     <div className="rounded border border-destructive/40 bg-destructive/5 p-5 text-center">
-      <p className="text-xs text-destructive">
+      <p className="text-sm text-destructive font-medium">
         {error instanceof Error ? error.message : "Something went wrong loading this studio view."}
       </p>
       {onRetry && (
-        <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={onRetry}>
+        <Button variant="outline" size="sm" className="mt-3 text-xs sm:text-sm font-semibold" onClick={onRetry}>
           Try again
         </Button>
       )}

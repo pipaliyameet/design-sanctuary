@@ -116,7 +116,7 @@ export async function listStudioLeads(params?: any) {
     project_type: l.project_type || l.spaceType || "Residential",
     property_type: l.property_type || l.spaceType || "Residential",
     budget_band: l.budget_band || l.budgetBand || "₹50L - ₹1 Cr",
-    assigned_to: l.assigned_to || l.ownerName || "Ira Kapoor",
+    assigned_to: l.assigned_to || l.ownerName || "Ravi Pipaliya",
   }));
   (leads as any).leads = leads;
   (leads as any).enquiries = res?.enquiries || [];
@@ -136,7 +136,7 @@ export async function getStudioLead({ data }: { data: { id: string } }) {
     project_type: l.project_type || l.spaceType || "Residential",
     property_type: l.property_type || l.spaceType || "Residential",
     budget_band: l.budget_band || l.budgetBand || "₹50L - ₹1 Cr",
-    assigned_to: l.assigned_to || l.ownerName || "Ira Kapoor",
+    assigned_to: l.assigned_to || l.ownerName || "Ravi Pipaliya",
   };
 }
 

@@ -22,7 +22,7 @@ import {
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => ({
-    redirect: (search.redirect as string) || "/studio",
+    redirect: (search.redirect as string) || "/studio/media",
   }),
   component: AuthPage,
   head: () => ({
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
-  const targetRedirect = search.redirect || "/studio";
+  const targetRedirect = search.redirect || "/studio/media";
   const queryClient = useQueryClient();
 
   // Login Form State
@@ -97,18 +97,17 @@ function AuthPage() {
                 <Link to="/" className="inline-block transition-opacity hover:opacity-80">
                   <BrandLogo variant="horizontal" size="sm" />
                 </Link>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest text-accent bg-accent/10 border border-accent/20">
-                  <span className="size-1.5 rounded-full bg-accent animate-pulse" />
-                  Studio Command
-                </div>
+                <span className="text-xs font-mono uppercase tracking-[0.1em] text-muted-foreground font-medium">
+                  Studio Portal
+                </span>
               </div>
 
               {/* Form Title */}
               <div className="mt-8">
-                <h1 className="text-xl sm:text-2xl font-display font-light text-foreground tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-display font-normal text-foreground tracking-tight">
                   Sign In to Studio Portal
                 </h1>
-                <p className="mt-1.5 text-xs text-muted-foreground font-light leading-relaxed">
+                <p className="mt-2 text-sm text-foreground/85 font-normal leading-relaxed">
                   Enter your verified credentials to access projects, media assets, and executive workflows.
                 </p>
               </div>
@@ -116,12 +115,12 @@ function AuthPage() {
               {/* Form Render */}
               <form onSubmit={onLogin} className="mt-6 space-y-4">
                 <div>
-                  <Label className="eyebrow flex items-center gap-1.5 text-[11px] text-foreground/80 mb-1.5">
-                    <Mail className="size-3 text-accent" />
+                  <Label className="eyebrow flex items-center gap-1.5 text-xs sm:text-sm text-foreground font-semibold mb-1.5">
+                    <Mail className="size-3.5 text-accent" />
                     Email Address
                   </Label>
                   <Input
-                    className="h-10 text-sm bg-background border-border/80 focus-visible:ring-accent transition-all"
+                    className="h-11 text-sm bg-background border-border/80 text-foreground placeholder:text-foreground/50 focus-visible:ring-accent transition-all"
                     type="email"
                     required
                     autoComplete="email"
@@ -135,13 +134,13 @@ function AuthPage() {
                 </div>
 
                 <div>
-                  <Label className="eyebrow flex items-center gap-1.5 text-[11px] text-foreground/80 mb-1.5">
-                    <Lock className="size-3 text-accent" />
+                  <Label className="eyebrow flex items-center gap-1.5 text-xs sm:text-sm text-foreground font-semibold mb-1.5">
+                    <Lock className="size-3.5 text-accent" />
                     Password
                   </Label>
                   <div className="relative">
                     <Input
-                      className="h-10 pr-10 text-sm bg-background border-border/80 focus-visible:ring-accent transition-all"
+                      className="h-11 pr-10 text-sm bg-background border-border/80 text-foreground placeholder:text-foreground/50 focus-visible:ring-accent transition-all"
                       type={showPassword ? "text" : "password"}
                       required
                       autoComplete="current-password"
@@ -157,12 +156,12 @@ function AuthPage() {
                       tabIndex={-1}
                       aria-label={showPassword ? "Hide password" : "Show password"}
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors focus:outline-none"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-foreground/60 hover:text-foreground cursor-pointer transition-colors focus:outline-none"
                     >
                       {showPassword ? (
                         <EyeOff className="size-4 text-accent" />
                       ) : (
-                        <Eye className="size-4 text-muted-foreground" />
+                        <Eye className="size-4 text-foreground/60" />
                       )}
                     </button>
                   </div>
@@ -172,7 +171,7 @@ function AuthPage() {
                 {errorMessage && (
                   <div
                     role="alert"
-                    className="flex items-start gap-2.5 p-3 text-xs rounded border border-destructive/40 bg-destructive/10 text-destructive animate-in fade-in duration-200"
+                    className="flex items-start gap-2.5 p-3 text-sm rounded border border-destructive/40 bg-destructive/10 text-destructive animate-in fade-in duration-200"
                   >
                     <AlertCircle className="size-4 shrink-0 mt-0.5" />
                     <div className="flex-1 font-medium leading-relaxed">{errorMessage}</div>
@@ -183,7 +182,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 text-xs tracking-[0.18em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300 font-semibold shadow-md flex items-center justify-center gap-2 mt-4"
+                  className="w-full h-11 text-xs sm:text-sm tracking-[0.08em] uppercase cursor-pointer bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300 font-semibold shadow-md flex items-center justify-center gap-2 mt-4"
                 >
                   {busy ? (
                     "Authenticating…"
@@ -198,12 +197,12 @@ function AuthPage() {
             </div>
 
             {/* Bottom Security Footer */}
-            <div className="mt-8 pt-4 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="mt-8 pt-4 border-t border-border/70 flex items-center justify-between text-xs sm:text-sm text-foreground/80 font-medium">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="size-3.5 text-accent shrink-0" />
                 <span>256-Bit SSL Encrypted JWT Session</span>
               </div>
-              <span className="font-mono text-[10px] text-muted-foreground/70">v2.4 Production</span>
+              <span className="font-mono text-xs text-foreground/75 font-semibold">v2.4 Production</span>
             </div>
           </div>
 
@@ -218,15 +217,15 @@ function AuthPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
             
-            <div className="absolute bottom-8 left-8 right-8 p-6 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-accent font-semibold mb-1.5">
+            <div className="absolute bottom-8 left-8 right-8 p-6 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-white shadow-xl">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.08em] text-amber-300 font-semibold mb-1.5 drop-shadow-xs">
                 <Building2 className="size-3.5" />
                 <span>Right Angle Design Studio</span>
               </div>
-              <p className="font-display text-lg font-light leading-snug">
+              <p className="font-display text-xl font-normal leading-snug drop-shadow-xs">
                 Bespoke Interior Architecture & Project Command
               </p>
-              <p className="text-xs text-white/70 font-light mt-1">
+              <p className="text-sm text-white/95 font-normal mt-1.5 drop-shadow-xs leading-relaxed">
                 Restricted access for certified studio architects, partners, and authorized client representatives.
               </p>
             </div>

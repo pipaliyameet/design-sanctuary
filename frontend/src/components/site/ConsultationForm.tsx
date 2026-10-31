@@ -1,325 +1,340 @@
 import { useState } from "react";
-import { ArrowRight, MessageSquare, Phone, Mail, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Send, MessageSquare, AlertCircle } from "lucide-react";
 import { submitEnquiry, STUDIO_DETAILS } from "@/lib/public.functions";
+import { WhatsAppIcon } from "./PublicShell";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ConsultationFormProps {
   initialProjectType?: string;
   className?: string;
 }
 
+const PROJECT_TYPES = [
+  "Architecture & Interior Design",
+  "Turnkey Projects (Design & Build)",
+  "Landscape Design",
+  "Project Consultancy",
+  "Residential Villa / Sky Penthouse",
+  "Commercial & Executive Workplace",
+];
+
 export function ConsultationForm({ initialProjectType, className }: ConsultationFormProps) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedData, setSubmittedData] = useState<{ name: string; projectType: string } | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
-    phone: "",
-    email: "",
-    city: "Mumbai",
-    property_type: "Apartment / Penthouse",
-    space_type: initialProjectType ?? "Full Interior Architecture",
-    area_sqft: "",
-    budget_band: "₹50 Lakhs – ₹1.5 Crore",
+    contact: "", // Phone Number or Email
+    projectType: initialProjectType || PROJECT_TYPES[0],
     message: "",
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      errs.name = "Please enter your full name.";
+    }
+
+    const contactVal = formData.contact.trim();
+    const isEmail = contactVal.includes("@") && contactVal.includes(".");
+    const digitsOnly = contactVal.replace(/\D/g, "");
+    const isPhone = digitsOnly.length >= 7;
+
+    if (!contactVal) {
+      errs.contact = "Please provide your phone number or email address.";
+    } else if (!isEmail && !isPhone) {
+      errs.contact = "Please enter a valid phone number (e.g. +91 98765 43210) or email address.";
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 5) {
+      errs.message = "Please briefly describe your space or requirements.";
+    }
+
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const generateWhatsAppLink = () => {
-    const text = `Hello Right-Angle-Design-Studio,\n\nI would like to inquire about a project:\n• Name: ${formData.name || "[Your Name]"}\n• City: ${formData.city}\n• Property Type: ${formData.property_type}\n• Scope: ${formData.space_type}\n• Approx Area: ${formData.area_sqft ? formData.area_sqft + " sq ft" : "Not specified"}\n• Budget Band: ${formData.budget_band}\n• Notes: ${formData.message || "Looking forward to speaking with a principal designer."}`;
-    return `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent(text)}`;
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) {
+      toast.error("Please fill in the required fields correctly.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await submitEnquiry({ data: formData });
+      const contactVal = formData.contact.trim();
+      const isEmail = contactVal.includes("@");
+      
+      const payload = {
+        name: formData.name.trim(),
+        contact: contactVal,
+        email: isEmail ? contactVal : "",
+        phone: !isEmail ? contactVal : "",
+        spaceType: formData.projectType,
+        projectType: formData.projectType,
+        notes: formData.message.trim(),
+        message: formData.message.trim(),
+      };
+
+      await submitEnquiry({ data: payload });
+      setSubmittedData({ name: formData.name.trim(), projectType: formData.projectType });
       setSubmitted(true);
-      toast.success("Thank you. A principal designer will review your brief within 48 hours.");
-    } catch (err) {
+      toast.success("Thank you! Your message has been sent to Ravi Pipaliya and the studio team.");
+    } catch (err: any) {
+      console.error("Enquiry submission error:", err);
       toast.error("Could not send enquiry right now. Please message us on WhatsApp or call.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className={className} id="consultation">
-      <div className="grid gap-12 lg:grid-cols-12">
-        {/* Left Column: Context & Direct Reach */}
-        <div className="lg:col-span-5 flex flex-col justify-between">
-          <div>
-            <p className="eyebrow">Consultation & Enquiries</p>
-            <h2 className="mt-4 text-3xl font-display leading-[1.1] sm:text-5xl text-foreground">
-              Have a space in mind?
-            </h2>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-              We take on a limited number of residential and boutique commercial commissions each
-              year to maintain personal design oversight on every site.
-            </p>
+  const generateWhatsAppLink = () => {
+    const nameStr = submittedData?.name || formData.name || "Client";
+    const typeStr = submittedData?.projectType || formData.projectType;
+    const msgStr = formData.message ? `• Requirements: ${formData.message}` : "";
+    const text = `Hello Right Angle Design Studio,\n\nI have submitted a project inquiry:\n• Name: ${nameStr}\n• Project Type: ${typeStr}\n${msgStr}\n\nLooking forward to connecting with Ravi Pipaliya and the design team.`;
+    return `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent(text)}`;
+  };
 
-            <div className="mt-10 space-y-6 border-t border-border pt-8 text-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex size-10 items-center justify-center border border-border bg-secondary/30 text-accent">
-                  <Phone className="size-4" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Studio Direct</p>
-                  <p className="text-muted-foreground">+91 98200 41100 · Mon – Sat (10am – 7pm)</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex size-10 items-center justify-center border border-border bg-secondary/30 text-accent">
-                  <Mail className="size-4" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Design Inquiries</p>
-                  <p className="text-muted-foreground">contact@rightangle.design</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex size-10 items-center justify-center border border-border bg-secondary/30 text-accent">
-                  <MessageSquare className="size-4" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Instant WhatsApp Consultation</p>
-                  <p className="text-muted-foreground mb-2">
-                    Prefer direct chat? Share brief parameters instantly with our design
-                    coordinator.
-                  </p>
-                  <a
-                    href={generateWhatsAppLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-accent hover:underline"
-                  >
-                    Open WhatsApp Chat <ArrowRight className="size-3" />
-                  </a>
-                </div>
-              </div>
-            </div>
+  if (submitted) {
+    return (
+      <div className={cn("rounded-lg border border-border/90 bg-card p-6 sm:p-10 shadow-sm animate-in fade-in duration-300", className)}>
+        <div className="mx-auto max-w-lg text-center py-6">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="size-7" />
           </div>
 
-          <div className="mt-10 border-t border-border pt-6">
-            <p className="text-xs text-muted-foreground">
-              Offices in Lower Parel, Mumbai and Lavelle Road, Bengaluru. On-site commissions
-              undertaken pan-India and internationally.
+          <h3 className="mt-5 font-display text-2xl sm:text-3xl text-foreground font-normal">
+            Message Received
+          </h3>
+
+          <p className="mt-3 text-sm sm:text-base text-foreground/85 leading-relaxed font-normal">
+            Thank you, <strong className="text-foreground font-semibold">{submittedData?.name}</strong>. Ravi Pipaliya and our senior design team have received your project details. We will connect with you shortly.
+          </p>
+
+          <div className="mt-6 rounded-md bg-muted/40 border border-border/80 p-4 text-xs sm:text-sm text-foreground/80 text-left">
+            <p className="font-semibold text-foreground mb-1">Selected Project Scope:</p>
+            <p className="font-mono text-accent">{submittedData?.projectType}</p>
+            <p className="mt-2 text-xs text-foreground/70">
+              Response timeframe: Within 24 business hours.
             </p>
           </div>
-        </div>
 
-        {/* Right Column: Form */}
-        <div className="lg:col-span-7 bg-card/60 p-6 sm:p-10 border border-border/80">
-          {submitted ? (
-            <div className="py-16 text-center">
-              <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-accent/20 text-accent">
-                <CheckCircle2 className="size-8" />
-              </div>
-              <h3 className="mt-6 font-display text-2xl sm:text-3xl text-foreground">
-                Brief Received with Gratitude
-              </h3>
-              <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                Thank you, {formData.name}. Our principal design team will review your project
-                parameters and reach out via email and phone within two business days.
-              </p>
-              <div className="mt-8 flex justify-center gap-4">
-                <a
-                  href={generateWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 border border-accent bg-accent px-6 py-3 text-xs uppercase tracking-[0.2em] text-accent-foreground"
-                >
-                  Message On WhatsApp
-                </a>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="border border-border px-6 py-3 text-xs uppercase tracking-[0.2em] text-foreground hover:bg-secondary/40"
-                >
-                  Send Another Note
-                </button>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Your Full Name *
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="e.g. Ira Shah"
-                    className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  />
-                </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={generateWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 text-xs sm:text-sm font-semibold tracking-[0.06em] shadow-sm transition-colors cursor-pointer"
+            >
+              <WhatsAppIcon className="size-4" />
+              <span>Connect Faster on WhatsApp</span>
+            </a>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Phone Number *
-                  </label>
-                  <input
-                    required
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+91 98200 00000"
-                    className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Email Address *
-                  </label>
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="name@domain.com"
-                    className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    City / Project Location
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Mumbai, Bengaluru, Ahmedabad, etc."
-                    className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-6 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Property Type
-                  </label>
-                  <select
-                    name="property_type"
-                    value={formData.property_type}
-                    onChange={handleChange}
-                    className="w-full border border-border/80 bg-background px-3 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  >
-                    <option value="Apartment / Penthouse">Apartment / Penthouse</option>
-                    <option value="Independent Villa / Bungalow">Independent Villa</option>
-                    <option value="Heritage Restoration">Heritage Restoration</option>
-                    <option value="Boutique Hospitality / Restaurant">Hospitality / F&B</option>
-                    <option value="Commercial Office / Studio">Commercial / Studio</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Project Scope
-                  </label>
-                  <select
-                    name="space_type"
-                    value={formData.space_type}
-                    onChange={handleChange}
-                    className="w-full border border-border/80 bg-background px-3 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  >
-                    <option value="Full Interior Architecture">Full Interior Architecture</option>
-                    <option value="Turnkey Execution (Design + Build)">Turnkey Execution</option>
-                    <option value="Renovation & Architectural Upgrade">Renovation & Upgrade</option>
-                    <option value="Bespoke Joinery & Styling">Joinery & Furniture Styling</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                    Approx Area (Sq Ft)
-                  </label>
-                  <input
-                    type="text"
-                    name="area_sqft"
-                    value={formData.area_sqft}
-                    onChange={handleChange}
-                    placeholder="e.g. 4,500"
-                    className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                  Target Investment / Budget Band
-                </label>
-                <select
-                  name="budget_band"
-                  value={formData.budget_band}
-                  onChange={handleChange}
-                  className="w-full border border-border/80 bg-background px-3 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
-                >
-                  <option value="₹35 Lakhs – ₹75 Lakhs">₹35 Lakhs – ₹75 Lakhs</option>
-                  <option value="₹75 Lakhs – ₹1.5 Crore">₹75 Lakhs – ₹1.5 Crore</option>
-                  <option value="₹1.5 Crore – ₹3.5 Crore">₹1.5 Crore – ₹3.5 Crore</option>
-                  <option value="₹3.5 Crore+ (Ultra Luxury / Estate)">
-                    ₹3.5 Crore+ (Ultra Luxury / Estate)
-                  </option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs tracking-wider uppercase text-muted-foreground">
-                  Brief Details / Vision
-                </label>
-                <textarea
-                  rows={4}
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Tell us about the space, possession date, family requirements, or specific material aesthetic you appreciate..."
-                  className="w-full border border-border/80 bg-background px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none resize-none"
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-foreground px-8 py-4 text-xs font-semibold tracking-[0.2em] text-background uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  {loading ? "Sending Brief..." : "Book a Consultation"}{" "}
-                  <ArrowRight className="size-3.5" />
-                </button>
-
-                <a
-                  href={generateWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-accent/80 px-6 py-4 text-xs font-semibold tracking-[0.18em] text-accent uppercase hover:bg-accent/10"
-                >
-                  <MessageSquare className="size-3.5" /> Send Via WhatsApp
-                </a>
-              </div>
-            </form>
-          )}
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({
+                  name: "",
+                  contact: "",
+                  projectType: initialProjectType || PROJECT_TYPES[0],
+                  message: "",
+                });
+                setSubmittedData(null);
+              }}
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded border border-border bg-background px-5 py-3 text-xs sm:text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Send Another Note
+            </button>
+          </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className={cn("rounded-lg border border-border/90 bg-card p-6 sm:p-8 lg:p-10 shadow-sm", className)}>
+      <div className="mb-6 pb-5 border-b border-border/70">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs uppercase tracking-[0.08em] font-semibold text-accent font-mono">
+            Direct Studio Inquiry
+          </p>
+          <span className="text-xs text-foreground/60 font-medium">Confidential</span>
+        </div>
+        <h2 className="mt-1 font-display text-2xl sm:text-3xl font-normal text-foreground">
+          Send an Architectural Brief
+        </h2>
+        <p className="mt-1.5 text-xs sm:text-sm text-foreground/80 leading-relaxed font-normal">
+          Share your essential project parameters and our team will get in touch promptly.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {/* Field 1: Full Name */}
+        <div>
+          <label
+            htmlFor="contact-name"
+            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+          >
+            Full Name <span className="text-destructive">*</span>
+          </label>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            required
+            autoComplete="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="e.g. Rahul Sharma"
+            className={cn(
+              "w-full rounded border bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none",
+              errors.name ? "border-destructive focus:border-destructive" : "border-border/80",
+            )}
+          />
+          {errors.name && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-destructive font-medium">
+              <AlertCircle className="size-3 shrink-0" />
+              <span>{errors.name}</span>
+            </p>
+          )}
+        </div>
+
+        {/* Field 2: Phone Number or Email */}
+        <div>
+          <label
+            htmlFor="contact-detail"
+            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+          >
+            Phone Number or Email <span className="text-destructive">*</span>
+          </label>
+          <input
+            id="contact-detail"
+            type="text"
+            name="contact"
+            required
+            autoComplete="email tel"
+            value={formData.contact}
+            onChange={handleChange}
+            placeholder="+91 98765 43210 or name@example.com"
+            className={cn(
+              "w-full rounded border bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none",
+              errors.contact ? "border-destructive focus:border-destructive" : "border-border/80",
+            )}
+          />
+          {errors.contact ? (
+            <p className="mt-1 flex items-center gap-1 text-xs text-destructive font-medium">
+              <AlertCircle className="size-3 shrink-0" />
+              <span>{errors.contact}</span>
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-foreground/60 font-normal">
+              We respect your privacy. No marketing spam, ever.
+            </p>
+          )}
+        </div>
+
+        {/* Field 3: Project Type */}
+        <div>
+          <label
+            htmlFor="contact-project-type"
+            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+          >
+            Project Type <span className="text-destructive">*</span>
+          </label>
+          <div className="relative">
+            <select
+              id="contact-project-type"
+              name="projectType"
+              value={formData.projectType}
+              onChange={handleChange}
+              className="w-full appearance-none rounded border border-border/80 bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none pr-10 cursor-pointer"
+            >
+              {PROJECT_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-foreground/60">
+              <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Field 4: Message */}
+        <div>
+          <label
+            htmlFor="contact-message"
+            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+          >
+            Message <span className="text-destructive">*</span>
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows={4}
+            required
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="Tell us about the space (e.g. 4BHK apartment in Mumbai, 4,500 sq ft villa in Surat), target possession date, or design vision..."
+            className={cn(
+              "w-full rounded border bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none resize-none leading-relaxed",
+              errors.message ? "border-destructive focus:border-destructive" : "border-border/80",
+            )}
+          />
+          {errors.message && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-destructive font-medium">
+              <AlertCircle className="size-3 shrink-0" />
+              <span>{errors.message}</span>
+            </p>
+          )}
+        </div>
+
+        {/* Action Button & Reassurance */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded bg-foreground px-8 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.08em] text-background hover:bg-accent hover:text-accent-foreground transition-all duration-200 disabled:opacity-50 cursor-pointer shadow-sm"
+          >
+            {loading ? (
+              <span>Sending Brief…</span>
+            ) : (
+              <>
+                <span>Submit Inquiry</span>
+                <Send className="size-3.5" />
+              </>
+            )}
+          </button>
+
+          <span className="text-xs text-foreground/70 font-medium text-center sm:text-right">
+            Inquiries reviewed by senior partners
+          </span>
+        </div>
+      </form>
     </div>
   );
 }

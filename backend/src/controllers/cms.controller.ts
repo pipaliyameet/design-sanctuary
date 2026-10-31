@@ -13,6 +13,7 @@ import {
   SiteSettingsDoc,
   EnquiryDoc,
   ActivityLogDoc,
+  MaterialDoc,
 } from "../models/types.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 import { invalidatePublicCache } from "./public.controller.js";
@@ -106,6 +107,7 @@ export async function getHomepageConfig(req: Request, res: Response, next: NextF
     };
 
     return sendSuccess(res, {
+      ...map,
       heroTitle: unwrap(map.heroTitle, "Architecture & Interior Sanctuary"),
       heroSubtitle: unwrap(
         map.heroSubtitle,
@@ -122,6 +124,55 @@ export async function getHomepageConfig(req: Request, res: Response, next: NextF
       showProcess: map.showProcess !== false,
       showTestimonials: map.showTestimonials !== false,
       showJournal: map.showJournal !== false,
+      ribbonText1: unwrap(map.ribbonText1, "Mumbai · Bengaluru · Pan India · 12+ Years Practice"),
+      ribbonText2: unwrap(map.ribbonText2, "28+ Architectural Commissions · Single-Source Turnkey Accountability"),
+      statementTitle: unwrap(
+        map.statementTitle,
+        "We create considered residential and commercial interiors where material, proportion and light work together."
+      ),
+      statementText1: unwrap(
+        map.statementText1,
+        "Every project we undertake starts by stripping away the non-essential. We avoid ephemeral trends and disposable finishes in pursuit of spaces that breathe: natural vein-cut stone with tactile depth, hand-troweled lime plaster that catches the changing sun, and bespoke millwork resolved with millimeter precision."
+      ),
+      statementText2: unwrap(
+        map.statementText2,
+        "Operating across Mumbai and Bengaluru, our practice provides single-source turnkey accountability from measured drawing sets through to final white-glove styling."
+      ),
+      stat1Value: unwrap(map.stat1Value, "28+"),
+      stat1Label: unwrap(map.stat1Label, "Commissions"),
+      stat2Value: unwrap(map.stat2Value, "12+"),
+      stat2Label: unwrap(map.stat2Label, "Years Active"),
+      stat3Value: unwrap(map.stat3Value, "06"),
+      stat3Label: unwrap(map.stat3Label, "Disciplines"),
+      stat4Value: unwrap(map.stat4Value, "11"),
+      stat4Label: unwrap(map.stat4Label, "Cities"),
+      beforeAfterCaption: unwrap(
+        map.beforeAfterCaption,
+        "The Shah Residence, Ahmedabad · 6,400 sq ft transformation"
+      ),
+      beforeLabel: unwrap(map.beforeLabel, "BEFORE EXECUTION"),
+      afterLabel: unwrap(map.afterLabel, "COMPLETED SANCTUARY"),
+      philosophy1Title: unwrap(map.philosophy1Title, "01 / HONEST MATERIALS"),
+      philosophy1Heading: unwrap(map.philosophy1Heading, "Stone, Timber & Lime"),
+      philosophy1Text: unwrap(
+        map.philosophy1Text,
+        "We select genuine materials that age with grace. Vein-cut Roman travertine, fumed European oak, and patinated architectural bronze."
+      ),
+      philosophy2Title: unwrap(map.philosophy2Title, "02 / LIGHT & VOLUME"),
+      philosophy2Heading: unwrap(map.philosophy2Heading, "Daylight as Structure"),
+      philosophy2Text: unwrap(
+        map.philosophy2Text,
+        "Every space is shaped around natural illumination vectors and low-glare 2400K–2700K ambient luminaire layers for evening calm."
+      ),
+      philosophy3Title: unwrap(map.philosophy3Title, "03 / TURNKEY RIGOR"),
+      philosophy3Heading: unwrap(map.philosophy3Heading, "End-to-End Custody"),
+      philosophy3Text: unwrap(
+        map.philosophy3Text,
+        "From structural drawings to bespoke furniture fabrication and white-glove styling, our single-source governance guarantees zero friction."
+      ),
+      consultationHeading: unwrap(map.consultationHeading, "Ready to begin your architectural sanctuary?"),
+      consultationPhone: unwrap(map.consultationPhone, "+91 95375 86804"),
+      consultationEmail: unwrap(map.consultationEmail, "contact@rightangle.design"),
     });
   } catch (err) {
     next(err);
@@ -135,29 +186,100 @@ export async function updateHomepageConfig(req: Request, res: Response, next: Ne
     const body = req.body || {};
 
     const now = new Date();
-    const updateKeys = [
-      "heroTitle",
-      "heroSubtitle",
-      "heroImage",
-      "atmospherePhoto",
-      "beforePhoto",
-      "afterPhoto",
-      "ctaText",
-      "ctaLink",
-      "featuredProjectSlugs",
-      "showServices",
-      "showProcess",
-      "showTestimonials",
-      "showJournal",
-    ];
-
-    for (const key of updateKeys) {
-      if (body[key] !== undefined) {
+    // Persist all incoming settings keys directly
+    for (const [key, value] of Object.entries(body)) {
+      if (value !== undefined && key !== "_id") {
         await settingsCol.updateOne(
           { key },
-          { $set: { key, value: body[key], updatedAt: now } },
+          { $set: { key, value, updatedAt: now } },
           { upsert: true }
         );
+      }
+    }
+
+    // Sync database collections if process steps, materials, or testimonials are supplied
+    if (Array.isArray(body.processSteps) && body.processSteps.length > 0) {
+      const processCol = await getCollection<ProcessStepDoc>("processSteps");
+      for (const step of body.processSteps) {
+        if (step.title) {
+          const query = step._id || step.id
+            ? { $or: [{ _id: ObjectId.isValid(step._id || step.id) ? new ObjectId(step._id || step.id) : (step._id || step.id) }, { number: step.number }] }
+            : { number: step.number };
+          await processCol.updateOne(
+            query as any,
+            {
+              $set: {
+                number: step.number,
+                title: step.title,
+                timeline: step.timeline || "",
+                description: step.description || "",
+                sortOrder: step.sortOrder ?? 1,
+                published: true,
+                updatedAt: now,
+              },
+            },
+            { upsert: true }
+          );
+        }
+      }
+    }
+
+    if (Array.isArray(body.materials) && body.materials.length > 0) {
+      const materialsCol = await getCollection<MaterialDoc>("materials");
+      for (const m of body.materials) {
+        if (m.name) {
+          const query = m._id || m.id
+            ? { $or: [{ _id: ObjectId.isValid(m._id || m.id) ? new ObjectId(m._id || m.id) : (m._id || m.id) }, { name: m.name }] }
+            : { name: m.name };
+          await materialsCol.updateOne(
+            query as any,
+            {
+              $set: {
+                name: m.name,
+                category: m.category || "Stone & Marble",
+                provenance: m.provenance || "",
+                description: m.description || "",
+                image: m.image || "",
+                projectTitle: m.projectTitle || "",
+                sortOrder: m.sortOrder ?? 1,
+                updatedAt: now,
+              },
+            },
+            { upsert: true }
+          );
+        }
+      }
+    }
+
+    if (Array.isArray(body.testimonials) && body.testimonials.length > 0) {
+      const testimonialsCol = await getCollection<TestimonialDoc>("testimonials");
+      for (const t of body.testimonials) {
+        const author = t.author || t.clientName;
+        if (author) {
+          const query = t._id || t.id
+            ? { $or: [{ _id: ObjectId.isValid(t._id || t.id) ? new ObjectId(t._id || t.id) : (t._id || t.id) }, { clientName: author }, { author: author }] }
+            : { clientName: author };
+          await testimonialsCol.updateOne(
+            query as any,
+            {
+              $set: {
+                clientName: author,
+                author: author,
+                project: t.project || t.projectTitle || "",
+                projectTitle: t.projectTitle || t.project || "",
+                location: t.location || "",
+                role: t.role || "Homeowner",
+                quote: t.quote || t.text || "",
+                text: t.quote || t.text || "",
+                rating: t.rating || 5,
+                approved: true,
+                sortOrder: t.sortOrder ?? 1,
+                updatedAt: now,
+              },
+            },
+            { upsert: true }
+          );
+        }
       }
     }
 
@@ -169,7 +291,7 @@ export async function updateHomepageConfig(req: Request, res: Response, next: Ne
       entity: "homepage",
       entityId: "homepage",
       entityTitle: "Homepage CMS",
-      detail: `Updated hero settings & homepage section controls`,
+      detail: `Updated homepage visual configuration & section controls`,
       createdAt: now,
     });
 
@@ -216,12 +338,28 @@ export async function updateCaseStudy(req: Request, res: Response, next: NextFun
 
     const query = buildEntityQuery(id);
 
-    const updates = {
+    const updates: Record<string, any> = {
       ...data,
       updatedAt: new Date(),
     };
     delete (updates as any)._id;
     delete (updates as any).id;
+
+    if (data.heroImage) {
+      updates.heroImage = data.heroImage;
+      updates.hero_image = data.heroImage;
+    }
+    if (data.spaceType) {
+      updates.spaceType = data.spaceType;
+      updates.space_type = data.spaceType;
+    }
+    if (data.areaSqft !== undefined) {
+      updates.areaSqft = Number(data.areaSqft);
+      updates.area_sqft = Number(data.areaSqft);
+    }
+    if (data.year !== undefined) {
+      updates.year = Number(data.year);
+    }
 
     const result = await caseStudiesCol.findOneAndUpdate(
       query as any,
@@ -245,6 +383,7 @@ export async function updateCaseStudy(req: Request, res: Response, next: NextFun
       createdAt: new Date(),
     });
 
+    invalidatePublicCache();
     return sendSuccess(res, { ...result, id: String(result._id) }, "Case study updated successfully.");
   } catch (err) {
     next(err);

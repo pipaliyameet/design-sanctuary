@@ -152,7 +152,7 @@ export async function getDashboardOverview(req: Request, res: Response, next: Ne
           id: String(a._id),
           action: a.action || a.title || "Studio Update",
           detail: a.detail || a.description || a.details || "Updated project record",
-          user_name: a.actorLabel || a.user_name || "Ira Kapoor (Principal)",
+          user_name: a.actorLabel || a.user_name || "Ravi Pipaliya (Principal)",
           timestamp: a.createdAt ? new Date(a.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Just now",
         }))
       : [

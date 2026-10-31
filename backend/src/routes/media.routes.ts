@@ -15,6 +15,7 @@ import {
   getGoogleOAuthUrlHandler,
   googleOAuthCallbackHandler,
   syncGoogleDriveMediaHandler,
+  serveLocalMedia,
 } from "../controllers/media.controller.js";
 import { requireAuth, requireStaff } from "../middleware/role.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
@@ -25,6 +26,7 @@ const router = Router();
 router.get("/homepage", getHomepageMedia);
 router.get("/drive-status", getDriveStatusHandler);
 router.get("/drive-image/:id", proxyDriveImage);
+router.get("/local/:filename", serveLocalMedia);
 router.get("/stream-video/:id", streamVideo);
 router.get("/connect-google-drive", getGoogleOAuthUrlHandler);
 router.get("/oauth-callback", googleOAuthCallbackHandler);

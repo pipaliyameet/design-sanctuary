@@ -13,6 +13,7 @@ import {
   Plus,
 } from "lucide-react";
 import { getStudioSiteUpdates } from "@/lib/studio-admin.functions";
+import { DriveImage } from "@/components/site/DriveImage";
 import {
   AppShell,
   EmptyState,
@@ -134,11 +135,12 @@ function SiteManagementPage() {
                   </h4>
                   <div className="flex flex-wrap gap-3">
                     {log.photos.map((photo: string, idx: number) => (
-                      <img
+                      <DriveImage
                         key={idx}
                         src={photo}
                         alt="Site verification log"
-                        className="h-36 w-52 rounded object-cover border border-border shadow-xs hover:opacity-90 transition-opacity"
+                        className="size-full object-cover hover:opacity-90 transition-opacity"
+                        wrapperClassName="h-36 w-52 rounded border border-border shadow-xs"
                       />
                     ))}
                   </div>

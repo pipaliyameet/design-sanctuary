@@ -14,7 +14,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Right Angle Design Studio is an architectural interior design practice founded in 2011 by Ira Kapoor. Practicing in Mumbai and Bengaluru across bespoke residences, villas, and hospitality commissions.",
+          "Right Angle Design Studio is an architectural interior design practice founded in 2011 by Ravi Pipaliya. Practicing in Mumbai and Bengaluru across bespoke residences, villas, and hospitality commissions.",
       },
       { property: "og:title", content: "About Right Angle Design Studio — Architecture & Interiors" },
       {
@@ -30,10 +30,10 @@ export const Route = createFileRoute("/about")({
 
 const DEFAULT_TEAM_MEMBERS = [
   {
-    name: "Ira Kapoor",
+    name: "Ravi Pipaliya",
     role: "Founder & Principal Designer",
     image: GOOGLE_DRIVE_PHOTOS[0]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
-    bio: "Graduated from CEPT Ahmedabad and Architectural Association, London. Fifteen years detailing residential and hospitality sanctuaries across India; leads conceptual vision and tactile material curation.",
+    bio: "Founder and Principal Designer of Right Angle Design Studio. Fifteen years detailing residential, architectural, and turnkey sanctuaries across India; leads conceptual vision and tactile material curation.",
   },
   {
     name: "Devanshi Rao",
@@ -90,13 +90,13 @@ function AboutPage() {
   return (
     <PublicShell>
       {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-28 pb-12 sm:pt-36 sm:pb-16">
+      <div className="border-b border-border bg-background pt-8 pb-8 sm:pt-10 sm:pb-10">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-          <p className="eyebrow">Studio Origin · Established 2011</p>
-          <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-light text-foreground tracking-tight max-w-4xl">
+          <p className="eyebrow text-amber-800 dark:text-amber-300 font-semibold">Studio Origin · Established 2011</p>
+          <h1 className="mt-4 font-display text-4xl sm:text-6xl lg:text-7xl font-normal text-foreground tracking-tight max-w-4xl">
             A small, senior practice by deliberate intention.
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed font-light">
+          <p className="mt-6 text-base sm:text-lg text-foreground/85 max-w-2xl leading-relaxed font-normal">
             We limit the number of commissions we accept each year so that our principal designers
             personally walk every site, inspect every stone slab, and detail every joint.
           </p>
@@ -116,31 +116,31 @@ function AboutPage() {
           </div>
 
           <div className="lg:col-span-6 space-y-6">
-            <p className="eyebrow">Our Beginning</p>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground font-light leading-snug">
+            <p className="eyebrow text-amber-800 dark:text-amber-300 font-semibold">Our Beginning</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-foreground font-normal leading-snug">
               Founded on a simple frustration: beautiful digital renderings that disappoint on site.
             </h2>
 
-            <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light">
+            <p className="text-sm sm:text-base leading-relaxed text-foreground/85 font-normal">
               In 2011, Right Angle Design Studio was established to build a studio
               backwards from the site. We believe that an interior is only as good as its executed
               reality: the weight of a solid timber door, the flush alignment of a stone threshold,
               and the acoustic calm of a well-proportioned room.
             </p>
 
-            <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-light">
+            <p className="text-sm sm:text-base leading-relaxed text-foreground/85 font-normal">
               By combining rigorous architectural drawings with in-house turnkey project management,
               we ensure that our clients never experience contractor friction, surprise costs, or
               compromised finishes.
             </p>
 
             <div className="pt-4 border-t border-border">
-              <p className="font-editorial text-xl italic text-foreground">
+              <p className="font-editorial text-xl text-foreground font-normal">
                 “We do not decorate rooms. We sculpt volumes that welcome daylight and age with
                 quiet grace.”
               </p>
-              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
-                — Ira Kapoor, Principal
+              <p className="mt-2 text-xs uppercase tracking-widest text-foreground/75 font-medium">
+                — Ravi Pipaliya, Principal
               </p>
             </div>
           </div>
@@ -153,11 +153,11 @@ function AboutPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {STATISTICS.map((s) => (
               <div key={s.label} className="border-l border-border/80 pl-6 py-2">
-                <span className="font-display text-4xl sm:text-5xl font-light text-foreground">
+                <span className="font-display text-4xl sm:text-5xl font-normal text-foreground">
                   {s.value}
                 </span>
-                <p className="font-display text-lg text-foreground mt-1">{s.label}</p>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+                <p className="font-display text-lg text-foreground mt-1 font-medium">{s.label}</p>
+                <p className="mt-2 text-xs text-foreground/80 leading-relaxed font-normal">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -168,11 +168,11 @@ function AboutPage() {
       <section className="py-16 sm:py-24 bg-background">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="max-w-2xl pb-12 sm:pb-16">
-            <p className="eyebrow">Studio Leadership</p>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-light text-foreground">
+            <p className="eyebrow text-amber-800 dark:text-amber-300 font-semibold">Studio Leadership</p>
+            <h2 className="mt-3 text-3xl sm:text-5xl font-display font-normal text-foreground">
               The Architects & Directors on Your Commission
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-4 text-sm sm:text-base text-foreground/85 leading-relaxed font-normal">
               You work directly with experienced partners who maintain personal accountability from
               initial sketch through to key handover.
             </p>
@@ -189,11 +189,11 @@ function AboutPage() {
                     wrapperClassName="size-full"
                   />
                 </div>
-                <h3 className="font-display text-xl text-foreground">{member.name}</h3>
-                <p className="text-xs uppercase tracking-widest text-accent font-medium mt-1">
+                <h3 className="font-display text-xl text-foreground font-semibold">{member.name}</h3>
+                <p className="text-xs sm:text-sm uppercase tracking-[0.06em] text-accent font-semibold mt-1">
                   {member.role}
                 </p>
-                <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground font-light">
+                <p className="mt-3 text-sm leading-relaxed text-foreground/85 font-normal">
                   {member.bio}
                 </p>
               </div>
@@ -206,34 +206,34 @@ function AboutPage() {
       <section className="border-t border-border bg-secondary/30 py-14 sm:py-20">
         <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
           <p className="eyebrow">Our Physical Studios</p>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-light text-foreground mb-12">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-normal text-foreground mb-12">
             Where We Draw, Prototype & Collaborate
           </h2>
 
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="border border-border/80 bg-background p-8 sm:p-10 space-y-4 rounded">
-              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+              <span className="text-xs uppercase tracking-[0.08em] text-accent font-semibold">
                 Headquarters
               </span>
-              <h3 className="font-display text-2xl text-foreground">Mumbai Studio</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h3 className="font-display text-2xl text-foreground font-semibold">Mumbai Studio</h3>
+              <p className="text-base text-foreground/85 leading-relaxed font-normal">
                 14 Sun Mill Compound, Tulsi Pipe Road, Lower Parel, Mumbai 400013
               </p>
-              <div className="pt-2 text-xs space-y-1 text-muted-foreground font-mono">
+              <div className="pt-2 text-xs sm:text-sm space-y-1 text-foreground/80 font-mono font-medium">
                 <p>Phone: +91 95375 86804</p>
                 <p>Email: contact@rightangle.design</p>
               </div>
             </div>
 
             <div className="border border-border/80 bg-background p-8 sm:p-10 space-y-4 rounded">
-              <span className="text-[10px] uppercase tracking-[0.24em] text-accent font-medium">
+              <span className="text-xs uppercase tracking-[0.08em] text-accent font-semibold">
                 Southern Practice
               </span>
-              <h3 className="font-display text-2xl text-foreground">Bengaluru Studio</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h3 className="font-display text-2xl text-foreground font-semibold">Bengaluru Studio</h3>
+              <p className="text-base text-foreground/85 leading-relaxed font-normal">
                 84 Lavelle Road, Shanthala Nagar, Ashok Nagar, Bengaluru 560001
               </p>
-              <div className="pt-2 text-xs space-y-1 text-muted-foreground font-mono">
+              <div className="pt-2 text-xs sm:text-sm space-y-1 text-foreground/80 font-mono font-medium">
                 <p>Phone: +91 80 4120 7800</p>
                 <p>Email: contact@rightangle.design</p>
               </div>
@@ -244,7 +244,7 @@ function AboutPage() {
             <Link
               to="/contact"
               hash="consultation"
-              className="inline-flex items-center gap-2 bg-foreground px-8 py-4 text-xs uppercase tracking-[0.2em] text-background font-semibold hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="inline-flex items-center gap-2 bg-foreground px-8 py-4 text-sm uppercase tracking-[0.08em] text-background font-semibold hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
             >
               Start an Architectural Consultation <ArrowRight className="size-3.5" />
             </Link>

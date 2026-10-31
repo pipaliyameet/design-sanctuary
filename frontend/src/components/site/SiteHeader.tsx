@@ -55,7 +55,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           ? "inset-0 h-dvh h-screen bg-background flex flex-col overflow-hidden"
           : solid
             ? "bg-background/95 border-b border-border/70 backdrop-blur-md shadow-xs py-0"
-            : "bg-gradient-to-b from-ink/75 via-ink/30 to-transparent py-2",
+            : "bg-gradient-to-b from-black/85 via-black/45 to-transparent py-2",
       )}
     >
       <div
@@ -80,19 +80,31 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden items-center gap-3 xl:gap-6 2xl:gap-8 lg:flex shrink-0">
-          {PRIMARY_NAV.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={cn(
-                "text-[11px] xl:text-xs uppercase tracking-[0.14em] xl:tracking-[0.18em] transition-colors hover:text-accent font-medium relative py-1 whitespace-nowrap shrink-0 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-accent after:scale-x-0 after:transition-transform hover:after:scale-x-100",
-                solid ? "text-foreground/85" : "text-ink-foreground/90",
-              )}
-              activeProps={{ className: "text-accent after:scale-x-100 font-semibold" }}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {PRIMARY_NAV.map((item) => {
+            const isActive =
+              item.to === "/"
+                ? currentPath === "/" || currentPath === "/portfolio" || currentPath.startsWith("/portfolio/")
+                : currentPath.startsWith(item.to);
+
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={cn(
+                  "text-[11px] xl:text-xs uppercase tracking-[0.14em] xl:tracking-[0.18em] relative py-1 whitespace-nowrap shrink-0 transition-all duration-200 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:transition-transform",
+                  solid
+                    ? isActive
+                      ? "text-accent font-semibold after:bg-accent after:scale-x-100"
+                      : "text-foreground/80 hover:text-accent font-medium after:bg-accent after:scale-x-0 hover:after:scale-x-100"
+                    : isActive
+                      ? "text-white font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] after:bg-white after:scale-x-100 after:shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                      : "text-stone-300 hover:text-white font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)] after:bg-white after:scale-x-0 hover:after:scale-x-100 hover:drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]",
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Action CTAs (Desktop & Tablet) */}
@@ -100,10 +112,10 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           <Link
             to="/auth"
             className={cn(
-              "hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-[11px] xl:text-xs tracking-[0.14em] uppercase transition-colors font-medium border rounded-none min-h-[38px] whitespace-nowrap shrink-0",
+              "hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-[11px] xl:text-xs tracking-[0.14em] uppercase transition-all duration-200 font-medium border rounded-none min-h-[38px] whitespace-nowrap shrink-0",
               solid
-                ? "border-border/80 text-foreground hover:border-accent hover:text-accent bg-transparent"
-                : "border-ink-foreground/30 text-ink-foreground hover:border-accent hover:text-accent bg-ink/20 backdrop-blur-xs",
+                ? "border-border/80 text-foreground hover:border-accent hover:text-accent hover:bg-accent/5 bg-transparent"
+                : "border-white/50 text-white hover:border-white hover:text-white hover:bg-white/15 bg-black/25 backdrop-blur-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]",
             )}
           >
             <User className="size-3.5" />
@@ -114,10 +126,10 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             to="/contact"
             hash="consultation"
             className={cn(
-              "hidden md:inline-flex items-center gap-1.5 lg:gap-2 px-3.5 xl:px-5 py-2 lg:py-2.5 text-[11px] xl:text-xs tracking-[0.14em] xl:tracking-[0.18em] uppercase transition-all duration-300 font-medium min-h-[38px] whitespace-nowrap shrink-0",
+              "hidden md:inline-flex items-center gap-1.5 lg:gap-2 px-3.5 xl:px-5 py-2 lg:py-2.5 text-[11px] xl:text-xs tracking-[0.14em] xl:tracking-[0.18em] uppercase transition-all duration-300 min-h-[38px] whitespace-nowrap shrink-0 shadow-sm",
               solid
-                ? "bg-foreground text-background hover:bg-accent hover:text-accent-foreground"
-                : "bg-accent text-accent-foreground hover:bg-ink-foreground hover:text-ink",
+                ? "bg-foreground text-background font-medium hover:bg-accent hover:text-white"
+                : "bg-stone-100 text-stone-900 font-medium hover:bg-white hover:text-black shadow-lg shadow-black/35",
             )}
           >
             <span className="hidden xl:inline">Book a </span>Consultation <ArrowRight className="size-3 shrink-0" />
@@ -130,7 +142,9 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             onClick={() => setOpen((v) => !v)}
             className={cn(
               "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center lg:hidden transition-colors focus:outline-none cursor-pointer rounded shrink-0",
-              solid || open ? "text-foreground" : "text-ink-foreground",
+              solid || open
+                ? "text-foreground hover:text-accent"
+                : "text-white hover:text-stone-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]",
             )}
           >
             {open ? <X className="size-6 text-foreground" /> : <Menu className="size-6" />}

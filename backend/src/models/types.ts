@@ -469,7 +469,7 @@ export interface JournalPostDoc {
 export interface SiteSettingsDoc {
   _id?: ObjectId | string;
   key: string;
-  value: Record<string, any>;
+  value: any;
   updatedAt: Date;
 }
 

@@ -52,15 +52,29 @@ function setCached<T>(key: string, data: T) {
 
 const enquirySchema = z.object({
   name: z.string().trim().min(2, "Name is required"),
-  email: z.string().trim().email("Valid email required"),
-  phone: z.string().trim().min(6, "Valid phone number required"),
+  email: z.string().trim().optional().nullable().default(""),
+  phone: z.string().trim().optional().nullable().default(""),
+  contact: z.string().trim().optional().nullable(),
   city: z.string().optional().nullable(),
   spaceType: z.string().optional().nullable(),
+  projectType: z.string().optional().nullable(),
   scope: z.string().optional().nullable(),
   budgetBand: z.string().optional().nullable(),
   estimatedTimeline: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
-});
+  message: z.string().optional().nullable(),
+}).refine(
+  (data) => {
+    const hasEmail = Boolean(data.email && data.email.includes("@"));
+    const hasPhone = Boolean(data.phone && data.phone.length >= 6);
+    const hasContact = Boolean(data.contact && data.contact.length >= 5);
+    return hasEmail || hasPhone || hasContact;
+  },
+  {
+    message: "Please provide a valid phone number or email address.",
+    path: ["contact"],
+  }
+);
 
 export async function getHomeData(req: Request, res: Response, next: NextFunction) {
   try {
@@ -79,7 +93,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       ]);
 
     const [
-      featuredProjects,
+      caseStudiesDocs,
       recentJournal,
       heroMedia,
       homepageMediaDocs,
@@ -89,7 +103,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       materials,
       settingsDocs,
     ] = await Promise.all([
-      caseStudiesCol.find({ featured: true }).sort({ publishedAt: -1 }).limit(6).toArray(),
+      caseStudiesCol.find({}).sort({ sortOrder: 1, publishedAt: -1 }).limit(12).toArray(),
       journalCol.find({}).sort({ publishedAt: -1 }).limit(3).toArray(),
       mediaCol.find({ visibility: "website", isFeatured: true }).sort({ sortOrder: 1 }).limit(16).toArray(),
       mediaCol
@@ -156,6 +170,31 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       .filter(Boolean) as string[];
     preloadDriveImages(preloadIds);
 
+    // Map and normalize case studies for public home
+    let featuredProjects = caseStudiesDocs.map((p) => ({
+      ...p,
+      id: String(p._id),
+      _id: String(p._id),
+      hero_image: p.heroImage || (p as any).hero_image || "",
+      heroImage: p.heroImage || (p as any).hero_image || "",
+      space_type: p.spaceType || (p as any).space_type || "Residential",
+      spaceType: p.spaceType || (p as any).space_type || "Residential",
+      area_sqft: p.areaSqft || (p as any).area_sqft,
+      areaSqft: p.areaSqft || (p as any).area_sqft,
+    }));
+
+    if (Array.isArray(settingsMap.featuredProjectSlugs) && settingsMap.featuredProjectSlugs.length > 0) {
+      const orderMap = new Map<string, number>();
+      settingsMap.featuredProjectSlugs.forEach((slug: string, idx: number) => {
+        orderMap.set(slug, idx);
+      });
+      featuredProjects.sort((a, b) => {
+        const orderA = orderMap.has(a.slug) ? (orderMap.get(a.slug) as number) : 999;
+        const orderB = orderMap.has(b.slug) ? (orderMap.get(b.slug) as number) : 999;
+        return orderA - orderB;
+      });
+    }
+
     const payload = {
       heroTitle: unwrapStr(settingsMap.heroTitle, "Architecture & Interior Sanctuary"),
       heroSubtitle: unwrapStr(
@@ -168,14 +207,70 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       afterPhoto: unwrapStr(settingsMap.afterPhoto, "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE"),
       ctaText: unwrapStr(settingsMap.ctaText, "View Projects"),
       ctaLink: unwrapStr(settingsMap.ctaLink, "/portfolio"),
+      ribbonText1: unwrapStr(settingsMap.ribbonText1, "Mumbai · Bengaluru · Pan India · 12+ Years Practice"),
+      ribbonText2: unwrapStr(settingsMap.ribbonText2, "28+ Architectural Commissions · Single-Source Turnkey Accountability"),
+      statementTitle: unwrapStr(
+        settingsMap.statementTitle,
+        "We create considered residential and commercial interiors where material, proportion and light work together."
+      ),
+      statementText1: unwrapStr(
+        settingsMap.statementText1,
+        "Every project we undertake starts by stripping away the non-essential. We avoid ephemeral trends and disposable finishes in pursuit of spaces that breathe: natural vein-cut stone with tactile depth, hand-troweled lime plaster that catches the changing sun, and bespoke millwork resolved with millimeter precision."
+      ),
+      statementText2: unwrapStr(
+        settingsMap.statementText2,
+        "Operating across Mumbai and Bengaluru, our practice provides single-source turnkey accountability from measured drawing sets through to final white-glove styling."
+      ),
+      stat1Value: unwrapStr(settingsMap.stat1Value, "28+"),
+      stat1Label: unwrapStr(settingsMap.stat1Label, "Commissions"),
+      stat2Value: unwrapStr(settingsMap.stat2Value, "12+"),
+      stat2Label: unwrapStr(settingsMap.stat2Label, "Years Active"),
+      stat3Value: unwrapStr(settingsMap.stat3Value, "06"),
+      stat3Label: unwrapStr(settingsMap.stat3Label, "Disciplines"),
+      stat4Value: unwrapStr(settingsMap.stat4Value, "11"),
+      stat4Label: unwrapStr(settingsMap.stat4Label, "Cities"),
+      beforeAfterCaption: unwrapStr(
+        settingsMap.beforeAfterCaption,
+        "The Shah Residence, Ahmedabad · 6,400 sq ft transformation"
+      ),
+      beforeLabel: unwrapStr(settingsMap.beforeLabel, "BEFORE EXECUTION"),
+      afterLabel: unwrapStr(settingsMap.afterLabel, "COMPLETED SANCTUARY"),
+      philosophy1Title: unwrapStr(settingsMap.philosophy1Title, "01 / HONEST MATERIALS"),
+      philosophy1Heading: unwrapStr(settingsMap.philosophy1Heading, "Stone, Timber & Lime"),
+      philosophy1Text: unwrapStr(
+        settingsMap.philosophy1Text,
+        "We select genuine materials that age with grace. Vein-cut Roman travertine, fumed European oak, and patinated architectural bronze."
+      ),
+      philosophy2Title: unwrapStr(settingsMap.philosophy2Title, "02 / LIGHT & VOLUME"),
+      philosophy2Heading: unwrapStr(settingsMap.philosophy2Heading, "Daylight as Structure"),
+      philosophy2Text: unwrapStr(
+        settingsMap.philosophy2Text,
+        "Every space is shaped around natural illumination vectors and low-glare 2400K–2700K ambient luminaire layers for evening calm."
+      ),
+      philosophy3Title: unwrapStr(settingsMap.philosophy3Title, "03 / TURNKEY RIGOR"),
+      philosophy3Heading: unwrapStr(settingsMap.philosophy3Heading, "End-to-End Custody"),
+      philosophy3Text: unwrapStr(
+        settingsMap.philosophy3Text,
+        "From structural drawings to bespoke furniture fabrication and white-glove styling, our single-source governance guarantees zero friction."
+      ),
+      consultationHeading: unwrapStr(settingsMap.consultationHeading, "Ready to begin your architectural sanctuary?"),
+      consultationPhone: unwrapStr(settingsMap.consultationPhone, "+91 95375 86804"),
+      consultationEmail: unwrapStr(settingsMap.consultationEmail, "contact@rightangle.design"),
+      spotlightProjectSlug: settingsMap.spotlightProjectSlug || "mehta-executive-suite",
+      architecturalFilms: Array.isArray(settingsMap.architecturalFilms) && settingsMap.architecturalFilms.length > 0 ? settingsMap.architecturalFilms : undefined,
+      showServices: settingsMap.showServices !== false,
+      showProcess: settingsMap.showProcess !== false,
+      showTestimonials: settingsMap.showTestimonials !== false,
+      showJournal: settingsMap.showJournal !== false,
       featuredProjects,
+      studies: featuredProjects,
       recentJournal,
       heroMedia,
       homepageMedia,
-      services,
-      processSteps,
-      testimonials,
-      materials,
+      services: (Array.isArray(settingsMap.services) && settingsMap.services.length > 0 ? settingsMap.services : services).map((s: any) => ({ ...s, id: String(s._id || s.id) })),
+      processSteps: (Array.isArray(settingsMap.processSteps) && settingsMap.processSteps.length > 0 ? settingsMap.processSteps : processSteps).map((s: any) => ({ ...s, id: String(s._id || s.id) })),
+      testimonials: (Array.isArray(settingsMap.testimonials) && settingsMap.testimonials.length > 0 ? settingsMap.testimonials : testimonials).map((t: any) => ({ ...t, id: String(t._id || t.id) })),
+      materials: (Array.isArray(settingsMap.materials) && settingsMap.materials.length > 0 ? settingsMap.materials : materials).map((m: any) => ({ ...m, id: String(m._id || m.id) })),
       settings: settingsMap,
     };
 
@@ -408,11 +503,29 @@ export async function getJournalPost(req: Request, res: Response, next: NextFunc
 
 export async function createEnquiry(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = enquirySchema.parse(req.body);
+    const parsed = enquirySchema.parse(req.body);
     const enquiryCol = await getCollection<EnquiryDoc>("enquiries");
 
+    let finalEmail = parsed.email || "";
+    let finalPhone = parsed.phone || "";
+    if (parsed.contact) {
+      if (parsed.contact.includes("@")) {
+        if (!finalEmail) finalEmail = parsed.contact;
+      } else {
+        if (!finalPhone) finalPhone = parsed.contact;
+      }
+    }
+
     const doc: EnquiryDoc = {
-      ...data,
+      name: parsed.name,
+      email: finalEmail || "not-provided@client.com",
+      phone: finalPhone || "Not provided",
+      city: parsed.city || null,
+      spaceType: parsed.spaceType || parsed.projectType || null,
+      scope: parsed.scope || null,
+      budgetBand: parsed.budgetBand || null,
+      estimatedTimeline: parsed.estimatedTimeline || null,
+      notes: parsed.notes || parsed.message || null,
       status: "new",
       createdAt: new Date(),
       updatedAt: new Date(),
