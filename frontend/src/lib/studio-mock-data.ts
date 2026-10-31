@@ -60,8 +60,11 @@ export interface StudioLead {
   phone: string;
   city: string;
   property_type: string;
+  project_type?: string;
   space_type: string;
   approx_budget: number;
+  estimated_value?: number;
+  budget_band?: string;
   area_sqft: number;
   stage: "new" | "contacted" | "site_visit_scheduled" | "proposal_sent" | "negotiation" | "won" | "lost";
   priority: "low" | "medium" | "high" | "vip";
@@ -70,6 +73,8 @@ export interface StudioLead {
   notes: string;
   created_at: string;
   last_follow_up: string;
+  updated_at?: string;
+  [key: string]: any;
 }
 
 export interface StudioClient {
@@ -80,41 +85,57 @@ export interface StudioClient {
   phone: string;
   city: string;
   total_spent: number;
+  total_contract_value?: number;
+  total_projects?: number;
   active_projects_count: number;
   status: "active" | "completed" | "prospect";
   avatar?: string;
   created_at: string;
+  [key: string]: any;
 }
 
 export interface StudioDocument {
   id: string;
   project_id: string;
   project_name: string;
+  project_title?: string;
   title: string;
-  category: "cad" | "render" | "boq" | "contract" | "invoice" | "spec_sheet" | "site_photo";
+  category: "cad" | "render" | "boq" | "contract" | "invoice" | "spec_sheet" | "site_photo" | string;
   file_url: string;
   file_type: string;
   file_size: string;
   version: string;
   uploaded_by: string;
   uploaded_at: string;
+  upload_date?: string;
   is_approved: boolean;
+  status?: string;
+  [key: string]: any;
 }
 
 export interface StudioQuotation {
   id: string;
   quotation_number: string;
+  number?: string;
   project_id: string;
   project_name: string;
+  project_title?: string;
   client_name: string;
+  client_email?: string;
   issue_date: string;
+  created_at?: string;
   valid_until: string;
   subtotal: number;
   gst_percentage: number;
   gst_amount: number;
+  gst_total?: number;
+  discount_total?: number;
   total_amount: number;
-  status: "draft" | "sent" | "approved" | "revised" | "rejected";
+  grand_total?: number;
+  status: "draft" | "sent" | "approved" | "revised" | "rejected" | string;
   version: number;
+  payment_terms?: string;
+  notes?: string;
   line_items: Array<{
     id: string;
     category: string;
@@ -123,13 +144,29 @@ export interface StudioQuotation {
     unit: string;
     rate: number;
     amount: number;
+    total?: number;
+    room?: string;
+    [key: string]: any;
   }>;
+  items?: Array<{
+    id: string;
+    category: string;
+    description: string;
+    quantity: number;
+    unit: string;
+    rate: number;
+    amount: number;
+    total?: number;
+    room?: string;
+    [key: string]: any;
+  }>;
+  [key: string]: any;
 }
 
 export interface StudioMaterial {
   id: string;
   name: string;
-  category: "stone" | "wood" | "metal" | "fabric" | "glass" | "lighting" | "sanitary" | "hardware";
+  category: "stone" | "wood" | "metal" | "fabric" | "glass" | "lighting" | "sanitary" | "hardware" | string;
   brand: string;
   vendor_name: string;
   unit_price: number;
@@ -139,6 +176,7 @@ export interface StudioMaterial {
   sample_available: boolean;
   image_url: string;
   tags: string[];
+  [key: string]: any;
 }
 
 export interface StudioVendor {
@@ -150,8 +188,9 @@ export interface StudioVendor {
   email: string;
   city: string;
   rating: number;
-  status: "active" | "preferred" | "under_review";
+  status: "active" | "preferred" | "under_review" | string;
   total_orders_value: number;
+  [key: string]: any;
 }
 
 export interface StudioFinanceRecord {
@@ -163,19 +202,21 @@ export interface StudioFinanceRecord {
   description: string;
   amount: number;
   date: string;
-  status: "cleared" | "pending" | "reconciled";
+  status: "cleared" | "pending" | "reconciled" | string;
   invoice_ref?: string;
+  [key: string]: any;
 }
 
 export interface StudioTeamMember {
   id: string;
   name: string;
-  role: "Principal Architect" | "Senior Interior Designer" | "Project Manager" | "Site Supervisor" | "3D Visualizer" | "Accounts Lead";
+  role: "Principal Architect" | "Senior Interior Designer" | "Project Manager" | "Site Supervisor" | "3D Visualizer" | "Accounts Lead" | string;
   email: string;
   phone: string;
   active_projects: string[];
   capacity_percentage: number;
   avatar: string;
+  [key: string]: any;
 }
 
 export interface StudioNotification {
@@ -184,8 +225,11 @@ export interface StudioNotification {
   description: string;
   timestamp: string;
   is_read: boolean;
-  category: "approval" | "finance" | "site" | "lead" | "deadline";
+  read?: boolean;
+  category: "approval" | "finance" | "site" | "lead" | "deadline" | string;
   link: string;
+  action_url?: string;
+  [key: string]: any;
 }
 
 // Clean production initial arrays (zero fake data)

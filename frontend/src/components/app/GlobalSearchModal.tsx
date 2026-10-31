@@ -91,7 +91,7 @@ export function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean; onClos
           id: c.id,
           category: "Clients",
           title: c.name,
-          subtitle: `${c.city} · ₹${(c.total_contract_value / 100000).toFixed(1)}L total · ${c.total_projects} projects`,
+          subtitle: `${c.city} · ₹${(((c.total_contract_value ?? c.total_spent ?? 0) / 100000)).toFixed(1)}L total · ${c.total_projects ?? c.active_projects_count ?? 0} projects`,
           url: `/studio/clients`,
           badge: c.status,
         });
@@ -103,13 +103,13 @@ export function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean; onClos
       if (
         l.name.toLowerCase().includes(q) ||
         l.city.toLowerCase().includes(q) ||
-        l.property_type.toLowerCase().includes(q)
+        (l.property_type && l.property_type.toLowerCase().includes(q))
       ) {
         results.push({
           id: l.id,
           category: "Leads",
           title: l.name,
-          subtitle: `${l.property_type} in ${l.city} · Est. ₹${(l.estimated_value / 100000).toFixed(1)}L`,
+          subtitle: `${l.property_type || l.space_type || "Residential"} in ${l.city} · Est. ₹${(((l.estimated_value ?? l.approx_budget ?? 0) / 100000)).toFixed(1)}L`,
           url: `/studio/leads`,
           badge: l.stage.toUpperCase(),
         });
@@ -119,53 +119,57 @@ export function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean; onClos
     // 4. Search Media
     INITIAL_MEDIA.forEach((m) => {
       if (
-        m.title.toLowerCase().includes(q) ||
-        m.project_title.toLowerCase().includes(q) ||
-        m.tags.some((t) => t.toLowerCase().includes(q))
+        (m.title && m.title.toLowerCase().includes(q)) ||
+        (m.project_title && m.project_title.toLowerCase().includes(q)) ||
+        (Array.isArray(m.tags) && m.tags.some((t: string) => t.toLowerCase().includes(q)))
       ) {
         results.push({
           id: m.id,
           category: "Media",
-          title: m.title,
-          subtitle: `${m.project_title} · ${m.category.replace(/_/g, " ")}`,
+          title: m.title || "Media Asset",
+          subtitle: `${m.project_title || "Studio Media"} · ${(m.category || "General").replace(/_/g, " ")}`,
           url: `/studio/media`,
-          badge: m.visibility,
+          badge: m.visibility || "website",
         });
       }
     });
 
     // 5. Search Documents
     INITIAL_DOCUMENTS.forEach((d) => {
+      const docProject = d.project_title || d.project_name || "General";
       if (
         d.title.toLowerCase().includes(q) ||
-        d.project_title.toLowerCase().includes(q) ||
+        docProject.toLowerCase().includes(q) ||
         d.category.toLowerCase().includes(q)
       ) {
         results.push({
           id: d.id,
           category: "Documents",
           title: d.title,
-          subtitle: `${d.project_title} · ${d.category} · ${d.version}`,
+          subtitle: `${docProject} · ${d.category} · ${d.version}`,
           url: `/studio/documents`,
-          badge: d.status,
+          badge: d.status || (d.is_approved ? "APPROVED" : "PENDING"),
         });
       }
     });
 
     // 6. Search Quotations
     INITIAL_QUOTATIONS.forEach((quot) => {
+      const qNum = quot.number || quot.quotation_number || "QUOT";
+      const qProj = quot.project_title || quot.project_name || "Project";
+      const qTotal = quot.grand_total ?? quot.total_amount ?? 0;
       if (
-        quot.number.toLowerCase().includes(q) ||
-        quot.project_title.toLowerCase().includes(q) ||
+        qNum.toLowerCase().includes(q) ||
+        qProj.toLowerCase().includes(q) ||
         quot.client_name.toLowerCase().includes(q)
       ) {
         results.push({
           id: quot.id,
           category: "Quotations",
-          title: `${quot.number} · ${quot.project_title}`,
-          subtitle: `${quot.client_name} · ₹${(quot.grand_total / 100000).toFixed(2)}L · ${quot.version}`,
+          title: `${qNum} · ${qProj}`,
+          subtitle: `${quot.client_name} · ₹${(qTotal / 100000).toFixed(2)}L · V${quot.version}`,
           url: `/studio/quotations`,
-          badge: quot.status.toUpperCase(),
+          badge: String(quot.status).toUpperCase(),
         });
       }
     });

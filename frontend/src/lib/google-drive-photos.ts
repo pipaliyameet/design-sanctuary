@@ -52,13 +52,63 @@ export function deduplicatePhotos<T extends { id?: string; _id?: string; driveFi
   return results;
 }
 
-export const RAW_GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = rawDriveData as GoogleDrivePhoto[];
-export const GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = deduplicatePhotos(RAW_GOOGLE_DRIVE_PHOTOS).map(
-  (p, idx) => ({
+const LOCAL_STORAGE_DELETED_KEY = "studio_deleted_photos";
+
+function getPersistedDeletedIds(): Set<string> {
+  const set = new Set<string>();
+  if (typeof window !== "undefined" && window.localStorage) {
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id) => set.add(String(id)));
+        }
+      }
+    } catch {}
+  }
+  return set;
+}
+
+export const deletedPhotoIds: Set<string> = getPersistedDeletedIds();
+
+export function markPhotoDeleted(idOrDriveIdOrUrl: string): void {
+  if (!idOrDriveIdOrUrl) return;
+  const val = String(idOrDriveIdOrUrl).trim();
+  deletedPhotoIds.add(val);
+  const driveIdMatch = val.match(/(?:d\/|id=)([a-zA-Z0-9_-]{20,})/);
+  if (driveIdMatch?.[1]) {
+    deletedPhotoIds.add(driveIdMatch[1]);
+  }
+  if (typeof window !== "undefined" && window.localStorage) {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(Array.from(deletedPhotoIds)));
+    } catch {}
+  }
+}
+
+export function isPhotoDeleted(idOrDriveIdOrUrl?: string): boolean {
+  if (!idOrDriveIdOrUrl) return false;
+  const clean = String(idOrDriveIdOrUrl).trim();
+  if (deletedPhotoIds.has(clean)) return true;
+  for (const delId of deletedPhotoIds) {
+    if (delId && delId.length > 5 && clean.includes(delId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export const RAW_GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = (rawDriveData as GoogleDrivePhoto[]).filter(
+  (p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url)
+);
+
+export const GOOGLE_DRIVE_PHOTOS: GoogleDrivePhoto[] = deduplicatePhotos(RAW_GOOGLE_DRIVE_PHOTOS)
+  .filter((p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url))
+  .map((p, idx) => ({
     ...p,
     index: idx + 1,
-  }),
-);
+  }));
 
 export const PHOTO_CATEGORIES = [
   "All",
@@ -107,7 +157,9 @@ export function getPaginatedGoogleDrivePhotos(
   } = params;
 
   const rawSource = customPhotos && customPhotos.length > 0 ? customPhotos : GOOGLE_DRIVE_PHOTOS;
-  const sourceList = deduplicatePhotos(rawSource).map((p, idx) => ({ ...p, index: idx + 1 }));
+  const sourceList = deduplicatePhotos(rawSource)
+    .filter((p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url))
+    .map((p, idx) => ({ ...p, index: idx + 1 }));
 
   const allCategories = ["All", ...Array.from(new Set(sourceList.map((p) => p.category)))];
   const allTags = [
@@ -176,10 +228,11 @@ export function getPaginatedGoogleDrivePhotos(
 }
 
 export function getDriveCoverPhoto(index = 0): string {
-  if (GOOGLE_DRIVE_PHOTOS[index]) {
-    return GOOGLE_DRIVE_PHOTOS[index]!.url;
+  const activePhotos = GOOGLE_DRIVE_PHOTOS.filter((p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url));
+  if (activePhotos[index]) {
+    return activePhotos[index]!.url;
   }
-  return GOOGLE_DRIVE_PHOTOS[0]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
+  return activePhotos[0]?.url || "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE";
 }
 
 /**
@@ -198,8 +251,14 @@ export async function getPublicGalleryPhotos(
       sortBy: params.sortBy,
     });
 
-    if (res && Array.isArray(res.items) && res.items.length > 0) {
-      const distinctItems = deduplicatePhotos(res.items);
+    if (res && Array.isArray(res.items)) {
+      const distinctItems = deduplicatePhotos(res.items).filter(
+        (item: any) =>
+          !isPhotoDeleted(item.id) &&
+          !isPhotoDeleted(item._id) &&
+          !isPhotoDeleted(item.driveFileId) &&
+          !isPhotoDeleted(item.url),
+      );
       return {
         items: distinctItems.map((item: any, idx: number) => ({
           id: item.id || item._id,
@@ -222,15 +281,15 @@ export async function getPublicGalleryPhotos(
           size: item.size,
           uploadedAt: item.createdAt,
         })),
-        total: res.total || res.totalCount || distinctItems.length,
+        total: res.total !== undefined ? res.total : distinctItems.length,
         page: res.currentPage || res.page || params.page || 1,
         limit: res.pageSize || res.limit || params.limit || 12,
-        totalPages: res.totalPages || Math.ceil((res.total || distinctItems.length) / (params.limit || 12)),
+        totalPages: res.totalPages !== undefined ? res.totalPages : Math.ceil((res.total ?? distinctItems.length) / (params.limit || 12)),
         hasNextPage: res.hasNextPage ?? false,
         hasPrevPage: res.hasPrevPage ?? false,
         allCategories: res.allCategories || PHOTO_CATEGORIES,
         allTags: res.allTags || [],
-        totalDriveAssets: res.totalDriveAssets || res.total || distinctItems.length,
+        totalDriveAssets: res.totalDriveAssets !== undefined ? res.totalDriveAssets : distinctItems.length,
       };
     }
   } catch (err) {

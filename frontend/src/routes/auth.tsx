@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginUser } from "@/lib/session.functions";
+import { loginUser, getMySession } from "@/lib/session.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Input } from "@/components/ui/input";
@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: (search.redirect as string) || "/studio/media",
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+    redirect: (search.redirect as string) || undefined,
   }),
   component: AuthPage,
   head: () => ({
@@ -53,6 +53,14 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    getMySession().then((session) => {
+      if (session && session.email) {
+        navigate({ to: targetRedirect });
+      }
+    });
+  }, [navigate, targetRedirect]);
 
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();

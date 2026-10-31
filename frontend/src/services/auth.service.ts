@@ -7,6 +7,11 @@ export const authService = {
     if (data?.token) {
       api.setToken(data.token);
     }
+    if (data?.user && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("studio_user", JSON.stringify(data.user));
+      } catch {}
+    }
     return data;
   },
 
@@ -14,6 +19,11 @@ export const authService = {
     const data = await api.post<{ user: SessionUser; token: string }>("/auth/owner-login");
     if (data?.token) {
       api.setToken(data.token);
+    }
+    if (data?.user && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("studio_user", JSON.stringify(data.user));
+      } catch {}
     }
     return data;
   },
@@ -30,11 +40,21 @@ export const authService = {
     if (data?.token) {
       api.setToken(data.token);
     }
+    if (data?.user && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("studio_user", JSON.stringify(data.user));
+      } catch {}
+    }
     return data;
   },
 
   async logout(): Promise<{ ok: boolean }> {
     api.clearToken();
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("studio_user");
+      } catch {}
+    }
     try {
       return await api.post<{ ok: boolean }>("/auth/logout");
     } catch {
@@ -43,9 +63,33 @@ export const authService = {
   },
 
   async getMe(): Promise<SessionUser | null> {
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("studio_auth_token");
+      if (!storedToken) {
+        return null;
+      }
+    }
+
     try {
-      return await api.get<SessionUser | null>("/auth/me");
+      const user = await api.get<SessionUser | null>("/auth/me");
+      if (user && typeof window !== "undefined") {
+        try {
+          localStorage.setItem("studio_user", JSON.stringify(user));
+        } catch {}
+      }
+      return user;
     } catch (err) {
+      if (typeof window !== "undefined") {
+        const storedToken = localStorage.getItem("studio_auth_token");
+        if (storedToken) {
+          const cached = localStorage.getItem("studio_user");
+          if (cached) {
+            try {
+              return JSON.parse(cached);
+            } catch {}
+          }
+        }
+      }
       return null;
     }
   },

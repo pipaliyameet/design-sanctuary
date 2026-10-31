@@ -128,7 +128,7 @@ export function SiteFooter() {
           <p>© {currentYear} Right Angle Design Studio. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="text-muted-foreground/80">Interior Architecture & Design Practice</span>
-            <Link to="/auth" className="hover:text-accent text-[11px] underline">
+            <Link to="/auth" search={{ redirect: "/studio" }} className="hover:text-accent text-[11px] underline">
               Client & Studio Access
             </Link>
           </div>

@@ -39,7 +39,9 @@ interface NavItem {
 }
 
 const PRIMARY_STUDIO_NAV: NavItem[] = [
+  { to: "/studio/projects", label: "Projects Register", icon: FolderKanban },
   { to: "/studio/media", label: "Drive Media Vault", icon: ImageIcon },
+  { to: "/studio/services", label: "Services Control", icon: Sparkles, badge: "Live" },
   { to: "/studio/website", label: "Customer Homepage", icon: Globe, badge: "Live" },
   { to: "/studio/settings", label: "Settings", icon: Settings },
 ];
@@ -63,7 +65,7 @@ export function AppSidebar({
     api.clearToken();
     await queryClient.resetQueries();
     await queryClient.invalidateQueries();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", search: { redirect: "/studio" } });
   }
 
   return (

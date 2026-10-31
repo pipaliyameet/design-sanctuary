@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
 import { getCollection } from "../config/database.js";
-import { MediaDoc, ActivityLogDoc } from "../models/types.js";
+import { MediaDoc, ActivityLogDoc, CaseStudyDoc } from "../models/types.js";
 import {
   uploadFileToDrive,
   deleteFileFromDrive,
@@ -664,6 +664,9 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
     const query = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
 
     let item = await mediaCol.findOne(query as any);
+    if (!item && ObjectId.isValid(id)) {
+      item = await mediaCol.findOne({ _id: id } as any);
+    }
     if (!item) {
       item = await mediaCol.findOne({ driveFileId: id } as any);
     }
@@ -686,8 +689,38 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
       }
     }
 
-    // 2. Delete MongoDB metadata so website does not remain stuck with undeletable media
-    await mediaCol.deleteOne({ _id: item._id });
+    // 2. Delete ALL duplicates and metadata for this media asset from MongoDB
+    const deleteFilters: any[] = [{ _id: item._id }];
+    if (ObjectId.isValid(id)) {
+      deleteFilters.push({ _id: new ObjectId(id) });
+    }
+    deleteFilters.push({ _id: id });
+    if (item.driveFileId) {
+      deleteFilters.push({ driveFileId: item.driveFileId });
+    }
+    await mediaCol.deleteMany({ $or: deleteFilters });
+
+    // 3. Clean up references in case studies if photo was in a gallery
+    try {
+      const caseStudiesCol = await getCollection<CaseStudyDoc>("caseStudies");
+      if (item.driveFileId) {
+        await caseStudiesCol.updateMany(
+          {},
+          {
+            $pull: {
+              gallery: {
+                $or: [
+                  { url: { $regex: item.driveFileId, $options: "i" } },
+                  { driveFileId: item.driveFileId },
+                ],
+              },
+            } as any,
+          }
+        );
+      }
+    } catch (cleanErr) {
+      console.warn("[deleteMedia] Case study gallery clean note:", cleanErr);
+    }
 
     await activityCol.insertOne({
       projectId: item.projectId || null,

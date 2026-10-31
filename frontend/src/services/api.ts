@@ -10,20 +10,38 @@ class ApiClient {
 
   private getToken(): string | null {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("studio_auth_token");
+      const stored = localStorage.getItem("studio_auth_token");
+      if (stored && stored.trim()) return stored.trim();
+      try {
+        const match = document.cookie.match(/(?:^|;\s*)studio_auth_token=([^;]+)/);
+        if (match && match[1]) {
+          const cookieToken = decodeURIComponent(match[1]).trim();
+          if (cookieToken) {
+            localStorage.setItem("studio_auth_token", cookieToken);
+            return cookieToken;
+          }
+        }
+      } catch {}
     }
     return null;
   }
 
   public setToken(token: string) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("studio_auth_token", token);
+    if (typeof window !== "undefined" && token) {
+      localStorage.setItem("studio_auth_token", token.trim());
+      try {
+        document.cookie = `studio_auth_token=${encodeURIComponent(token.trim())}; path=/; max-age=604800; SameSite=Lax`;
+      } catch {}
     }
   }
 
   public clearToken() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("studio_auth_token");
+      localStorage.removeItem("studio_user");
+      try {
+        document.cookie = "studio_auth_token=; path=/; max-age=0; SameSite=Lax";
+      } catch {}
     }
   }
 
@@ -65,7 +83,7 @@ class ApiClient {
     }
 
     if (!response.ok || json.success === false) {
-      if (response.status === 401) {
+      if (response.status === 401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/me")) {
         this.clearToken();
       }
       const errorMsg = json.message || `Request failed with status ${response.status}`;

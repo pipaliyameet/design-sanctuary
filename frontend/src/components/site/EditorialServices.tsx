@@ -29,15 +29,15 @@ const DISCIPLINE_FALLBACK_IMAGES: Record<string, string[]> = {
   ],
   "02": [
     "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
-    "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
+    "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
     "https://lh3.googleusercontent.com/d/1VXY00jcsOzQyxcdQq9g0Uubc7DwmmaPN",
     "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz",
   ],
   "03": [
+    "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
     "https://lh3.googleusercontent.com/d/1UNtmTkQxW0vxEKvv7_POkseU7576wxPR",
     "https://lh3.googleusercontent.com/d/1xU2lFKRsSmMckhy3W_hGC9h8jL0jcgz5",
     "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
-    "https://lh3.googleusercontent.com/d/1YhMC1rcK8CG5IIoGohUveL6D4UZzh17f",
   ],
 };
 
@@ -45,7 +45,7 @@ const DEFAULT_GLOBAL_IMAGES = [
   "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
   "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
   "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
-  "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
+  "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
 ];
 
 function getServicePhotos(service?: ServiceItem, index = 0): string[] {

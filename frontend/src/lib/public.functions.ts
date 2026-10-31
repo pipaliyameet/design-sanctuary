@@ -372,11 +372,11 @@ export const CURATED_STUDIO_SERVICES: ServiceItem[] = [
     short_description: "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle.",
     fullDesc: "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle. We act as your expert client advocate—reviewing technical specifications, verifying quality tolerances, and maintaining budget and timeline integrity.",
     description: "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle.",
-    image: "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
+    image: "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
     images: [
-      "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
       "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
       "https://lh3.googleusercontent.com/d/1VXY00jcsOzQyxcdQq9g0Uubc7DwmmaPN",
+      "https://lh3.googleusercontent.com/d/1EMJLrcUNSG1DG65uQMG-jS77UcfIpV23",
       "https://lh3.googleusercontent.com/d/10nP_gXYEBs66BpfredfrBQdldkynOdJ9",
     ],
     deliverables: [

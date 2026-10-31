@@ -69,12 +69,13 @@ function GalleryPage() {
   const { data: serverGallery } = useQuery({
     queryKey: ["public-gallery", { category, tag: selectedTag, search, page, limit, sortBy }],
     queryFn: () => getPublicGalleryPhotos({ category, tag: selectedTag, search, page, limit, sortBy }),
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 10,
+    refetchOnMount: "always",
   });
 
-  // Compute pagination (uses server data when available and populated, otherwise local paginator)
+  // Compute pagination (uses server data when available, otherwise local paginator only if server is still loading)
   const paginated = useMemo(() => {
-    if (serverGallery && Array.isArray(serverGallery.items) && serverGallery.items.length > 0) {
+    if (serverGallery && Array.isArray(serverGallery.items)) {
       return serverGallery;
     }
     return getPaginatedGoogleDrivePhotos({
@@ -428,10 +429,11 @@ function GalleryPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const idx = GOOGLE_DRIVE_PHOTOS.findIndex((p) => p.id === lightboxPhoto.id);
-                  if (idx > 0) setLightboxPhoto(GOOGLE_DRIVE_PHOTOS[idx - 1]!);
+                  const list = paginated.items;
+                  const idx = list.findIndex((p: any) => p.id === lightboxPhoto.id || p.url === lightboxPhoto.url);
+                  if (idx > 0) setLightboxPhoto(list[idx - 1] as any);
                 }}
-                disabled={GOOGLE_DRIVE_PHOTOS.findIndex((p) => p.id === lightboxPhoto.id) === 0}
+                disabled={paginated.items.findIndex((p: any) => p.id === lightboxPhoto.id || p.url === lightboxPhoto.url) <= 0}
                 className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 p-2 text-white hover:bg-black disabled:opacity-30 transition-opacity"
               >
                 <ChevronLeft className="size-5" />
@@ -440,14 +442,15 @@ function GalleryPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const idx = GOOGLE_DRIVE_PHOTOS.findIndex((p) => p.id === lightboxPhoto.id);
-                  if (idx !== -1 && idx < GOOGLE_DRIVE_PHOTOS.length - 1) {
-                    setLightboxPhoto(GOOGLE_DRIVE_PHOTOS[idx + 1]!);
+                  const list = paginated.items;
+                  const idx = list.findIndex((p: any) => p.id === lightboxPhoto.id || p.url === lightboxPhoto.url);
+                  if (idx !== -1 && idx < list.length - 1) {
+                    setLightboxPhoto(list[idx + 1] as any);
                   }
                 }}
                 disabled={
-                  GOOGLE_DRIVE_PHOTOS.findIndex((p) => p.id === lightboxPhoto.id) ===
-                  GOOGLE_DRIVE_PHOTOS.length - 1
+                  paginated.items.findIndex((p: any) => p.id === lightboxPhoto.id || p.url === lightboxPhoto.url) >=
+                  paginated.items.length - 1
                 }
                 className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 p-2 text-white hover:bg-black disabled:opacity-30 transition-opacity"
               >
@@ -463,7 +466,7 @@ function GalleryPage() {
                     {lightboxPhoto.category}
                   </span>
                   <span className="font-mono text-[10px] text-muted-foreground">
-                    Photo {lightboxPhoto.index} / {GOOGLE_DRIVE_PHOTOS.length}
+                    Photo {Math.max(1, paginated.items.findIndex((p: any) => p.id === lightboxPhoto.id || p.url === lightboxPhoto.url) + 1)} / {paginated.items.length}
                   </span>
                 </div>
 

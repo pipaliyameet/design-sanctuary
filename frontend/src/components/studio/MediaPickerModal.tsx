@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Check, X, Image as ImageIcon, Sparkles, Filter, CheckCircle2, ArrowRight } from "lucide-react";
 import { mediaService } from "@/services/media.service";
-import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
+import { GOOGLE_DRIVE_PHOTOS, isPhotoDeleted } from "@/lib/google-drive-photos";
 import { DriveImage } from "@/components/site/DriveImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,41 +44,40 @@ export function MediaPickerModal({
     enabled: open,
   });
 
-  // Combine Google Drive Photos with DB records
+  // Source photos from database or filtered Google Drive archive
   const allPhotos = useMemo(() => {
-    const list: Array<{ url: string; title: string; category: string; tags: string[]; room?: string }> = [];
-
-    // Add curated drive photos
-    for (const p of GOOGLE_DRIVE_PHOTOS) {
-      list.push({
-        url: p.url,
-        title: p.title || p.fileName || "Studio Photo",
-        category: p.category || "Living",
-        tags: p.tags || [],
-        room: (p as any).room,
-      });
+    // If live MongoDB media is loaded, it is the authoritative source
+    if (dbMedia && Array.isArray(dbMedia) && dbMedia.length > 0) {
+      return dbMedia
+        .filter(
+          (m: any) =>
+            !isPhotoDeleted(m.id) &&
+            !isPhotoDeleted(m._id) &&
+            !isPhotoDeleted(m.driveFileId) &&
+            !isPhotoDeleted(m.url) &&
+            !isPhotoDeleted(m.driveUrl),
+        )
+        .map((m: any) => ({
+          url:
+            m.url ||
+            m.driveUrl ||
+            (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : ""),
+          title: m.caption || m.fileName || m.title || "Studio Media",
+          category: m.category || "Living & Salon",
+          tags: m.tags || [],
+          room: m.room || undefined,
+        }))
+        .filter((item) => Boolean(item.url));
     }
 
-    // Add any extra DB media items if available
-    if (dbMedia && Array.isArray(dbMedia)) {
-      for (const m of dbMedia) {
-        const directUrl =
-          m.driveUrl ||
-          m.thumbnailUrl ||
-          (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : "");
-        if (directUrl && !list.some((existing) => existing.url === directUrl)) {
-          list.push({
-            url: directUrl,
-            title: m.caption || m.fileName || "Studio Media",
-            category: m.category || "Living",
-            tags: m.tags || [],
-            room: m.room || undefined,
-          });
-        }
-      }
-    }
-
-    return list;
+    // Fallback to active Drive Photos (with deleted photos excluded)
+    return GOOGLE_DRIVE_PHOTOS.filter((p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url)).map((p) => ({
+      url: p.url,
+      title: p.title || p.fileName || "Studio Photo",
+      category: p.category || "Living & Salon",
+      tags: p.tags || [],
+      room: (p as any).room,
+    }));
   }, [dbMedia]);
 
   // Set default selection to currently active URL when modal opens

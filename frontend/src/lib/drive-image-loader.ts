@@ -182,3 +182,27 @@ export function calculateRetryDelay(attempt: number, baseMs = 350): number {
   return Math.min(Math.round(exponential + jitter), 2500);
 }
 
+/**
+ * Evict a deleted image from memory caches
+ */
+export function evictFromImageCache(driveIdOrUrl?: string): void {
+  if (!driveIdOrUrl) {
+    verifiedUrlsCache.clear();
+    fileIdEndpointCache.clear();
+    failedUrlsCache.clear();
+    return;
+  }
+
+  const id = extractGoogleDriveId(driveIdOrUrl) || driveIdOrUrl;
+  fileIdEndpointCache.delete(id);
+
+  for (const url of Array.from(verifiedUrlsCache)) {
+    if (url.includes(id)) {
+      verifiedUrlsCache.delete(url);
+    }
+  }
+
+  failedUrlsCache.add(id);
+}
+
+

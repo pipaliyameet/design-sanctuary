@@ -36,6 +36,7 @@ import { Route as AuthenticatedStudioProjectsIndexRouteImport } from './routes/_
 import { Route as AuthenticatedStudioProjectsIdRouteImport } from './routes/_authenticated/studio/projects/$id'
 import { Route as AuthenticatedStudioQuotationsIndexRouteImport } from './routes/_authenticated/studio/quotations/index'
 import { Route as AuthenticatedStudioReportsIndexRouteImport } from './routes/_authenticated/studio/reports/index'
+import { Route as AuthenticatedStudioServicesIndexRouteImport } from './routes/_authenticated/studio/services/index'
 import { Route as AuthenticatedStudioSettingsIndexRouteImport } from './routes/_authenticated/studio/settings/index'
 import { Route as AuthenticatedStudioSitesIndexRouteImport } from './routes/_authenticated/studio/sites/index'
 import { Route as AuthenticatedStudioTeamIndexRouteImport } from './routes/_authenticated/studio/team/index'
@@ -191,6 +192,12 @@ const AuthenticatedStudioReportsIndexRoute =
     path: '/studio/reports/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudioServicesIndexRoute =
+  AuthenticatedStudioServicesIndexRouteImport.update({
+    id: '/studio/services/',
+    path: '/studio/services/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioSettingsIndexRoute =
   AuthenticatedStudioSettingsIndexRouteImport.update({
     id: '/studio/settings/',
@@ -243,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
   '/studio/quotations/': typeof AuthenticatedStudioQuotationsIndexRoute
   '/studio/reports/': typeof AuthenticatedStudioReportsIndexRoute
+  '/studio/services/': typeof AuthenticatedStudioServicesIndexRoute
   '/studio/settings/': typeof AuthenticatedStudioSettingsIndexRoute
   '/studio/sites/': typeof AuthenticatedStudioSitesIndexRoute
   '/studio/team/': typeof AuthenticatedStudioTeamIndexRoute
@@ -275,6 +283,7 @@ export interface FileRoutesByTo {
   '/studio/projects': typeof AuthenticatedStudioProjectsIndexRoute
   '/studio/quotations': typeof AuthenticatedStudioQuotationsIndexRoute
   '/studio/reports': typeof AuthenticatedStudioReportsIndexRoute
+  '/studio/services': typeof AuthenticatedStudioServicesIndexRoute
   '/studio/settings': typeof AuthenticatedStudioSettingsIndexRoute
   '/studio/sites': typeof AuthenticatedStudioSitesIndexRoute
   '/studio/team': typeof AuthenticatedStudioTeamIndexRoute
@@ -309,6 +318,7 @@ export interface FileRoutesById {
   '/_authenticated/studio/projects/': typeof AuthenticatedStudioProjectsIndexRoute
   '/_authenticated/studio/quotations/': typeof AuthenticatedStudioQuotationsIndexRoute
   '/_authenticated/studio/reports/': typeof AuthenticatedStudioReportsIndexRoute
+  '/_authenticated/studio/services/': typeof AuthenticatedStudioServicesIndexRoute
   '/_authenticated/studio/settings/': typeof AuthenticatedStudioSettingsIndexRoute
   '/_authenticated/studio/sites/': typeof AuthenticatedStudioSitesIndexRoute
   '/_authenticated/studio/team/': typeof AuthenticatedStudioTeamIndexRoute
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/studio/projects/'
     | '/studio/quotations/'
     | '/studio/reports/'
+    | '/studio/services/'
     | '/studio/settings/'
     | '/studio/sites/'
     | '/studio/team/'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/studio/projects'
     | '/studio/quotations'
     | '/studio/reports'
+    | '/studio/services'
     | '/studio/settings'
     | '/studio/sites'
     | '/studio/team'
@@ -408,6 +420,7 @@ export interface FileRouteTypes {
     | '/_authenticated/studio/projects/'
     | '/_authenticated/studio/quotations/'
     | '/_authenticated/studio/reports/'
+    | '/_authenticated/studio/services/'
     | '/_authenticated/studio/settings/'
     | '/_authenticated/studio/sites/'
     | '/_authenticated/studio/team/'
@@ -618,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioReportsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/studio/services/': {
+      id: '/_authenticated/studio/services/'
+      path: '/studio/services'
+      fullPath: '/studio/services/'
+      preLoaderRoute: typeof AuthenticatedStudioServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio/settings/': {
       id: '/_authenticated/studio/settings/'
       path: '/studio/settings'
@@ -667,6 +687,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudioProjectsIndexRoute: typeof AuthenticatedStudioProjectsIndexRoute
   AuthenticatedStudioQuotationsIndexRoute: typeof AuthenticatedStudioQuotationsIndexRoute
   AuthenticatedStudioReportsIndexRoute: typeof AuthenticatedStudioReportsIndexRoute
+  AuthenticatedStudioServicesIndexRoute: typeof AuthenticatedStudioServicesIndexRoute
   AuthenticatedStudioSettingsIndexRoute: typeof AuthenticatedStudioSettingsIndexRoute
   AuthenticatedStudioSitesIndexRoute: typeof AuthenticatedStudioSitesIndexRoute
   AuthenticatedStudioTeamIndexRoute: typeof AuthenticatedStudioTeamIndexRoute
@@ -695,6 +716,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudioQuotationsIndexRoute:
     AuthenticatedStudioQuotationsIndexRoute,
   AuthenticatedStudioReportsIndexRoute: AuthenticatedStudioReportsIndexRoute,
+  AuthenticatedStudioServicesIndexRoute: AuthenticatedStudioServicesIndexRoute,
   AuthenticatedStudioSettingsIndexRoute: AuthenticatedStudioSettingsIndexRoute,
   AuthenticatedStudioSitesIndexRoute: AuthenticatedStudioSitesIndexRoute,
   AuthenticatedStudioTeamIndexRoute: AuthenticatedStudioTeamIndexRoute,

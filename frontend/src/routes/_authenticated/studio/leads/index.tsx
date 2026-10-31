@@ -136,14 +136,14 @@ function LeadsPipelinePage() {
   const totalPipelineValue = useMemo(() => {
     return (leads ?? [])
       .filter((l) => l.stage !== "lost")
-      .reduce((s, l) => s + l.estimated_value, 0);
+      .reduce((s, l) => s + (l.estimated_value ?? l.approx_budget ?? 0), 0);
   }, [leads]);
 
   const openConvertModal = (lead: StudioLead) => {
     setConvertModalLead(lead);
     setConvertForm({
       project_title: `${lead.name} Residence`,
-      budget: lead.estimated_value || 2500000,
+      budget: (lead.estimated_value ?? lead.approx_budget) || 2500000,
       area_sqft: 2800,
       city: lead.city,
     });

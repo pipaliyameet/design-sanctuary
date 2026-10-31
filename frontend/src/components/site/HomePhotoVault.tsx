@@ -15,6 +15,7 @@ import {
   PHOTO_CATEGORIES,
   PUBLIC_DRIVE_FOLDER_URL,
   deduplicatePhotos,
+  isPhotoDeleted,
   type GoogleDrivePhoto,
 } from "@/lib/google-drive-photos";
 import { publicService } from "@/services/public.service";
@@ -34,8 +35,14 @@ export function HomePhotoVault() {
       try {
         const res: any = await publicService.getHomepageMedia();
         const payload = res?.data || res;
-        if (Array.isArray(payload) && payload.length > 0) {
-          const distinctPayload = deduplicatePhotos(payload);
+        if (Array.isArray(payload)) {
+          const distinctPayload = deduplicatePhotos(payload).filter(
+            (p: any) =>
+              !isPhotoDeleted(p.id) &&
+              !isPhotoDeleted(p._id) &&
+              !isPhotoDeleted(p.driveFileId) &&
+              !isPhotoDeleted(p.url),
+          );
           return distinctPayload.map((p: any, idx: number) => ({
             id: p.id || p._id || `drive_${p.driveFileId || idx}`,
             index: p.homepageOrder ?? idx + 1,
@@ -56,16 +63,17 @@ export function HomePhotoVault() {
       } catch (err) {
         // Graceful fallback
       }
-      return GOOGLE_DRIVE_PHOTOS;
+      return null;
     },
     staleTime: 5_000,
+    refetchOnMount: "always",
   });
 
   const allPhotos = useMemo(() => {
-    if (homepageMedia && Array.isArray(homepageMedia) && homepageMedia.length > 0) {
+    if (Array.isArray(homepageMedia)) {
       return deduplicatePhotos(homepageMedia);
     }
-    return GOOGLE_DRIVE_PHOTOS;
+    return GOOGLE_DRIVE_PHOTOS.filter((p) => !isPhotoDeleted(p.id) && !isPhotoDeleted(p.url));
   }, [homepageMedia]);
 
   // Filter photos by category

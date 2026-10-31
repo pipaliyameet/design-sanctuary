@@ -4,8 +4,10 @@ import { leadsService } from "../services/leads.service";
 import { mediaService } from "../services/media.service";
 import { financeService } from "../services/finance.service";
 import { studioService } from "../services/studio.service";
+import { cmsService, type CmsServiceItem } from "../services/cms.service";
 import { api } from "../services/api";
 import { GOOGLE_DRIVE_PHOTOS, deduplicatePhotos } from "./google-drive-photos";
+import { CURATED_STUDIO_SERVICES } from "./public.functions";
 
 // 1. Overview
 export async function getStudioAdminOverview() {
@@ -231,11 +233,11 @@ export const addStudioMediaAsset = createStudioMedia;
 export async function uploadStudioMedia({ data }: { data: { file?: File; files?: File[]; [key: string]: any } }) {
   if (data.files && data.files.length > 0) {
     const { files, ...metadata } = data;
-    return mediaService.upload(files, metadata);
+    return mediaService.upload(files, metadata as any);
   }
   if (data.file) {
     const { file, ...metadata } = data;
-    return mediaService.upload(file, metadata);
+    return mediaService.upload(file, metadata as any);
   }
   return mediaService.create(data);
 }
@@ -588,4 +590,61 @@ export async function getStudioReports() {
 }
 
 export const getStudioReportsData = getStudioReports;
+
+// 12. Studio Services & Disciplines Control
+export async function listStudioServices(): Promise<CmsServiceItem[]> {
+  try {
+    const items = await cmsService.listServices();
+    if (Array.isArray(items) && items.length > 0) {
+      return items.map((item: any, idx: number) => ({
+        id: String(item.id || item._id),
+        number: item.number || String(idx + 1).padStart(2, "0"),
+        title: item.title || "Studio Discipline",
+        shortDesc: item.shortDesc || item.short_description || item.description || "",
+        fullDesc: item.fullDesc || item.description || "",
+        deliverables: Array.isArray(item.deliverables) ? item.deliverables : [],
+        image: item.image || (item.driveFileId ? `https://lh3.googleusercontent.com/d/${item.driveFileId}` : ""),
+        driveFileId: item.driveFileId || null,
+        link: item.link || "/services",
+        sortOrder: Number(item.sortOrder) || idx + 1,
+        published: item.published !== false,
+      }));
+    }
+  } catch (err) {
+    console.warn("[Studio Services] Falling back to curated services:", err);
+  }
+
+  return CURATED_STUDIO_SERVICES.map((s: any, idx: number) => ({
+    id: String(s._id || s.slug || idx + 1),
+    number: s.number || String(idx + 1).padStart(2, "0"),
+    title: s.title,
+    shortDesc: s.shortDesc || s.short_description || s.description || "",
+    fullDesc: s.fullDesc || s.description || "",
+    deliverables: Array.isArray(s.deliverables) ? s.deliverables : [],
+    image: s.image || "",
+    driveFileId: s.driveFileId || null,
+    link: s.link || "/services",
+    sortOrder: Number(s.sortOrder) || idx + 1,
+    published: s.active !== false,
+  }));
+}
+
+export const getStudioServices = listStudioServices;
+
+export async function createStudioService({ data }: { data: Partial<CmsServiceItem> }) {
+  return cmsService.createService(data);
+}
+
+export async function updateStudioService({
+  data,
+}: {
+  data: { id: string; updates: Partial<CmsServiceItem> };
+}) {
+  return cmsService.updateService(data.id, data.updates);
+}
+
+export async function deleteStudioService({ data }: { data: { id: string } }) {
+  return cmsService.deleteService(data.id);
+}
+
 

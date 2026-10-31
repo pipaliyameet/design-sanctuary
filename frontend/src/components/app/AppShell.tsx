@@ -68,7 +68,7 @@ export function AppShell({
     type: "project",
   });
 
-  const unreadNotifs = INITIAL_NOTIFICATIONS.filter((n) => !n.read);
+  const unreadNotifs = INITIAL_NOTIFICATIONS.filter((n) => !(n.is_read ?? n.read));
 
   async function signOut() {
     try {
@@ -79,7 +79,7 @@ export function AppShell({
     api.clearToken();
     await queryClient.resetQueries();
     await queryClient.invalidateQueries();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", search: { redirect: "/studio" } });
   }
 
   const openQuickAction = (type: QuickActionType) => {
@@ -249,10 +249,10 @@ export function AppShell({
                   {INITIAL_NOTIFICATIONS.slice(0, 4).map((n) => (
                     <Link
                       key={n.id}
-                      to={n.action_url as never}
+                      to={(n.link || n.action_url || "/studio") as never}
                       className={cn(
                         "block p-3 text-xs transition-colors hover:bg-muted/50",
-                        !n.read && "bg-accent/5 font-medium",
+                        !(n.is_read ?? n.read) && "bg-accent/5 font-medium",
                       )}
                     >
                       <div className="flex items-center justify-between gap-2">

@@ -60,10 +60,10 @@ function QuotationsPage() {
   const [search, setSearch] = useState("");
   const [previewQuotation, setPreviewQuotation] = useState<StudioQuotation | null>(null);
 
-  const filtered = (quotations ?? []).filter((q) => {
+  const filtered = (quotations ?? []).filter((q: any) => {
     if (!search) return true;
     const query = search.toLowerCase();
-    return [q.number, q.project_title, q.client_name, q.version]
+    return [q.number || q.quotation_number, q.project_title || q.project_name, q.client_name, String(q.version)]
       .filter(Boolean)
       .some((v) => String(v).toLowerCase().includes(query));
   });
@@ -220,10 +220,10 @@ function QuotationsPage() {
 
               <div className="text-right">
                 <span className="font-mono text-sm font-semibold text-accent">
-                  {previewQuotation.number}
+                  {previewQuotation.number || previewQuotation.quotation_number}
                 </span>
                 <p className="text-muted-foreground mt-1">
-                  Date: {shortDate(previewQuotation.created_at)}
+                  Date: {shortDate(previewQuotation.created_at || previewQuotation.issue_date)}
                 </p>
                 <p className="text-muted-foreground">
                   Valid Until: {shortDate(previewQuotation.valid_until)}
@@ -240,14 +240,14 @@ function QuotationsPage() {
                 <p className="font-medium text-foreground text-sm mt-0.5">
                   {previewQuotation.client_name}
                 </p>
-                <p className="text-muted-foreground">{previewQuotation.client_email}</p>
+                <p className="text-muted-foreground">{previewQuotation.client_email || "Client on Record"}</p>
               </div>
               <div>
                 <span className="text-[10px] uppercase text-muted-foreground font-semibold">
                   Commission Title
                 </span>
                 <p className="font-medium text-foreground text-sm mt-0.5">
-                  {previewQuotation.project_title}
+                  {previewQuotation.project_title || previewQuotation.project_name}
                 </p>
                 <p className="text-muted-foreground">Version: {previewQuotation.version}</p>
               </div>
@@ -265,21 +265,21 @@ function QuotationsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border font-mono">
-                {previewQuotation.items.map((item) => (
-                  <tr key={item.id}>
+                {(previewQuotation.items || previewQuotation.line_items || []).map((item: any, idx: number) => (
+                  <tr key={item.id || idx}>
                     <td className="py-2.5 px-3 font-sans">
                       <p className="font-medium text-foreground">{item.category}</p>
                       <p className="text-[11px] text-muted-foreground">{item.description}</p>
                     </td>
-                    <td className="py-2.5 px-3 text-muted-foreground font-sans">{item.room}</td>
+                    <td className="py-2.5 px-3 text-muted-foreground font-sans">{item.room || "General"}</td>
                     <td className="py-2.5 px-3 text-right text-muted-foreground">
-                      {item.quantity} {item.unit}
+                      {item.quantity} {item.unit || "nos"}
                     </td>
                     <td className="py-2.5 px-3 text-right text-muted-foreground">
                       {inr(item.rate)}
                     </td>
                     <td className="py-2.5 px-3 text-right font-medium text-foreground">
-                      {inr(item.total)}
+                      {inr(item.total ?? item.amount ?? (item.rate * item.quantity))}
                     </td>
                   </tr>
                 ))}
@@ -293,19 +293,19 @@ function QuotationsPage() {
                   <span>Subtotal</span>
                   <span className="font-mono">{inr(previewQuotation.subtotal)}</span>
                 </div>
-                {previewQuotation.discount_total > 0 && (
+                {((previewQuotation.discount_total || 0) > 0) && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Studio Courtesy Discount</span>
-                    <span className="font-mono">- {inr(previewQuotation.discount_total)}</span>
+                    <span className="font-mono">- {inr(previewQuotation.discount_total || 0)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-muted-foreground">
                   <span>GST (18%)</span>
-                  <span className="font-mono">{inr(previewQuotation.gst_total)}</span>
+                  <span className="font-mono">{inr(previewQuotation.gst_total || previewQuotation.gst_amount || 0)}</span>
                 </div>
                 <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-foreground">
                   <span>Grand Total</span>
-                  <span className="font-mono text-accent">{inr(previewQuotation.grand_total)}</span>
+                  <span className="font-mono text-accent">{inr(previewQuotation.grand_total || previewQuotation.total_amount)}</span>
                 </div>
               </div>
             </div>
@@ -313,10 +313,10 @@ function QuotationsPage() {
             {/* Notes & Sign-off */}
             <div className="border-t border-border pt-4 space-y-2 text-muted-foreground text-[11px]">
               <p>
-                <strong>Payment Terms:</strong> {previewQuotation.payment_terms}
+                <strong>Payment Terms:</strong> {previewQuotation.payment_terms || "50% advance upon contract signing, 40% progressive milestones, 10% on defect-free handover."}
               </p>
               <p>
-                <strong>Specifications:</strong> {previewQuotation.notes}
+                <strong>Specifications:</strong> {previewQuotation.notes || "All joinery fabricated with marine grade BWR plywood, premium hardware, and zero VOC finishes."}
               </p>
             </div>
 

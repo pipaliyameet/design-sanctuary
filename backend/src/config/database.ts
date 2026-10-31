@@ -267,6 +267,85 @@ function getInitialStore(name: string): any[] {
         projectTitle: "Kothari Pavilions",
       },
     ];
+  } else if (name === "services") {
+    initialData = [
+      {
+        _id: "srv_1",
+        number: "01",
+        title: "Architecture & Interior Design",
+        shortDesc: "Architectural planning, interior design, space planning, and functional, aesthetically pleasing spaces tailored to each client's requirements.",
+        fullDesc:
+          "Comprehensive architectural planning, interior design, space planning, and functional, aesthetically pleasing spaces tailored to each client's requirements. We integrate daylight vectors, proportional flow, and material purity from measured site surveys through to comprehensive construction drawings.",
+        image: "https://lh3.googleusercontent.com/d/1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+        driveFileId: "1Du9bv87hjZ8ySVHnckG5lSL1xQjvxogE",
+        deliverables: [
+          "Architectural planning & space optimization",
+          "Tailored residential & commercial interior design",
+          "Comprehensive Good For Construction (GFC) drawings",
+          "Circulation mapping & architectural lighting design",
+        ],
+        link: "/services#architecture-interior-design",
+        sortOrder: 1,
+        published: true,
+      },
+      {
+        _id: "srv_2",
+        number: "02",
+        title: "Landscape Design",
+        shortDesc: "Thoughtfully designed outdoor spaces, gardens, and landscapes that complement the architecture and surrounding environment.",
+        fullDesc:
+          "Thoughtfully designed outdoor spaces, gardens, and landscapes that complement the architecture and surrounding environment. We harmonize organic greenery, stone hardscaping, ambient exterior illumination, and serene water features with the built structure.",
+        image: "https://lh3.googleusercontent.com/d/18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+        driveFileId: "18ZSfvj53ZvlAwj7l6-7la5FHHXcbadWg",
+        deliverables: [
+          "Custom landscape master planning & outdoor zoning",
+          "Courtyard gardens & verandah integration",
+          "Natural stone pathways, planters & hardscaping",
+          "Exterior atmospheric illumination & irrigation planning",
+        ],
+        link: "/services#landscape-design",
+        sortOrder: 2,
+        published: true,
+      },
+      {
+        _id: "srv_3",
+        number: "03",
+        title: "Project Consultancy",
+        shortDesc: "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle.",
+        fullDesc:
+          "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle. We act as your expert client advocate—reviewing technical specifications, verifying quality tolerances, and maintaining budget and timeline integrity.",
+        image: "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
+        driveFileId: "1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
+        deliverables: [
+          "Independent design coordination & technical review",
+          "Quarry & mill material selection and verification",
+          "MEP, structural & contractor alignment audits",
+          "Budget optimization & lifecycle schedule governance",
+        ],
+        link: "/services#project-consultancy",
+        sortOrder: 3,
+        published: true,
+      },
+      {
+        _id: "srv_4",
+        number: "04",
+        title: "Turnkey Projects",
+        shortDesc: "End-to-end project execution, from initial planning and design to material selection, construction, finishing, and final handover.",
+        fullDesc:
+          "End-to-end project execution, from initial planning and design to material selection, construction, finishing, and final handover. Single-source studio accountability with frozen milestone budgets, vetted master craftsmen, rigorous daily site supervision, and white-glove delivery.",
+        image: "https://lh3.googleusercontent.com/d/1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
+        driveFileId: "1YXSBTgbi5JUhDBtEQzQALMB_e3PAGd8r",
+        deliverables: [
+          "End-to-end single-source execution & site custody",
+          "Frozen Bill of Quantities (BOQ) with milestone guarantees",
+          "Master carpentry, masonry, finishes & MEP execution",
+          "White-glove styling, quality QA, and defect-free handover",
+        ],
+        link: "/services#turnkey-projects",
+        sortOrder: 4,
+        published: true,
+      },
+    ];
   } else if (name === "testimonials") {
     initialData = [
       {
@@ -503,7 +582,8 @@ function createMemoryCollection<T extends Document = Document>(name: string): Co
     deleteMany: async (filter: any) => {
       const initialLen = store.length;
       const remaining = store.filter((item) => !matchesFilter(item, filter));
-      memoryStores.set(name, remaining);
+      store.splice(0, store.length, ...remaining);
+      memoryStores.set(name, store);
       return { deletedCount: initialLen - remaining.length, acknowledged: true };
     },
     findOneAndUpdate: async (filter: any, update: any, options: any = {}) => {
@@ -601,6 +681,24 @@ export async function seedDatabaseIfEmpty(db: Db): Promise<void> {
       if (initialTestimonials.length > 0) {
         await db.collection("testimonials").insertMany(initialTestimonials);
       }
+    }
+
+    const servicesCount = await db.collection("services").countDocuments();
+    if (servicesCount === 0) {
+      const initialServices = getInitialStore("services");
+      if (initialServices.length > 0) {
+        await db.collection("services").insertMany(initialServices);
+      }
+    } else {
+      await db.collection("services").updateMany(
+        { $or: [{ number: "03" }, { title: /Project Consultancy/i }] },
+        {
+          $set: {
+            image: "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
+            driveFileId: "1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
+          },
+        }
+      );
     }
 
     const journalCount = await db.collection("journalPosts").countDocuments();

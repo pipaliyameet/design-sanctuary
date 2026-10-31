@@ -69,7 +69,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     shortDesc: "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle.",
     fullDesc:
       "Professional guidance, planning, design coordination, material selection, and project management support throughout the project lifecycle. We act as your expert client advocate—reviewing technical specifications, verifying quality tolerances, and maintaining budget and timeline integrity.",
-    image: GOOGLE_DRIVE_PHOTOS[3]?.url || "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
+    image: GOOGLE_DRIVE_PHOTOS[7]?.url || "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
     deliverables: [
       "Independent design coordination & technical review",
       "Quarry & mill material selection and verification",

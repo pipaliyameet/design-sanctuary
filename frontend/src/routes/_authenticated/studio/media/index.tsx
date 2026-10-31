@@ -52,7 +52,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DriveImage } from "@/components/site/DriveImage";
-import { PHOTO_CATEGORIES, PUBLIC_DRIVE_FOLDER_URL } from "@/lib/google-drive-photos";
+import { PHOTO_CATEGORIES, PUBLIC_DRIVE_FOLDER_URL, markPhotoDeleted } from "@/lib/google-drive-photos";
+import { evictFromImageCache } from "@/lib/drive-image-loader";
 
 export const Route = createFileRoute("/_authenticated/studio/media/")({
   component: MediaLibraryPage,
@@ -270,13 +271,39 @@ export function MediaLibraryPage() {
     },
     onSuccess: () => {
       toast.success("Photo permanently removed from Google Drive and website.");
+      const targetId = assetToDelete?.id || assetToDelete?._id || assetToDelete?.driveFileId;
+      if (targetId) {
+        markPhotoDeleted(String(targetId));
+        evictFromImageCache(String(targetId));
+      }
+      if (assetToDelete?.driveFileId) {
+        markPhotoDeleted(String(assetToDelete.driveFileId));
+        evictFromImageCache(String(assetToDelete.driveFileId));
+      }
+      if (assetToDelete?.url) {
+        markPhotoDeleted(String(assetToDelete.url));
+        evictFromImageCache(String(assetToDelete.url));
+      }
       setAssetToDelete(null);
       if (selectedAsset) setSelectedAsset(null);
-      queryClient.invalidateQueries({ queryKey: ["studio", "media"] });
+
+      // Remove cached queries completely to guarantee immediate freshness without stale data
+      queryClient.removeQueries({ queryKey: ["public-gallery"] });
+      queryClient.removeQueries({ queryKey: ["homepage-media"] });
+      queryClient.removeQueries({ queryKey: ["home-content"] });
+      queryClient.removeQueries({ queryKey: ["public-home"] });
+      queryClient.removeQueries({ queryKey: ["public"] });
+      queryClient.removeQueries({ queryKey: ["case-studies"] });
+      queryClient.removeQueries({ queryKey: ["media"] });
+
+      queryClient.invalidateQueries({ queryKey: ["studio"] });
       queryClient.invalidateQueries({ queryKey: ["public-gallery"] });
       queryClient.invalidateQueries({ queryKey: ["home-content"] });
       queryClient.invalidateQueries({ queryKey: ["homepage-media"] });
+      queryClient.invalidateQueries({ queryKey: ["public-home"] });
       queryClient.invalidateQueries({ queryKey: ["public"] });
+      queryClient.invalidateQueries({ queryKey: ["case-studies"] });
+      queryClient.invalidateQueries({ queryKey: ["media"] });
       refetch();
     },
     onError: (err: any) => {

@@ -52,7 +52,7 @@ function DocumentsPage() {
     return docs.filter((d) => {
       if (category !== "all" && d.category !== category) return false;
       if (!q) return true;
-      return [d.title, d.project_title, d.category, d.uploaded_by]
+      return [d.title, d.project_title || d.project_name, d.category, d.uploaded_by]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q));
     });
@@ -140,7 +140,7 @@ function DocumentsPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3.5 text-muted-foreground font-medium">
-                  {doc.project_title}
+                  {doc.project_title || doc.project_name}
                 </td>
                 <td className="px-4 py-3.5 text-muted-foreground">{doc.category}</td>
                 <td className="px-4 py-3.5">
@@ -154,7 +154,7 @@ function DocumentsPage() {
                 <td className="px-4 py-3.5 font-mono text-muted-foreground">
                   {doc.file_size} · {doc.file_type}
                 </td>
-                <td className="px-4 py-3.5 text-muted-foreground">{shortDate(doc.upload_date)}</td>
+                <td className="px-4 py-3.5 text-muted-foreground">{shortDate(doc.upload_date || doc.uploaded_at)}</td>
                 <td className="px-4 py-3.5">
                   <span
                     className={`text-[11px] font-medium flex items-center gap-1 ${
@@ -166,7 +166,7 @@ function DocumentsPage() {
                     ) : (
                       <Clock className="h-3 w-3" />
                     )}
-                    {doc.status.replace(/_/g, " ")}
+                    {(doc.status || (doc.is_approved ? "approved" : "review_pending")).replace(/_/g, " ")}
                   </span>
                 </td>
                 <td className="px-5 py-3.5 text-right">
