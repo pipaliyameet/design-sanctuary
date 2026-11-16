@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Instagram, MessageSquare, Phone, Mail } from "lucide-react";
+import { ArrowUpRight, Instagram, Facebook, MessageSquare, Phone, Mail } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { STUDIO_DETAILS } from "@/lib/public.functions";
 
@@ -24,6 +24,15 @@ export function SiteFooter() {
             </p>
 
             <div className="flex items-center gap-3 pt-2">
+              <a
+                href={STUDIO_DETAILS.facebookUrl || "https://www.facebook.com/rightangle919"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="flex size-9 items-center justify-center border border-border/80 text-muted-foreground transition-colors hover:border-[#1877F2] hover:text-[#1877F2]"
+              >
+                <Facebook className="size-4" />
+              </a>
               <a
                 href={STUDIO_DETAILS.instagramUrl}
                 target="_blank"
@@ -58,7 +67,7 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-xs uppercase tracking-[0.16em]">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-accent transition-colors">
-                  Portfolio
+                  Home Page
                 </Link>
               </li>
               <li>
@@ -69,16 +78,6 @@ export function SiteFooter() {
               <li>
                 <Link to="/services" className="text-muted-foreground hover:text-accent transition-colors">
                   Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors">
-                  Studio
-                </Link>
-              </li>
-              <li>
-                <Link to="/process" className="text-muted-foreground hover:text-accent transition-colors">
-                  Process
                 </Link>
               </li>
               <li>

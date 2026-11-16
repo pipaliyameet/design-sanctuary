@@ -50,6 +50,9 @@ import {
 import {
   ARCHITECTURAL_FILMS,
   GOOGLE_DRIVE_VIDEOS_FOLDER_URL,
+  extractDriveFileId,
+  buildDriveVideoUrls,
+  resolveVideoStreamUrl,
   type DriveVideo,
 } from "@/lib/google-drive-videos";
 import {
@@ -74,6 +77,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { DriveImage } from "@/components/site/DriveImage";
 import { MediaPickerModal } from "@/components/studio/MediaPickerModal";
+import { DriveReelPickerModal, type SelectedReelData } from "@/components/studio/DriveReelPickerModal";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import {
   Dialog,
@@ -130,7 +134,8 @@ export function LiveVisualWebsiteEditor() {
   const [customProcessSteps, setCustomProcessSteps] = useState<ProcessStepItem[]>(CURATED_STUDIO_PROCESS);
   const [customTestimonials, setCustomTestimonials] = useState<TestimonialItem[]>(CURATED_STUDIO_TESTIMONIALS);
   const [customFilms, setCustomFilms] = useState<DriveVideo[]>(ARCHITECTURAL_FILMS);
-  const [spotlightSlug, setSpotlightSlug] = useState<string>("mehta-executive-suite");
+  const [spotlightSlug, setSpotlightSlug] = useState<string>("altamount-penthouse");
+  const [customSpotlightPhoto, setCustomSpotlightPhoto] = useState<string>("");
 
   // Media Picker Dialog State
   const [mediaPickerOpen, setMediaPickerOpen] = useState<boolean>(false);
@@ -176,6 +181,7 @@ export function LiveVisualWebsiteEditor() {
 
   // Architectural Film Edit Dialog State
   const [filmEditorOpen, setFilmEditorOpen] = useState<boolean>(false);
+  const [reelPickerOpen, setReelPickerOpen] = useState<boolean>(false);
   const [editingFilmIndex, setEditingFilmIndex] = useState<number | null>(null);
   const [filmForm, setFilmForm] = useState<{
     title: string;
@@ -183,6 +189,9 @@ export function LiveVisualWebsiteEditor() {
     location: string;
     description: string;
     streamUrl: string;
+    driveFileId?: string;
+    posterUrl?: string;
+    driveEmbedUrl?: string;
   }>({
     title: "",
     category: "",
@@ -304,7 +313,8 @@ export function LiveVisualWebsiteEditor() {
     consultationHeading: "Ready to begin your architectural sanctuary?",
     consultationPhone: "+91 95375 86804",
     consultationEmail: "contact@rightangle.design",
-    spotlightProjectSlug: "mehta-executive-suite",
+    spotlightProjectSlug: "altamount-penthouse",
+    spotlightPhoto: "",
     featuredProjectSlugs: [],
     showServices: true,
     showProcess: true,
@@ -322,12 +332,15 @@ export function LiveVisualWebsiteEditor() {
         atmospherePhoto: homeData.atmospherePhoto || customAtmospherePhoto,
         beforePhoto: homeData.beforePhoto || customBeforePhoto,
         afterPhoto: homeData.afterPhoto || customAfterPhoto,
+        spotlightPhoto: homeData.spotlightPhoto || prev.spotlightPhoto || "",
       }));
       if (homeData.atmospherePhoto) setCustomAtmospherePhoto(homeData.atmospherePhoto);
       if (homeData.beforePhoto) setCustomBeforePhoto(homeData.beforePhoto);
       if (homeData.afterPhoto) setCustomAfterPhoto(homeData.afterPhoto);
+      if (homeData.spotlightPhoto) setCustomSpotlightPhoto(homeData.spotlightPhoto);
       if (homeData.architecturalFilms && Array.isArray(homeData.architecturalFilms)) {
-        setCustomFilms(homeData.architecturalFilms);
+        // Only 1 reel as requested by studio owner (reels 02 and 03 removed)
+        setCustomFilms(homeData.architecturalFilms.slice(0, 1));
       }
       if (homeData.spotlightProjectSlug) {
         setSpotlightSlug(homeData.spotlightProjectSlug);
@@ -398,7 +411,6 @@ export function LiveVisualWebsiteEditor() {
   // Spotlight project: selected by admin or first matching project
   const spotlightProject =
     caseStudies.find((s) => s.slug === spotlightSlug || s._id === spotlightSlug) ||
-    caseStudies[3] || // default Mehta Executive Suite
     caseStudies[0] ||
     CURATED_STUDIO_PROJECTS[0];
 
@@ -431,6 +443,7 @@ export function LiveVisualWebsiteEditor() {
         afterPhoto: customAfterPhoto,
         architecturalFilms: customFilms,
         spotlightProjectSlug: spotlightSlug,
+        spotlightPhoto: customSpotlightPhoto,
         processSteps: customProcessSteps,
         materials: customMaterials,
         testimonials: customTestimonials,
@@ -498,6 +511,7 @@ export function LiveVisualWebsiteEditor() {
           afterPhoto: customAfterPhoto,
           architecturalFilms: customFilms,
           spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: customSpotlightPhoto,
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -517,6 +531,7 @@ export function LiveVisualWebsiteEditor() {
           afterPhoto: customAfterPhoto,
           architecturalFilms: customFilms,
           spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: customSpotlightPhoto,
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -531,11 +546,28 @@ export function LiveVisualWebsiteEditor() {
         id: targetId,
         data: { heroImage: photoUrl },
       });
-    } else if (slotType === "spotlight" && targetId) {
-      updateCaseStudyMutation.mutate({
-        id: targetId,
-        data: { heroImage: photoUrl },
-      });
+    } else if (slotType === "spotlight") {
+      setCustomSpotlightPhoto(photoUrl);
+      const updated = { ...draftHome, spotlightPhoto: photoUrl };
+      setDraftHome(updated);
+      cmsService
+        .updateHomepage({
+          ...updated,
+          atmospherePhoto: customAtmospherePhoto,
+          beforePhoto: customBeforePhoto,
+          afterPhoto: customAfterPhoto,
+          architecturalFilms: customFilms,
+          spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: photoUrl,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["cms"] });
+          queryClient.invalidateQueries({ queryKey: ["public"] });
+          queryClient.invalidateQueries({ queryKey: ["home-content"] });
+          broadcastCmsUpdate({ type: "spotlight_photo", url: photoUrl });
+          toast.success("Spotlight photograph updated and live on customer site!");
+        })
+        .catch(() => setHasUnpublishedChanges(true));
     } else if (slotType === "material" && typeof index === "number") {
       setCustomMaterials((prev) => {
         const copy = [...prev];
@@ -556,6 +588,7 @@ export function LiveVisualWebsiteEditor() {
           afterPhoto: customAfterPhoto,
           architecturalFilms: customFilms,
           spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: customSpotlightPhoto,
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -575,6 +608,7 @@ export function LiveVisualWebsiteEditor() {
           afterPhoto: photoUrl,
           architecturalFilms: customFilms,
           spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: customSpotlightPhoto,
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -605,6 +639,7 @@ export function LiveVisualWebsiteEditor() {
         afterPhoto: customAfterPhoto,
         architecturalFilms: customFilms,
         spotlightProjectSlug: spotlightSlug,
+        spotlightPhoto: customSpotlightPhoto,
       })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -647,8 +682,46 @@ export function LiveVisualWebsiteEditor() {
       location: film.location,
       description: film.description,
       streamUrl: film.streamUrl,
+      driveFileId: film.driveFileId,
+      posterUrl: film.posterUrl,
+      driveEmbedUrl: film.driveEmbedUrl,
     });
     setFilmEditorOpen(true);
+  };
+
+  const handleSelectDriveReel = (reelData: SelectedReelData) => {
+    const resolvedStream = resolveVideoStreamUrl(reelData.driveFileId, reelData.streamUrl);
+    setFilmForm((prev) => ({
+      ...prev,
+      streamUrl: resolvedStream,
+      driveFileId: reelData.driveFileId || prev.driveFileId,
+      posterUrl: reelData.posterUrl || prev.posterUrl,
+      driveEmbedUrl: reelData.driveEmbedUrl || prev.driveEmbedUrl,
+      title: prev.title.trim() === "" ? reelData.title || prev.title : prev.title,
+      category: prev.category && prev.category.trim() !== "" ? prev.category : reelData.category || prev.category,
+      location: prev.location && prev.location.trim() !== "" ? prev.location : reelData.location || prev.location,
+      description: prev.description && prev.description.trim() !== "" ? prev.description : reelData.description || prev.description,
+    }));
+  };
+
+  const handleStreamUrlInputChange = (val: string) => {
+    const driveId = extractDriveFileId(val);
+    if (driveId) {
+      const urls = buildDriveVideoUrls(driveId);
+      setFilmForm((prev) => ({
+        ...prev,
+        streamUrl: urls.streamUrl,
+        driveFileId: driveId,
+        posterUrl: urls.posterUrl,
+        driveEmbedUrl: urls.driveEmbedUrl,
+      }));
+      toast.success("Google Drive video reel link recognized!");
+    } else {
+      setFilmForm((prev) => ({
+        ...prev,
+        streamUrl: val,
+      }));
+    }
   };
 
   const handleSaveFilm = () => {
@@ -656,13 +729,20 @@ export function LiveVisualWebsiteEditor() {
     const copy = [...customFilms];
     const target = copy[editingFilmIndex];
     if (target) {
+      const resolvedStream = resolveVideoStreamUrl(
+        filmForm.driveFileId || target.driveFileId,
+        filmForm.streamUrl || target.streamUrl
+      );
       copy[editingFilmIndex] = {
         ...target,
         title: filmForm.title,
         category: filmForm.category,
         location: filmForm.location,
         description: filmForm.description,
-        streamUrl: filmForm.streamUrl || target.streamUrl,
+        streamUrl: resolvedStream,
+        driveFileId: filmForm.driveFileId || target.driveFileId,
+        posterUrl: filmForm.posterUrl || target.posterUrl,
+        driveEmbedUrl: filmForm.driveEmbedUrl || target.driveEmbedUrl,
       };
       setCustomFilms(copy);
       setFilmEditorOpen(false);
@@ -676,6 +756,7 @@ export function LiveVisualWebsiteEditor() {
           afterPhoto: customAfterPhoto,
           architecturalFilms: copy,
           spotlightProjectSlug: spotlightSlug,
+          spotlightPhoto: customSpotlightPhoto,
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -813,14 +894,13 @@ export function LiveVisualWebsiteEditor() {
         {/* =====================================================================
             1-TO-1 CUSTOMER HOMEPAGE CANVAS
             ===================================================================== */}
-        <div className="border border-border/80 bg-stone-900/30 rounded-xl p-2 sm:p-5 flex justify-center min-h-[750px] overflow-hidden">
-          <div className="w-full max-w-[1720px] rounded transition-all duration-300 bg-background text-foreground shadow-2xl border border-border/70 overflow-hidden relative">
+        <div className="w-full transition-all duration-300 bg-background text-foreground overflow-hidden relative">
             
             {/* Simulated Public Header */}
             <header className="border-b border-border/60 bg-background/95 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30">
               <BrandLogo variant="horizontal" size="sm" />
               <nav className="hidden sm:flex items-center gap-6 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                <span className="text-foreground font-medium border-b-2 border-accent pb-1">Portfolio</span>
+                <span className="text-foreground font-medium border-b-2 border-accent pb-1">Home Page</span>
                 <span>Gallery</span>
                 <span>Services</span>
                 <span>Process</span>
@@ -1159,36 +1239,11 @@ export function LiveVisualWebsiteEditor() {
                 =================================================================== */}
             <section id="portfolio-archive" className="py-16 sm:py-24 bg-background scroll-mt-20 border-t border-border">
               <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
-                  <div>
-                    <p className="eyebrow">SELECTED WORK</p>
-                    <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground tracking-tight">
-                      Featured Architectural Commissions
-                    </h2>
-                  </div>
-
-                  {/* Dynamic Category Filter */}
-                  {availableCategories.length > 1 && (
-                    <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-1">
-                      {availableCategories.map((cat) => {
-                        const isActive = selectedFilter === cat;
-                        return (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => setSelectedFilter(cat)}
-                            className={cn(
-                              "relative py-1 text-xs uppercase tracking-[0.2em] transition-colors cursor-pointer whitespace-nowrap",
-                              isActive ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            <span>{cat}</span>
-                            {isActive && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                <div className="pb-10 border-b border-border">
+                  <p className="eyebrow">SELECTED WORK</p>
+                  <h2 className="mt-2 text-2xl sm:text-4xl font-display font-light text-foreground tracking-tight">
+                    Featured Architectural Commissions
+                  </h2>
                 </div>
 
                 {/* EXACT EDITORIAL ALTERNATING LAYOUT AS SHOWN IN SCREENSHOTS 2 & 3 */}
@@ -1347,11 +1402,13 @@ export function LiveVisualWebsiteEditor() {
                           onChange={(e) => {
                             const newSlug = e.target.value;
                             setSpotlightSlug(newSlug);
+                            setCustomSpotlightPhoto("");
                             setHasUnpublishedChanges(true);
                             cmsService
                               .updateHomepage({
                                 ...draftHome,
                                 spotlightProjectSlug: newSlug,
+                                spotlightPhoto: "",
                               })
                               .then(() => {
                                 queryClient.invalidateQueries({ queryKey: ["cms"] });
@@ -1398,7 +1455,7 @@ export function LiveVisualWebsiteEditor() {
                     {/* Left: 16/10 Photo */}
                     <div className="relative lg:col-span-7 aspect-[16/10] overflow-hidden bg-stone border border-border">
                       <DriveImage
-                        src={spotlightProject.hero_image}
+                        src={customSpotlightPhoto || spotlightProject.hero_image}
                         alt={spotlightProject.title}
                         className="size-full object-cover transition-transform duration-700 hover:scale-105"
                         wrapperClassName="size-full"
@@ -1412,7 +1469,7 @@ export function LiveVisualWebsiteEditor() {
                                 slotType: "spotlight",
                                 targetId: spotlightProject._id || spotlightProject.slug,
                                 title: `Spotlight: ${spotlightProject.title}`,
-                                currentUrl: spotlightProject.hero_image,
+                                currentUrl: customSpotlightPhoto || spotlightProject.hero_image,
                               });
                               setMediaPickerOpen(true);
                             }}
@@ -2037,7 +2094,6 @@ export function LiveVisualWebsiteEditor() {
             </footer>
           </div>
         </div>
-      </div>
 
       {/* =======================================================================
           MODALS & DIALOGS
@@ -2053,6 +2109,14 @@ export function LiveVisualWebsiteEditor() {
           handleSelectMedia(photoUrl);
           setMediaPickerOpen(false);
         }}
+      />
+
+      {/* Google Drive Reel Picker Modal */}
+      <DriveReelPickerModal
+        open={reelPickerOpen}
+        onOpenChange={setReelPickerOpen}
+        onSelectReel={handleSelectDriveReel}
+        currentStreamUrl={filmForm.streamUrl}
       />
 
       {/* Project Editor Dialog (Screenshots 2 & 3) */}
@@ -2243,13 +2307,38 @@ export function LiveVisualWebsiteEditor() {
             </div>
 
             <div>
-              <label className="font-mono uppercase text-muted-foreground">Video Stream URL / File</label>
-              <Input
-                value={filmForm.streamUrl}
-                onChange={(e) => setFilmForm((prev) => ({ ...prev, streamUrl: e.target.value }))}
-                className="mt-1 font-mono text-xs"
-                placeholder="/videos/architectural-film-01.mp4 or Drive stream URL"
-              />
+              <label className="font-mono uppercase text-muted-foreground">Video Stream URL / Google Drive Reel</label>
+
+              <div className="mt-1 flex items-center gap-2">
+                <Input
+                  value={filmForm.streamUrl}
+                  onChange={(e) => handleStreamUrlInputChange(e.target.value)}
+                  className="font-mono text-xs h-9"
+                  placeholder="/videos/architectural-film-01.mp4 or paste Google Drive link"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReelPickerOpen(true)}
+                  className="shrink-0 h-9 px-3 text-xs gap-1.5 border-accent/40 bg-accent/10 text-accent hover:bg-accent hover:text-white cursor-pointer font-medium transition-all"
+                  title="Select any video reel from your Google Drive archive"
+                >
+                  <Film className="size-3.5" />
+                  <span>Select from Drive</span>
+                </Button>
+              </div>
+
+              {filmForm.driveFileId && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                  <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">Google Drive File Linked: {filmForm.driveFileId}</span>
+                </div>
+              )}
+
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                Click <strong>Select from Drive</strong> to choose any reel from your studio vault, or paste any Google Drive video link / File ID.
+              </p>
             </div>
           </div>
 

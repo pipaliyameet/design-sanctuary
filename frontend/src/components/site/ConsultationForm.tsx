@@ -10,24 +10,14 @@ interface ConsultationFormProps {
   className?: string;
 }
 
-const PROJECT_TYPES = [
-  "Architecture & Interior Design",
-  "Turnkey Projects (Design & Build)",
-  "Landscape Design",
-  "Project Consultancy",
-  "Residential Villa / Sky Penthouse",
-  "Commercial & Executive Workplace",
-];
-
-export function ConsultationForm({ initialProjectType, className }: ConsultationFormProps) {
+export function ConsultationForm({ className }: ConsultationFormProps) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState<{ name: string; projectType: string } | null>(null);
+  const [submittedData, setSubmittedData] = useState<{ name: string } | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
     contact: "", // Phone Number or Email
-    projectType: initialProjectType || PROJECT_TYPES[0],
     message: "",
   });
 
@@ -89,14 +79,12 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
         contact: contactVal,
         email: isEmail ? contactVal : "",
         phone: !isEmail ? contactVal : "",
-        spaceType: formData.projectType,
-        projectType: formData.projectType,
         notes: formData.message.trim(),
         message: formData.message.trim(),
       };
 
       await submitEnquiry({ data: payload });
-      setSubmittedData({ name: formData.name.trim(), projectType: formData.projectType });
+      setSubmittedData({ name: formData.name.trim() });
       setSubmitted(true);
       toast.success("Thank you! Your message has been sent to Ravi Pipaliya and the studio team.");
     } catch (err: any) {
@@ -109,9 +97,8 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
 
   const generateWhatsAppLink = () => {
     const nameStr = submittedData?.name || formData.name || "Client";
-    const typeStr = submittedData?.projectType || formData.projectType;
     const msgStr = formData.message ? `• Requirements: ${formData.message}` : "";
-    const text = `Hello Right Angle Design Studio,\n\nI have submitted a project inquiry:\n• Name: ${nameStr}\n• Project Type: ${typeStr}\n${msgStr}\n\nLooking forward to connecting with Ravi Pipaliya and the design team.`;
+    const text = `Hello Right Angle Design Studio,\n\nI have submitted an inquiry:\n• Name: ${nameStr}\n${msgStr}\n\nLooking forward to connecting with Ravi Pipaliya and the design team.`;
     return `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
@@ -128,13 +115,11 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
           </h3>
 
           <p className="mt-3 text-sm sm:text-base text-foreground/85 leading-relaxed font-normal">
-            Thank you, <strong className="text-foreground font-semibold">{submittedData?.name}</strong>. Ravi Pipaliya and our senior design team have received your project details. We will connect with you shortly.
+            Thank you, <strong className="text-foreground font-semibold">{submittedData?.name}</strong>. Ravi Pipaliya and our senior design team have received your details. We will connect with you shortly.
           </p>
 
-          <div className="mt-6 rounded-md bg-muted/40 border border-border/80 p-4 text-xs sm:text-sm text-foreground/80 text-left">
-            <p className="font-semibold text-foreground mb-1">Selected Project Scope:</p>
-            <p className="font-mono text-accent">{submittedData?.projectType}</p>
-            <p className="mt-2 text-xs text-foreground/70">
+          <div className="mt-6 rounded-md bg-muted/40 border border-border/80 p-4 text-xs sm:text-sm text-foreground/80 text-center">
+            <p className="text-foreground/80">
               Response timeframe: Within 24 business hours.
             </p>
           </div>
@@ -157,7 +142,6 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
                 setFormData({
                   name: "",
                   contact: "",
-                  projectType: initialProjectType || PROJECT_TYPES[0],
                   message: "",
                 });
                 setSubmittedData(null);
@@ -254,37 +238,7 @@ export function ConsultationForm({ initialProjectType, className }: Consultation
           )}
         </div>
 
-        {/* Field 3: Project Type */}
-        <div>
-          <label
-            htmlFor="contact-project-type"
-            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
-          >
-            Project Type <span className="text-destructive">*</span>
-          </label>
-          <div className="relative">
-            <select
-              id="contact-project-type"
-              name="projectType"
-              value={formData.projectType}
-              onChange={handleChange}
-              className="w-full appearance-none rounded border border-border/80 bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none pr-10 cursor-pointer"
-            >
-              {PROJECT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-foreground/60">
-              <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Field 4: Message */}
+        {/* Message */}
         <div>
           <label
             htmlFor="contact-message"

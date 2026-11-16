@@ -173,6 +173,8 @@ export async function getHomepageConfig(req: Request, res: Response, next: NextF
       consultationHeading: unwrap(map.consultationHeading, "Ready to begin your architectural sanctuary?"),
       consultationPhone: unwrap(map.consultationPhone, "+91 95375 86804"),
       consultationEmail: unwrap(map.consultationEmail, "contact@rightangle.design"),
+      spotlightProjectSlug: unwrap(map.spotlightProjectSlug, "altamount-penthouse"),
+      spotlightPhoto: unwrap(map.spotlightPhoto, ""),
     });
   } catch (err) {
     next(err);
@@ -497,6 +499,12 @@ export async function createCmsService(req: Request, res: Response, next: NextFu
     };
 
     const resInsert = await col.insertOne(doc as any);
+
+    // Ensure siteSettings doesn't hold stale snapshot and bust public cache
+    const settingsCol = await getCollection<SiteSettingsDoc>("siteSettings");
+    await settingsCol.deleteOne({ key: "services" });
+    invalidatePublicCache();
+
     return sendSuccess(res, { ...doc, id: String(resInsert.insertedId) }, "Service created.", 201);
   } catch (err) {
     next(err);
@@ -513,8 +521,40 @@ export async function updateCmsService(req: Request, res: Response, next: NextFu
     delete updates._id;
     delete updates.id;
 
-    const result = await col.findOneAndUpdate(query as any, { $set: updates }, { returnDocument: "after" });
-    if (!result) return sendError(res, "Service not found.", 404);
+    let result = await col.findOneAndUpdate(query as any, { $set: updates }, { returnDocument: "after" });
+    
+    // If not matched by id/slug, fallback match by service number or title
+    if (!result && updates.number) {
+      result = await col.findOneAndUpdate({ number: String(updates.number) } as any, { $set: updates }, { returnDocument: "after" });
+    }
+    if (!result && updates.title) {
+      result = await col.findOneAndUpdate({ title: new RegExp(`^${updates.title}$`, "i") } as any, { $set: updates }, { returnDocument: "after" });
+    }
+
+    // If still not found in store, create/upsert it directly
+    if (!result) {
+      const doc: ServiceDoc = {
+        number: updates.number || "01",
+        title: updates.title || "Studio Discipline",
+        shortDesc: updates.shortDesc || "",
+        fullDesc: updates.fullDesc || "",
+        deliverables: updates.deliverables || [],
+        image: updates.image || "",
+        driveFileId: updates.driveFileId || null,
+        link: updates.link || "/services",
+        sortOrder: Number(updates.sortOrder) || 1,
+        published: updates.published !== false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const resInsert = await col.insertOne(doc as any);
+      result = { ...doc, _id: resInsert.insertedId };
+    }
+
+    // Invalidate siteSettings cache snapshot & bust public response cache immediately
+    const settingsCol = await getCollection<SiteSettingsDoc>("siteSettings");
+    await settingsCol.deleteOne({ key: "services" });
+    invalidatePublicCache();
 
     return sendSuccess(res, { ...result, id: String(result._id) }, "Service updated.");
   } catch (err) {
@@ -528,6 +568,11 @@ export async function deleteCmsService(req: Request, res: Response, next: NextFu
     const col = await getCollection<ServiceDoc>("services");
     const query = buildEntityQuery(id);
     await col.deleteOne(query as any);
+
+    const settingsCol = await getCollection<SiteSettingsDoc>("siteSettings");
+    await settingsCol.deleteOne({ key: "services" });
+    invalidatePublicCache();
+
     return sendSuccess(res, { deleted: true, id });
   } catch (err) {
     next(err);

@@ -2,29 +2,27 @@ import { Pool } from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "./env.js";
 
-const SUPABASE_DB_URL =
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:13971672%40Meet@db.izqvdjevpavzexgtbvis.supabase.co:5432/postgres";
+const SUPABASE_DB_URL = process.env.DATABASE_URL || "";
 
-export const pgPool = new Pool({
-  connectionString: SUPABASE_DB_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
+export const pgPool = SUPABASE_DB_URL
+  ? new Pool({
+      connectionString: SUPABASE_DB_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    })
+  : null;
 
-export const supabaseServer = createClient(
-  process.env.SUPABASE_URL || "https://izqvdjevpavzexgtbvis.supabase.co",
-  process.env.SUPABASE_ANON_KEY || "sb_publishable_hbyYesNYuae32oF7gA1zjw_GUMLaJeD",
-  {
-    auth: {
-      persistSession: false,
-    },
-  }
-);
+export const supabaseServer =
+  process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY
+    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+        auth: { persistSession: false },
+      })
+    : null;
 
 export async function queryPg<T = any>(text: string, params?: any[]): Promise<T[]> {
+  if (!pgPool) return [];
   const client = await pgPool.connect();
   try {
     const res = await client.query(text, params);
@@ -35,6 +33,7 @@ export async function queryPg<T = any>(text: string, params?: any[]): Promise<T[
 }
 
 export async function testPgConnection(): Promise<boolean> {
+  if (!pgPool) return false;
   try {
     const rows = await queryPg("SELECT 1 as connected, now() as timestamp;");
     console.log("[Supabase Postgres] Successfully connected to:", rows[0]);

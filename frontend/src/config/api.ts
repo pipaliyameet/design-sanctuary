@@ -10,14 +10,14 @@ export function getApiBaseUrl(): string {
 
   // 2. Local development fallback (strictly guarded by import.meta.env.DEV)
   if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
-    return "http://localhost:5001/api";
+    return "http://localhost:5002/api";
   }
 
   // 3. Client-side browser runtime detection
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host === "localhost" || host === "127.0.0.1") {
-      return "http://localhost:5001/api";
+      return "http://localhost:5002/api";
     }
     return "https://right-angle-backend.vercel.app/api";
   }

@@ -6,8 +6,39 @@ import { API_BASE_URL } from "@/config/api";
 // Successfully loaded and verified URLs (naturalWidth > 1 && naturalHeight > 1)
 export const verifiedUrlsCache = new Set<string>();
 
-// Permanently failed URLs/IDs (to prevent infinite retries)
-export const failedUrlsCache = new Set<string>();
+// Timed Failure Map: fileId/URL -> timestamp of failure (TTL: 45 seconds)
+// Prevents rapid infinite retries during transient network/CDN glitches,
+// but ensures images are never permanently blacklisted for the entire browser session.
+const FAILED_URL_TTL_MS = 45000;
+const failureTimestamps = new Map<string, number>();
+
+export const failedUrlsCache = {
+  has(key: string): boolean {
+    const ts = failureTimestamps.get(key);
+    if (!ts) return false;
+    if (Date.now() - ts > FAILED_URL_TTL_MS) {
+      failureTimestamps.delete(key);
+      return false;
+    }
+    return true;
+  },
+  add(key: string): void {
+    failureTimestamps.set(key, Date.now());
+  },
+  delete(key: string): boolean {
+    return failureTimestamps.delete(key);
+  },
+  clear(): void {
+    failureTimestamps.clear();
+  },
+  get size(): number {
+    const now = Date.now();
+    for (const [k, ts] of failureTimestamps.entries()) {
+      if (now - ts > FAILED_URL_TTL_MS) failureTimestamps.delete(k);
+    }
+    return failureTimestamps.size;
+  },
+};
 
 // Mapping of fileId -> working candidate endpoint to instantly reuse the best URL across components
 export const fileIdEndpointCache = new Map<string, string>();
@@ -20,7 +51,12 @@ const inFlightPromises = new Map<string, Promise<string>>();
  */
 export function extractGoogleDriveId(srcOrId?: string): string | null {
   if (!srcOrId || typeof srcOrId !== "string") return null;
-  const trimmed = srcOrId.trim();
+  let trimmed = srcOrId.trim();
+
+  // Strip database / seed prefix if present (e.g. drive_media_16T2338T2eCSomTPnKV...)
+  if (trimmed.startsWith("drive_media_")) {
+    trimmed = trimmed.replace(/^drive_media_/, "");
+  }
 
   // Guard against non-Google URLs and special schemes
   if (
@@ -87,21 +123,25 @@ export function buildDriveCandidateUrls(
       candidates.push(knownWorking);
     }
 
-    // 1. Direct Google Edge CDN (fastest delivery, HTTP/2 & HTTP/3 multiplexing)
+    // 1. Google High-Res Thumbnail (Most robust & universally accessible Google Drive endpoint)
+    const thumb1000 = `https://drive.google.com/thumbnail?id=${extractedId}&sz=w1000`;
+    if (!candidates.includes(thumb1000)) candidates.push(thumb1000);
+
+    // 2. Direct Google Edge CDN
     const edgeCdn = `https://lh3.googleusercontent.com/d/${extractedId}`;
     if (!candidates.includes(edgeCdn)) candidates.push(edgeCdn);
 
-    // 2. High-speed backend cached proxy (RAM LRU, verified Service Account, 0ms on warm)
+    // 3. Google Medium Thumbnail
+    const thumb800 = `https://drive.google.com/thumbnail?id=${extractedId}&sz=w800`;
+    if (!candidates.includes(thumb800)) candidates.push(thumb800);
+
+    // 4. High-speed backend cached proxy (RAM LRU, verified Service Account, 0ms on warm)
     const backendProxy = `${proxyBase}/media/drive-image/${extractedId}`;
     if (!candidates.includes(backendProxy)) candidates.push(backendProxy);
 
-    // 3. Google High-Res Thumbnail
-    const thumb1200 = `https://drive.google.com/thumbnail?id=${extractedId}&sz=w1200`;
-    if (!candidates.includes(thumb1200)) candidates.push(thumb1200);
-
-    // 4. Google Medium Thumbnail
-    const thumb800 = `https://drive.google.com/thumbnail?id=${extractedId}&sz=w800`;
-    if (!candidates.includes(thumb800)) candidates.push(thumb800);
+    // 5. Google Max-Res Thumbnail
+    const thumb1600 = `https://drive.google.com/thumbnail?id=${extractedId}&sz=w1600`;
+    if (!candidates.includes(thumb1600)) candidates.push(thumb1600);
   }
 
   // 5. Original provided src (if not already present)
@@ -202,7 +242,7 @@ export function evictFromImageCache(driveIdOrUrl?: string): void {
     }
   }
 
-  failedUrlsCache.add(id);
+  failedUrlsCache.delete(id);
 }
 
 

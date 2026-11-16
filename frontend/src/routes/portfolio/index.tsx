@@ -503,75 +503,134 @@ export function PortfolioPage() {
             )}
 
             {/* =================================================================
-                COMPOSITION 05 & 06: ASYMMETRIC 2-COLUMN ARCHITECTURAL PAIRING
+                COMPOSITION 05: ASYMMETRIC LEFT (8-col image / 4-col narrative)
                 ================================================================= */}
-            {(fifthProject || sixthProject) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 items-start">
-                {fifthProject && (
+            {fifthProject && (
+              <div className="group block scroll-mt-32">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
                   <Link
                     to="/portfolio/$slug"
                     params={{ slug: fifthProject.slug }}
-                    className="group block lg:col-span-7 select-none cursor-pointer"
+                    className="lg:col-span-8 overflow-hidden bg-stone cursor-pointer relative"
                   >
-                    <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] overflow-hidden bg-stone">
+                    <div className="aspect-[4/3] sm:aspect-[16/10] overflow-hidden">
                       <DriveImage
                         src={fifthProject.hero_image}
                         alt={fifthProject.title}
                         className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                         wrapperClassName="size-full"
                       />
-                      <div className="absolute top-4 left-4 z-10 bg-background/90 backdrop-blur-md px-3 py-1 border border-border/60 text-[10px] font-mono text-accent uppercase tracking-widest">
-                        05 · {fifthProject.space_type}
-                      </div>
-                    </div>
-                    <div className="pt-4 space-y-1">
-                      <h4 className="font-display text-xl sm:text-2xl font-light text-foreground group-hover:text-accent transition-colors">
-                        {fifthProject.title}
-                      </h4>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
-                        {fifthProject.location} {fifthProject.year ? `· ${fifthProject.year}` : ""}
-                      </p>
-                      {fifthProject.summary && (
-                        <p className="text-xs sm:text-sm text-muted-foreground font-light pt-1 line-clamp-2">
-                          {fifthProject.summary}
-                        </p>
-                      )}
                     </div>
                   </Link>
-                )}
 
-                {sixthProject && (
+                  <div className="lg:col-span-4 flex flex-col justify-center space-y-4">
+                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground font-mono">
+                      <span className="text-accent font-semibold">05</span>
+                      <span>·</span>
+                      <span>{fifthProject.space_type}</span>
+                      {fifthProject.year && (
+                        <>
+                          <span>·</span>
+                          <span>{fifthProject.year}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <Link to="/portfolio/$slug" params={{ slug: fifthProject.slug }} className="group/link block">
+                      <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-light text-foreground tracking-tight leading-[1.15] group-hover/link:text-accent transition-colors">
+                        {fifthProject.title}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      {fifthProject.location}
+                      {fifthProject.area_sqft ? ` · ${fifthProject.area_sqft.toLocaleString()} Sq Ft` : ""}
+                    </p>
+
+                    {fifthProject.summary && (
+                      <p className="text-sm leading-relaxed text-muted-foreground font-light">
+                        {fifthProject.summary}
+                      </p>
+                    )}
+
+                    <div className="pt-2">
+                      <Link
+                        to="/portfolio/$slug"
+                        params={{ slug: fifthProject.slug }}
+                        className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-medium transition-colors border-b border-foreground/30 pb-1"
+                      >
+                        <span>Explore Project</span>
+                        <ArrowRight className="size-3.5 text-accent" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================
+                COMPOSITION 06: ASYMMETRIC RIGHT (4-col narrative / 8-col image)
+                ================================================================= */}
+            {sixthProject && (
+              <div className="group block scroll-mt-32">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+                  <div className="lg:col-span-4 order-2 lg:order-1 flex flex-col justify-center space-y-4">
+                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-muted-foreground font-mono">
+                      <span className="text-accent font-semibold">06</span>
+                      <span>·</span>
+                      <span>{sixthProject.space_type}</span>
+                      {sixthProject.year && (
+                        <>
+                          <span>·</span>
+                          <span>{sixthProject.year}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <Link to="/portfolio/$slug" params={{ slug: sixthProject.slug }} className="group/link block">
+                      <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-light text-foreground tracking-tight leading-[1.15] group-hover/link:text-accent transition-colors">
+                        {sixthProject.title}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      {sixthProject.location}
+                      {sixthProject.area_sqft ? ` · ${sixthProject.area_sqft.toLocaleString()} Sq Ft` : ""}
+                    </p>
+
+                    {sixthProject.summary && (
+                      <p className="text-sm leading-relaxed text-muted-foreground font-light">
+                        {sixthProject.summary}
+                      </p>
+                    )}
+
+                    <div className="pt-2">
+                      <Link
+                        to="/portfolio/$slug"
+                        params={{ slug: sixthProject.slug }}
+                        className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground hover:text-accent font-medium transition-colors border-b border-foreground/30 pb-1"
+                      >
+                        <span>Explore Project</span>
+                        <ArrowRight className="size-3.5 text-accent" />
+                      </Link>
+                    </div>
+                  </div>
+
                   <Link
                     to="/portfolio/$slug"
                     params={{ slug: sixthProject.slug }}
-                    className="group block lg:col-span-5 md:mt-12 select-none cursor-pointer"
+                    className="lg:col-span-8 order-1 lg:order-2 overflow-hidden bg-stone cursor-pointer relative"
                   >
-                    <div className="relative w-full aspect-[4/5] overflow-hidden bg-stone">
+                    <div className="aspect-[4/3] sm:aspect-[16/10] overflow-hidden">
                       <DriveImage
                         src={sixthProject.hero_image}
                         alt={sixthProject.title}
                         className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                         wrapperClassName="size-full"
                       />
-                      <div className="absolute top-4 left-4 z-10 bg-background/90 backdrop-blur-md px-3 py-1 border border-border/60 text-[10px] font-mono text-accent uppercase tracking-widest">
-                        06 · {sixthProject.space_type}
-                      </div>
-                    </div>
-                    <div className="pt-4 space-y-1">
-                      <h4 className="font-display text-xl sm:text-2xl font-light text-foreground group-hover:text-accent transition-colors">
-                        {sixthProject.title}
-                      </h4>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
-                        {sixthProject.location} {sixthProject.year ? `· ${sixthProject.year}` : ""}
-                      </p>
-                      {sixthProject.summary && (
-                        <p className="text-xs sm:text-sm text-muted-foreground font-light pt-1 line-clamp-2">
-                          {sixthProject.summary}
-                        </p>
-                      )}
                     </div>
                   </Link>
-                )}
+                </div>
               </div>
             )}
 

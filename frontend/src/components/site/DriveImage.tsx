@@ -141,20 +141,20 @@ export function DriveImage({
       retryTimerRef.current = null;
     }
 
-    // Attempt 1 or 2: Retry the current candidate endpoint with exponential backoff & jitter
+    // Step 1: Immediately advance to the next candidate endpoint without stalling
+    if (candidateIndex < candidateUrls.length - 1) {
+      setCandidateIndex((prev) => prev + 1);
+      return;
+    }
+
+    // Step 2: All candidates exhausted for this pass. Retry from candidate 0 if attemptCount < maxRetries
     if (attemptCount < maxRetries) {
       const nextAttempt = attemptCount + 1;
       const delay = calculateRetryDelay(nextAttempt);
       retryTimerRef.current = setTimeout(() => {
+        setCandidateIndex(0);
         setAttemptCount(nextAttempt);
       }, delay);
-      return;
-    }
-
-    // Step 2: Retries on current candidate exhausted -> advance to next candidate endpoint
-    if (candidateIndex < candidateUrls.length - 1) {
-      setCandidateIndex((prev) => prev + 1);
-      setAttemptCount(0);
       return;
     }
 
@@ -205,7 +205,7 @@ export function DriveImage({
       if (status === "loading") {
         handleError();
       }
-    }, 12000);
+    }, 7000);
 
     return () => clearTimeout(hangTimer);
   }, [status, activeSrc, handleError]);
@@ -220,8 +220,15 @@ export function DriveImage({
     setStatus("loading");
   };
 
-  const wrapperStyle =
-    autoAspect && aspectRatio ? { ...style, aspectRatio: `${aspectRatio}` } : style;
+  const wrapperStyle = useMemo(() => {
+    const base: React.CSSProperties = { ...style };
+    if (autoAspect && aspectRatio) {
+      base.aspectRatio = `${aspectRatio}`;
+    } else if (status === "loading" && !style?.height && !style?.aspectRatio) {
+      base.minHeight = base.minHeight || "240px";
+    }
+    return base;
+  }, [style, autoAspect, aspectRatio, status]);
 
   return (
     <div

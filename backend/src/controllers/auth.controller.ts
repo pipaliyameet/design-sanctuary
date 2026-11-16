@@ -64,14 +64,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       return sendError(res, "This account is inactive. Please contact studio support.", 403, "ACCOUNT_INACTIVE");
     }
 
-    let isValid = await verifyPassword(password, user.passwordHash);
-    
-    // Studio master emergency pass-through in development
-    if (!isValid && (password === "Admin@123456" || password === "admin123" || password === "rightangle2026")) {
-      isValid = true;
-      const newHash = await hashPassword(password);
-      await usersCol.updateOne({ _id: user._id }, { $set: { passwordHash: newHash, updatedAt: new Date() } });
-    }
+    const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
       return sendError(res, "Incorrect password. Please verify your password and try again.", 401, "INVALID_CREDENTIALS");
@@ -111,71 +104,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         clientIds: user.clientIds ?? [],
       },
     }, "Logged in successfully.");
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function ownerLogin(req: Request, res: Response, next: NextFunction) {
-  try {
-    const usersCol = await getCollection<UserDoc>("users");
-    const ownerEmail = "owner@rightangle.design";
-
-    let user = await usersCol.findOne({ email: ownerEmail });
-    if (!user) {
-      const passwordHash = await hashPassword("Admin@123456");
-      const now = new Date();
-      const newUserDoc: UserDoc = {
-        email: ownerEmail,
-        passwordHash,
-        fullName: "Ravi Pipaliya",
-        title: "Principal Architect & Founder",
-        phone: "+91 98200 41100",
-        roles: ["admin", "designer", "project_manager"],
-        isStaff: true,
-        clientIds: [],
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      };
-      const insertRes = await usersCol.insertOne(newUserDoc as any);
-      user = await usersCol.findOne({ _id: insertRes.insertedId });
-    }
-
-    if (!user) {
-      return sendError(res, "Authentication failed. Could not initialize owner account.", 500, "AUTH_ERROR");
-    }
-
-    const token = signToken({
-      userId: String(user._id),
-      email: user.email,
-      fullName: user.fullName,
-      roles: user.roles,
-      isStaff: user.isStaff,
-      clientIds: user.clientIds,
-    });
-
-    res.cookie(env.COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
-
-    return sendSuccess(res, {
-      token,
-      user: {
-        userId: String(user._id),
-        id: String(user._id),
-        email: user.email,
-        fullName: user.fullName,
-        title: user.title ?? "Principal Architect & Founder",
-        roles: user.roles,
-        isStaff: user.isStaff,
-        clientIds: user.clientIds ?? [],
-      },
-    }, "Logged in as Studio Principal & Owner.");
   } catch (error) {
     next(error);
   }

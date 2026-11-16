@@ -58,8 +58,8 @@ export const MATERIALS_DATA: MaterialItem[] = [
     description:
       "Breathable, non-toxic mineral lime wash with undulating soft texture that dances with morning and evening daylight.",
     provenance: "Rajasthan mineral limestone slaked 24 months",
-    projectSlug: "mehta-executive-suite",
-    projectTitle: "Mehta Executive Suite",
+    projectSlug: "oberoi-sea-facing-duplex",
+    projectTitle: "Oberoi Sea-Facing Duplex",
   },
   {
     id: "fluted-glass",

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongodb";
+import fs from "fs";
+import path from "path";
 import { getCollection } from "../config/database.js";
 import { MediaDoc, ActivityLogDoc, CaseStudyDoc } from "../models/types.js";
 import {
@@ -600,6 +602,10 @@ export async function replaceMediaFile(req: Request, res: Response, next: NextFu
       }
     }
 
+    if (oldFileId) invalidateImageCache(oldFileId);
+    invalidateImageCache(newDriveResult.fileId);
+    invalidatePublicCache();
+
     return sendSuccess(
       res,
       {
@@ -766,10 +772,11 @@ export async function deleteMedia(req: Request, res: Response, next: NextFunctio
  */
 export async function proxyDriveImage(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
     if (!id || typeof id !== "string") {
       return sendError(res, "Invalid file ID", 400);
     }
+    id = id.trim().replace(/^drive_media_/, "");
 
     const sz = (req.query.sz as string) || "orig";
     const cached = await getOrFetchCachedImage(id, sz);
@@ -797,19 +804,84 @@ export async function proxyDriveImage(req: Request, res: Response, next: NextFun
 }
 
 
+function streamLocalVideoFile(filePath: string, req: Request, res: Response): boolean {
+  try {
+    if (!fs.existsSync(filePath)) return false;
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const file = fs.createReadStream(filePath, { start, end });
+      res.writeHead(206, {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunksize,
+        "Content-Type": "video/mp4",
+        "Cache-Control": "public, max-age=86400",
+      });
+      file.pipe(res);
+    } else {
+      res.writeHead(200, {
+        "Content-Length": fileSize,
+        "Content-Type": "video/mp4",
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "public, max-age=86400",
+      });
+      fs.createReadStream(filePath).pipe(res);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Stream Google Drive Video with Byte-Range & Inline Playback support
  */
 export async function streamVideo(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
     if (!id || typeof id !== "string") {
       return sendError(res, "Invalid video ID", 400);
+    }
+    id = id.trim().replace(/^drive_media_/, "");
+
+    const localMap: Record<string, string> = {
+      "11E8B_lIp0tP7p19agB-AE7cg499W7nWc": "architectural-film-01.mp4",
+      "12S56ct9HKchc4qP44WfHlu7itB58qUm_": "architectural-film-02.mp4",
+      "1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt": "architectural-film-03.mp4",
+    };
+
+    const localFileName = localMap[id];
+    if (localFileName) {
+      const candidates = [
+        path.resolve(process.cwd(), "frontend/public/videos", localFileName),
+        path.resolve(process.cwd(), "../frontend/public/videos", localFileName),
+        path.resolve(process.cwd(), "public/videos", localFileName),
+      ];
+      for (const p of candidates) {
+        if (streamLocalVideoFile(p, req, res)) {
+          return;
+        }
+      }
     }
 
     const drive = getGoogleDriveClient();
     if (!drive) {
-      return res.redirect(`https://drive.google.com/uc?id=${id}`);
+      // Fall back to primary architectural film if available
+      const fallbackCandidates = [
+        path.resolve(process.cwd(), "frontend/public/videos/architectural-film-01.mp4"),
+        path.resolve(process.cwd(), "../frontend/public/videos/architectural-film-01.mp4"),
+      ];
+      for (const fb of fallbackCandidates) {
+        if (streamLocalVideoFile(fb, req, res)) return;
+      }
+      return sendError(res, "Video service unavailable.", 503);
     }
 
     const headers: Record<string, string> = {};
@@ -833,7 +905,15 @@ export async function streamVideo(req: Request, res: Response, next: NextFunctio
       });
 
       if (!driveRes.ok) {
-        return res.redirect(`https://drive.google.com/uc?id=${id}`);
+        // Fall back gracefully rather than serving virus-scan HTML
+        const fallbackCandidates = [
+          path.resolve(process.cwd(), "frontend/public/videos/architectural-film-01.mp4"),
+          path.resolve(process.cwd(), "../frontend/public/videos/architectural-film-01.mp4"),
+        ];
+        for (const fb of fallbackCandidates) {
+          if (streamLocalVideoFile(fb, req, res)) return;
+        }
+        return sendError(res, "Unable to stream upstream Google Drive video.", 502);
       }
 
       const status = driveRes.status;
@@ -861,7 +941,14 @@ export async function streamVideo(req: Request, res: Response, next: NextFunctio
         res.end();
       }
     } catch {
-      return res.redirect(`https://drive.google.com/uc?id=${id}`);
+      const fallbackCandidates = [
+        path.resolve(process.cwd(), "frontend/public/videos/architectural-film-01.mp4"),
+        path.resolve(process.cwd(), "../frontend/public/videos/architectural-film-01.mp4"),
+      ];
+      for (const fb of fallbackCandidates) {
+        if (streamLocalVideoFile(fb, req, res)) return;
+      }
+      return sendError(res, "Video playback error.", 500);
     }
   } catch (err) {
     next(err);

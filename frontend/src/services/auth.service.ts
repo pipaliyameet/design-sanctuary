@@ -15,19 +15,6 @@ export const authService = {
     return data;
   },
 
-  async ownerQuickLogin(): Promise<{ user: SessionUser; token: string }> {
-    const data = await api.post<{ user: SessionUser; token: string }>("/auth/owner-login");
-    if (data?.token) {
-      api.setToken(data.token);
-    }
-    if (data?.user && typeof window !== "undefined") {
-      try {
-        localStorage.setItem("studio_user", JSON.stringify(data.user));
-      } catch {}
-    }
-    return data;
-  },
-
   async signup(payload: {
     email: string;
     password: string;
@@ -66,6 +53,7 @@ export const authService = {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("studio_auth_token");
       if (!storedToken) {
+        localStorage.removeItem("studio_user");
         return null;
       }
     }
@@ -76,19 +64,21 @@ export const authService = {
         try {
           localStorage.setItem("studio_user", JSON.stringify(user));
         } catch {}
+      } else if (!user && typeof window !== "undefined") {
+        // Server returned null user -> invalidate stale client token
+        api.clearToken();
+        try {
+          localStorage.removeItem("studio_user");
+        } catch {}
       }
       return user;
-    } catch (err) {
+    } catch {
+      // Invalidate invalid/expired token and stale storage
+      api.clearToken();
       if (typeof window !== "undefined") {
-        const storedToken = localStorage.getItem("studio_auth_token");
-        if (storedToken) {
-          const cached = localStorage.getItem("studio_user");
-          if (cached) {
-            try {
-              return JSON.parse(cached);
-            } catch {}
-          }
-        }
+        try {
+          localStorage.removeItem("studio_user");
+        } catch {}
       }
       return null;
     }

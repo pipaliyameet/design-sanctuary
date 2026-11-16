@@ -50,7 +50,9 @@ export async function getOrFetchCachedImage(
   lastModified: Date;
   from: "memory" | "network";
 } | null> {
-  const cacheKey = getCacheKey(fileId, sz);
+  const cleanId = (fileId || "").trim().replace(/^drive_media_/, "");
+  if (!cleanId) return null;
+  const cacheKey = getCacheKey(cleanId, sz);
 
   // 1. Check in-memory RAM cache (0ms instant return)
   if (memoryCache.has(cacheKey)) {
@@ -75,12 +77,19 @@ export async function getOrFetchCachedImage(
     if (drive) {
       try {
         const driveRes = await drive.files.get(
-          { fileId, alt: "media", supportsAllDrives: true },
+          { fileId: cleanId, alt: "media", supportsAllDrives: true },
           { responseType: "arraybuffer" },
         );
         if (driveRes.data) {
-          buffer = Buffer.from(driveRes.data as ArrayBuffer);
-          contentType = (driveRes.headers as any)?.["content-type"] || "image/jpeg";
+          const rawBuffer = Buffer.from(driveRes.data as ArrayBuffer);
+          const rawType = (driveRes.headers as any)?.["content-type"] || "image/jpeg";
+          if (!rawType.includes("html") && rawBuffer.length > 50) {
+            const sample = rawBuffer.subarray(0, 50).toString("utf-8").toLowerCase();
+            if (!sample.includes("<!doctype") && !sample.includes("<html")) {
+              buffer = rawBuffer;
+              contentType = rawType;
+            }
+          }
         }
       } catch {
         // Fallback to fetch upstream CDN
@@ -90,9 +99,9 @@ export async function getOrFetchCachedImage(
     // Upstream Google CDN fallback with timeout
     if (!buffer) {
       const candidateUrls = [
-        `https://lh3.googleusercontent.com/d/${fileId}`,
-        `https://drive.google.com/thumbnail?id=${fileId}&sz=${sz === "orig" ? "w1200" : sz}`,
-        `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`,
+        `https://drive.google.com/thumbnail?id=${cleanId}&sz=${sz === "orig" ? "w1200" : sz}`,
+        `https://lh3.googleusercontent.com/d/${cleanId}`,
+        `https://drive.google.com/thumbnail?id=${cleanId}&sz=w800`,
       ];
 
       for (const url of candidateUrls) {
@@ -109,10 +118,23 @@ export async function getOrFetchCachedImage(
           clearTimeout(timeoutId);
 
           if (response.ok) {
-            contentType = response.headers.get("content-type") || "image/jpeg";
+            const rawContentType = response.headers.get("content-type") || "";
+            // Reject HTML or non-image responses (Google virus scan, login prompt, rate limit notices)
+            if (rawContentType.includes("text/html") || rawContentType.includes("text/plain")) {
+              continue;
+            }
+
             const arrayBuffer = await response.arrayBuffer();
-            buffer = Buffer.from(arrayBuffer);
-            break;
+            const candidateBuffer = Buffer.from(arrayBuffer);
+            if (candidateBuffer.length > 50) {
+              const sample = candidateBuffer.subarray(0, 50).toString("utf-8").toLowerCase();
+              if (sample.includes("<!doctype") || sample.includes("<html") || sample.includes("google drive")) {
+                continue;
+              }
+              contentType = rawContentType.startsWith("image/") ? rawContentType : "image/jpeg";
+              buffer = candidateBuffer;
+              break;
+            }
           }
         } catch {
           // Try next candidate

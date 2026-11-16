@@ -92,10 +92,10 @@ export function ProcessTimeline({
 
       <div className="mt-10 flex justify-end">
         <Link
-          to="/process"
+          to="/contact"
           className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent hover:underline font-medium"
         >
-          Explore Detailed Process Documentation <ArrowRight className="size-3" />
+          Book a Design Consultation <ArrowRight className="size-3" />
         </Link>
       </div>
     </div>

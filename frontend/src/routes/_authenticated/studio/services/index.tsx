@@ -28,6 +28,7 @@ import {
 } from "@/lib/studio-admin.functions";
 import type { CmsServiceItem } from "@/services/cms.service";
 import { DriveImage } from "@/components/site/DriveImage";
+import { broadcastCmsUpdate } from "@/lib/cms-live-sync";
 import { MediaPickerModal } from "@/components/studio/MediaPickerModal";
 import {
   AppShell,
@@ -145,6 +146,7 @@ export function ServicesControlPage() {
     queryClient.invalidateQueries({ queryKey: ["home-content"] });
     queryClient.invalidateQueries({ queryKey: ["public"] });
     refetch();
+    broadcastCmsUpdate({ type: "services" });
   }
 
   const resetForm = () => {
@@ -202,12 +204,13 @@ export function ServicesControlPage() {
       return;
     }
 
-    const payload: Partial<CmsServiceItem> = {
+    const payload: Partial<CmsServiceItem> & { images?: string[] } = {
       number: formNumber.trim(),
       title: formTitle.trim(),
       shortDesc: formShortDesc.trim(),
       fullDesc: formFullDesc.trim(),
       image: formImage.trim(),
+      images: formImage.trim() ? [formImage.trim()] : [],
       driveFileId: formDriveFileId.trim() || null,
       deliverables: deliverablesList,
       link: formLink.trim() || "/services",
@@ -216,7 +219,8 @@ export function ServicesControlPage() {
     };
 
     if (editingService) {
-      updateMutation.mutate({ id: editingService.id, updates: payload });
+      const targetId = editingService.id || (editingService as any)._id || editingService.number;
+      updateMutation.mutate({ id: targetId, updates: payload });
     } else {
       createMutation.mutate(payload);
     }
@@ -224,8 +228,9 @@ export function ServicesControlPage() {
 
   const handleTogglePublish = (service: CmsServiceItem) => {
     const nextState = !service.published;
+    const targetId = service.id || (service as any)._id || service.number;
     updateMutation.mutate({
-      id: service.id,
+      id: targetId,
       updates: { published: nextState },
     });
   };
@@ -979,7 +984,10 @@ export function ServicesControlPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => deleteMutation.mutate(serviceToDelete.id)}
+                onClick={() => {
+                  const targetId = serviceToDelete.id || (serviceToDelete as any)._id || serviceToDelete.number;
+                  deleteMutation.mutate(targetId);
+                }}
                 disabled={deleteMutation.isPending}
                 className="text-xs cursor-pointer"
               >

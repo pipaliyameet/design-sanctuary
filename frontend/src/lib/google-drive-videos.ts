@@ -27,8 +27,57 @@ export function getVideoStreamUrl(driveFileId: string): string {
   return `${baseUrl}/media/stream-video/${driveFileId}`;
 }
 
-// Curated Architectural Film & Walkthrough Reels from Right Angle Google Drive
-export const ARCHITECTURAL_FILMS: DriveVideo[] = [
+export function extractDriveFileId(input: string): string | null {
+  if (!input) return null;
+  const trimmed = input.trim();
+  if (/^[a-zA-Z0-9_-]{25,50}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) return fileDMatch[1];
+  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch && idMatch[1]) return idMatch[1];
+  const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (dMatch && dMatch[1]) return dMatch[1];
+  return null;
+}
+
+export const DRIVE_ID_TO_LOCAL_VIDEO: Record<string, string> = {
+  "11E8B_lIp0tP7p19agB-AE7cg499W7nWc": "/videos/architectural-film-01.mp4",
+  "12S56ct9HKchc4qP44WfHlu7itB58qUm_": "/videos/architectural-film-02.mp4",
+  "1DMaemNi3O0jRhHrDVJO8VCpahlIwk9mt": "/videos/architectural-film-03.mp4",
+};
+
+export function resolveVideoStreamUrl(driveFileId?: string, fallbackUrl?: string): string {
+  if (driveFileId && DRIVE_ID_TO_LOCAL_VIDEO[driveFileId]) {
+    return DRIVE_ID_TO_LOCAL_VIDEO[driveFileId];
+  }
+  if (fallbackUrl) {
+    for (const [id, localPath] of Object.entries(DRIVE_ID_TO_LOCAL_VIDEO)) {
+      if (fallbackUrl.includes(id)) return localPath;
+    }
+    if (fallbackUrl.startsWith("/videos/")) {
+      return fallbackUrl;
+    }
+  }
+  if (driveFileId) {
+    return getVideoStreamUrl(driveFileId);
+  }
+  return fallbackUrl || "/videos/architectural-film-01.mp4";
+}
+
+export function buildDriveVideoUrls(driveFileId: string) {
+  const localMatch = DRIVE_ID_TO_LOCAL_VIDEO[driveFileId];
+  return {
+    streamUrl: localMatch || getVideoStreamUrl(driveFileId),
+    driveEmbedUrl: `https://drive.google.com/file/d/${driveFileId}/preview`,
+    posterUrl: `https://drive.google.com/thumbnail?id=${driveFileId}&sz=w1600`,
+    directUrl: `https://lh3.googleusercontent.com/d/${driveFileId}`,
+  };
+}
+
+// All available Google Drive reels in the studio vault (available in Drive Reel Picker)
+export const KNOWN_DRIVE_VIDEOS: DriveVideo[] = [
   {
     id: "film-01",
     driveFileId: "11E8B_lIp0tP7p19agB-AE7cg499W7nWc",
@@ -84,4 +133,9 @@ export const ARCHITECTURAL_FILMS: DriveVideo[] = [
       "Macro lens documentation of raw brass patination, acoustic micro-cement finishes, and concealed door hardware.",
     tags: ["Craft Film", "Stone Detailing", "Bespoke Hardware"],
   },
+];
+
+// Single Active Architectural Reel (reels 02 and 03 removed as requested by owner)
+export const ARCHITECTURAL_FILMS: DriveVideo[] = [
+  KNOWN_DRIVE_VIDEOS[0]!,
 ];

@@ -289,84 +289,20 @@ export const CaseCardItem = ({
 export function EditorialProjectGrid({ projects }: { projects: CaseCard[] }) {
   if (!projects || projects.length === 0) return null;
 
-  const [p1, p2, p3, p4, p5, ...remaining] = projects;
-
-  const defaultP5: CaseCard = {
-    slug: "oberoi-sea-facing-duplex",
-    title: "Oberoi Sea-Facing Duplex",
-    subtitle: "High-Floor Minimalist Sanctuary Overlooking the Arabian Sea",
-    location: "Worli Sea Face, Mumbai",
-    year: 2026,
-    hero_image: "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz",
-    summary: "Monolithic Grigio Carnico quartzite, warm fluted walnut panelling, and panoramic floor-to-ceiling oceanic views.",
-    space_type: "Sea-Facing Duplex",
-    style: "Refined Modernist",
-    area_sqft: 5200,
-  };
-
-  const effectiveP5 = p5 || (p4 ? defaultP5 : undefined);
-
   return (
     <div className="space-y-16 sm:space-y-24">
-      {/* 1. Project 01: Large Asymmetric Lead (8 cols image / 4 cols text) */}
-      {p1 && (
-        <ProjectCard
-          project={p1}
-          index={0}
-          layoutVariant="asymmetric-left"
-          showSummary
-        />
-      )}
-
-      {/* 2. Project 02: Alternating Asymmetric Spread (4 cols text / 8 cols image) */}
-      {p2 && (
-        <ProjectCard
-          project={p2}
-          index={1}
-          layoutVariant="asymmetric-right"
-          showSummary
-        />
-      )}
-
-      {/* 3. Project 03: Dramatic Full-Width Cinematic Banner */}
-      {p3 && (
-        <ProjectCard
-          project={p3}
-          index={2}
-          layoutVariant="full-cinematic"
-          showSummary
-        />
-      )}
-
-      {/* 4. Projects 04 & 05: Balanced 2-Column Architectural Composition */}
-      {(p4 || effectiveP5) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
-          {p4 && <ProjectCard project={p4} index={3} layoutVariant="balanced" showSummary />}
-          {effectiveP5 && <ProjectCard project={effectiveP5} index={4} layoutVariant="balanced" showSummary />}
-        </div>
-      )}
-
-      {/* 5. Any Remaining Projects in Balanced Grid (Only if 2 or more to prevent single dangling cards) */}
-      {remaining.length >= 2 && (
-        <div
-          className={cn(
-            "grid gap-8 sm:gap-10 pt-4",
-            remaining.length % 3 === 0
-              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-              : "grid-cols-1 md:grid-cols-2",
-          )}
-        >
-          {remaining.map((p, idx) => (
-            <ProjectCard
-              key={p.slug || idx}
-              project={p}
-              index={idx + 5}
-              layoutVariant="balanced"
-              showSummary={false}
-            />
-          ))}
-        </div>
-      )}
+      {projects.map((project, idx) => {
+        const isLeft = idx % 2 === 0;
+        return (
+          <ProjectCard
+            key={project.slug || project._id || idx}
+            project={project}
+            index={idx}
+            layoutVariant={isLeft ? "asymmetric-left" : "asymmetric-right"}
+            showSummary
+          />
+        );
+      })}
     </div>
   );
 }

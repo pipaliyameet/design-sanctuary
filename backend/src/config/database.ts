@@ -136,31 +136,6 @@ function getInitialStore(name: string): any[] {
       },
       {
         _id: "cs_4",
-        slug: "mehta-executive-suite",
-        title: "Mehta Executive Suite",
-        subtitle: "Private family office suite with acoustic micro-cement & custom bronze",
-        location: "Bandra Kurla Complex, Mumbai",
-        year: 2026,
-        heroImage: "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL",
-        summary: "Private family office suite balancing acoustic micro-cement, velvet leather paneling, and discreet architectural ambient lighting.",
-        spaceType: "Commercial & Executive Office",
-        style: "Executive Elegance",
-        areaSqft: 3400,
-        featured: true,
-        published: true,
-        publishedAt: "2026-03-15",
-        tags: ["Commercial", "Executive", "BKC", "Office"],
-        clientBrief: "A discreet, luxurious corporate office suite that feels like a private residential club.",
-        concept: "Muted dark tones, acoustic wall paneling, and indirect 2700K ambient illumination.",
-        execution: "Precision joinery, vein-matched Roman travertine portals, and custom patinated bronze handles.",
-        gallery: [
-          { url: "https://lh3.googleusercontent.com/d/1na76oRTRYbsSISYVlFH29xd39AnKVgyL", caption: "Executive boardroom and conference suite", space: "Boardroom" },
-          { url: "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu", caption: "Private executive cabin with oak paneling", space: "Executive Cabin" },
-        ],
-        sortOrder: 4,
-      },
-      {
-        _id: "cs_5",
         slug: "oberoi-sea-facing-duplex",
         title: "Oberoi Sea-Facing Duplex",
         subtitle: "Monolithic charcoal quartzite & brushed brass accents",
@@ -182,7 +157,7 @@ function getInitialStore(name: string): any[] {
           { url: "https://lh3.googleusercontent.com/d/1wxERswiDcH9N1KMiw4sdQ6Z00HDCkPIz", caption: "Living space with sea-view framed windows", space: "Living Room" },
           { url: "https://lh3.googleusercontent.com/d/10nP_gXYEBs66BpfredfrBQdldkynOdJ9", caption: "Dining gallery with sculptural lighting", space: "Dining Room" },
         ],
-        sortOrder: 5,
+        sortOrder: 4,
       },
       {
         _id: "cs_6",
@@ -427,7 +402,7 @@ function getInitialStore(name: string): any[] {
       {
         _id: "usr_owner_principal",
         email: "owner@rightangle.design",
-        passwordHash: "$2b$10$ep5uGkSbgWk34hL1bO3Wqeu138mE5aJt1t2kQeYhS3F0jYvW6yVb6", // Hash for Admin@123456
+        passwordHash: "$2b$10$SjWOhdC1PkOPfMBFzJDFLuZe7vV0yoagg1lq9ZD/ZzBkx2PDZyAp.", // Verified bcrypt hash for Admin@123456
         fullName: "Ravi Pipaliya",
         title: "Principal Architect & Founder",
         phone: "+91 98200 41100",
@@ -689,16 +664,6 @@ export async function seedDatabaseIfEmpty(db: Db): Promise<void> {
       if (initialServices.length > 0) {
         await db.collection("services").insertMany(initialServices);
       }
-    } else {
-      await db.collection("services").updateMany(
-        { $or: [{ number: "03" }, { title: /Project Consultancy/i }] },
-        {
-          $set: {
-            image: "https://lh3.googleusercontent.com/d/1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
-            driveFileId: "1gk9lNAKNKFDVkDqmVP--Ax4-C3q7aQwu",
-          },
-        }
-      );
     }
 
     const journalCount = await db.collection("journalPosts").countDocuments();
@@ -706,6 +671,14 @@ export async function seedDatabaseIfEmpty(db: Db): Promise<void> {
       const initialJournal = getInitialStore("journalPosts");
       if (initialJournal.length > 0) {
         await db.collection("journalPosts").insertMany(initialJournal);
+      }
+    }
+
+    const userCount = await db.collection("users").countDocuments();
+    if (userCount === 0) {
+      const initialUsers = getInitialStore("users");
+      if (initialUsers.length > 0) {
+        await db.collection("users").insertMany(initialUsers);
       }
     }
   } catch (err) {
@@ -803,6 +776,11 @@ async function ensureDatabaseIndexes(db: Db): Promise<void> {
       db.collection("projects").createIndex({ slug: 1 }, { unique: true, sparse: true }),
       db.collection("media").createIndex({ driveFileId: 1 }),
       db.collection("media").createIndex({ isHomepageVisible: 1, homepageOrder: 1 }),
+      db.collection("media").createIndex({ category: 1, visibility: 1 }),
+      db.collection("media").createIndex({ visibility: 1, createdAt: -1 }),
+      db.collection("enquiries").createIndex({ createdAt: -1 }),
+      db.collection("journalPosts").createIndex({ slug: 1 }, { unique: true, sparse: true }),
+      db.collection("services").createIndex({ published: 1, sortOrder: 1 }),
     ]);
   } catch (err) {
     console.warn("[MongoDB] Index creation warning:", err);

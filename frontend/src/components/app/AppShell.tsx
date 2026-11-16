@@ -2,17 +2,12 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Search,
-  Plus,
   Bell,
   Menu,
   X,
   Sparkles,
   ExternalLink,
   ChevronRight,
-  FolderPlus,
-  UserPlus,
-  ImagePlus,
   Receipt,
   CircleDollarSign,
   HardHat,
@@ -40,6 +35,16 @@ import { GlobalSearchModal } from "./GlobalSearchModal";
 import { QuickActionModal, type QuickActionType } from "./QuickActionModal";
 import { INITIAL_NOTIFICATIONS } from "@/lib/studio-mock-data";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function AppShell({
   children,
@@ -70,7 +75,9 @@ export function AppShell({
 
   const unreadNotifs = INITIAL_NOTIFICATIONS.filter((n) => !(n.is_read ?? n.read));
 
-  async function signOut() {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  async function handleConfirmSignOut() {
     try {
       await logoutUser();
     } catch (e) {
@@ -127,7 +134,7 @@ export function AppShell({
           </button>
         </div>
         <div className="p-3">
-          <AppSidebar collapsed={false} onToggleCollapse={() => {}} />
+          <AppSidebar collapsed={false} onToggleCollapse={() => {}} resizable={false} />
         </div>
       </div>
 
@@ -142,84 +149,10 @@ export function AppShell({
             >
               <Menu className="h-5 w-5" />
             </button>
-
-            {/* Global Search Trigger (Cmd + K) */}
-            <button
-              onClick={() => setSearchModalOpen(true)}
-              className="group flex items-center gap-3 rounded-md border border-border bg-muted/40 px-3.5 py-1.5 text-xs sm:text-sm text-foreground/80 font-medium transition-colors hover:border-accent hover:bg-muted"
-            >
-              <Search className="h-4 w-4 group-hover:text-accent transition-colors" />
-              <span className="hidden sm:inline">Search projects, leads, BOQ, materials...</span>
-              <span className="sm:hidden">Search studio...</span>
-              <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-card px-2 py-0.5 text-xs font-mono text-foreground/80 font-semibold">
-                ⌘K
-              </kbd>
-            </button>
           </div>
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-3">
-            {/* Quick Action Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  className="h-9 gap-1.5 px-3.5 text-xs sm:text-sm font-semibold bg-primary text-primary-foreground"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">New Action</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
-                <DropdownMenuLabel className="text-xs uppercase tracking-[0.08em] text-foreground/75 font-semibold">
-                  Quick Create
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("project")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <FolderPlus className="h-4 w-4 text-accent" />
-                  <span>New Interior Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("lead")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <UserPlus className="h-4 w-4 text-accent" />
-                  <span>Add Lead Enquiry</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("media")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <ImagePlus className="h-4 w-4 text-accent" />
-                  <span>Upload Media / Render</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("quotation")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <Receipt className="h-4 w-4 text-accent" />
-                  <span>Create Quotation / BOQ</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("expense")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <CircleDollarSign className="h-4 w-4 text-accent" />
-                  <span>Record Studio Expense</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openQuickAction("site_update")}
-                  className="gap-2 cursor-pointer text-xs sm:text-sm font-medium"
-                >
-                  <HardHat className="h-4 w-4 text-accent" />
-                  <span>Post Daily Site Update</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Notification Center Trigger */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -320,7 +253,7 @@ export function AppShell({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={signOut}
+                  onClick={() => setShowLogoutConfirm(true)}
                   className="gap-2 cursor-pointer text-xs text-destructive hover:bg-destructive/10"
                 >
                   <LogOut className="h-3.5 w-3.5" />
@@ -336,6 +269,32 @@ export function AppShell({
           {children}
         </main>
       </div>
+
+      {/* Sign Out Confirmation Modal */}
+      <AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <AlertDialogContent className="max-w-md bg-card border-border shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-serif tracking-tight text-foreground flex items-center gap-2">
+              <LogOut className="h-5 w-5 text-destructive" />
+              Confirm Sign Out
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed pt-1">
+              Are you sure you want to sign out of Right Angle Design Studio? You will need to enter your email and password to access the studio dashboard again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-5 gap-2 sm:gap-3">
+            <AlertDialogCancel className="cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmSignOut}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer font-medium"
+            >
+              Sign Out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Global Search Dialog Modal */}
       <GlobalSearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />

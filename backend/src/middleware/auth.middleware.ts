@@ -44,34 +44,23 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       }
 
       const userDoc = await usersCol.findOne(query);
-      if (userDoc && userDoc.isActive !== false) {
+      if (userDoc) {
+        if (userDoc.isActive === false) {
+          // Account is inactive
+          return next();
+        }
         req.user = {
           ...userDoc,
           id: String(userDoc._id),
         };
         return next();
       }
-    } catch (dbErr) {
-      console.warn("[Auth Middleware] Database lookup error, using JWT payload:", dbErr);
-    }
 
-    // Resilient fallback: If database is unreachable or userDoc not found in memory but JWT is cryptographically valid
-    if (payload.email) {
-      req.user = {
-        _id: ObjectId.isValid(payload.userId) ? new ObjectId(payload.userId) : (payload.userId as any),
-        id: payload.userId,
-        email: payload.email.toLowerCase(),
-        fullName: payload.fullName || "Studio Owner & Principal",
-        title: "Studio Owner & Principal",
-        phone: null,
-        roles: payload.roles?.length ? payload.roles : ["admin", "designer", "project_manager"],
-        isStaff: payload.isStaff ?? true,
-        clientIds: payload.clientIds || [],
-        isActive: true,
-        passwordHash: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      // User was not found in the database — reject without creating phantom admin
+      return next();
+    } catch (dbErr) {
+      console.warn("[Auth Middleware] Database lookup error:", dbErr);
+      return next();
     }
 
     return next();

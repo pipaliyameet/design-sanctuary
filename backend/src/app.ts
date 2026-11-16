@@ -38,6 +38,8 @@ app.use(
 
 const allowedOrigins = [
   env.FRONTEND_URL,
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:3000",
@@ -47,10 +49,16 @@ const allowedOrigins = [
 app.use(
   (cors as any)({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV !== "production") {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        env.NODE_ENV !== "production" ||
+        origin.endsWith(".vercel.app") ||
+        origin.endsWith(".lovable.app")
+      ) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive in development
+        callback(null, true);
       }
     },
     credentials: true,

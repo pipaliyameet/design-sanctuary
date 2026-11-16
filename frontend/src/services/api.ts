@@ -83,8 +83,13 @@ class ApiClient {
     }
 
     if (!response.ok || json.success === false) {
-      if (response.status === 401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/me")) {
+      if (response.status === 401 && !endpoint.includes("/auth/login")) {
         this.clearToken();
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem("studio_user");
+          } catch {}
+        }
       }
       const errorMsg = json.message || `Request failed with status ${response.status}`;
       const err = new Error(errorMsg) as Error & { code?: string; details?: any; status: number };

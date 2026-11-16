@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -41,17 +41,10 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/studio/projects/")({
-  component: ProjectsRegister,
-  head: () => ({
-    meta: [
-      { title: "Project Management Register — Right-Angle-Design-Studio" },
-      {
-        name: "description",
-        content:
-          "Master register of all active, execution, and completed interior architecture commissions.",
-      },
-    ],
-  }),
+  beforeLoad: () => {
+    throw redirect({ to: "/studio/media" });
+  },
+  component: () => null,
 });
 
 function ProjectsRegister() {

@@ -26,7 +26,6 @@ import {
   Link as LinkIcon,
   UploadCloud,
   Smartphone,
-  HardDrive,
   FileImage,
   ArrowUpDown,
   MoveUp,
@@ -456,21 +455,12 @@ export function MediaLibraryPage() {
             onClick={() => syncDriveMutation.mutate()}
             disabled={syncDriveMutation.isPending}
             variant="outline"
-            className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 gap-1.5 font-medium text-xs h-9 px-3.5 cursor-pointer transition-all"
+            className="border-emerald-600/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white gap-1.5 font-medium text-xs h-9 px-3.5 cursor-pointer transition-all shadow-xs"
             title="Scan Google Drive folder and sync all photos with database"
           >
             <RefreshCw className={`size-3.5 ${syncDriveMutation.isPending ? "animate-spin" : ""}`} />
             <span>{syncDriveMutation.isPending ? "Syncing Drive..." : "Sync Drive Vault"}</span>
           </Button>
-
-          <a
-            href="http://localhost:5001/api/media/connect-google-drive?redirect=true"
-            className="inline-flex items-center gap-1.5 rounded border border-border bg-card/80 px-3.5 py-2 text-xs text-foreground font-medium hover:border-accent hover:text-accent transition-colors h-9 cursor-pointer"
-            title="Authorize or reconnect your personal Google Drive account"
-          >
-            <HardDrive className="size-3.5 text-accent" />
-            <span>Connect Google Drive</span>
-          </a>
 
           <Button
             onClick={() => {
@@ -492,18 +482,6 @@ export function MediaLibraryPage() {
             <span>View Public Homepage</span>
             <ExternalLink className="size-3 opacity-60" />
           </Link>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="h-9 px-3 text-xs gap-1.5"
-            title="Refresh vault data"
-          >
-            <RefreshCw className={`size-3.5 ${isFetching ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </Button>
         </div>
       </div>
 
@@ -677,7 +655,7 @@ export function MediaLibraryPage() {
                           className={`h-8 px-2.5 text-xs flex-1 cursor-pointer font-medium transition-all ${
                             isHomepage
                               ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-xs"
-                              : "border-border text-foreground hover:border-accent hover:bg-accent/10"
+                              : "border-border text-foreground hover:border-accent hover:bg-accent/15 hover:text-accent"
                           }`}
                           onClick={() =>
                             toggleHomepageMutation.mutate({
@@ -689,12 +667,12 @@ export function MediaLibraryPage() {
                         >
                           {isHomepage ? (
                             <>
-                              <Check className="h-3.5 w-3.5 mr-1.5 text-accent-foreground" />
+                              <Check className="h-3.5 w-3.5 mr-1.5 text-accent-foreground shrink-0" />
                               <span>Featured on Homepage</span>
                             </>
                           ) : (
                             <>
-                              <Plus className="h-3.5 w-3.5 mr-1.5 text-accent" />
+                              <Plus className="h-3.5 w-3.5 mr-1.5 text-accent shrink-0" />
                               <span>Show on Homepage</span>
                             </>
                           )}
@@ -1119,10 +1097,10 @@ export function MediaLibraryPage() {
                     <Button
                       size="sm"
                       variant={selectedAsset.isHomepageVisible ? "default" : "outline"}
-                      className={`text-xs flex-1 cursor-pointer ${
+                      className={`text-xs flex-1 cursor-pointer font-medium transition-all ${
                         selectedAsset.isHomepageVisible
-                          ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                          : ""
+                          ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-xs"
+                          : "border-border text-foreground hover:border-accent hover:bg-accent/15 hover:text-accent"
                       }`}
                       onClick={() => {
                         const newVis = !selectedAsset.isHomepageVisible;
@@ -1136,10 +1114,17 @@ export function MediaLibraryPage() {
                         });
                       }}
                     >
-                      <Star className="h-3.5 w-3.5 mr-1.5" />
-                      {selectedAsset.isHomepageVisible
-                        ? "✓ On Homepage (Click to Hide)"
-                        : "+ Show on Homepage"}
+                      {selectedAsset.isHomepageVisible ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 mr-1.5 text-accent-foreground shrink-0" />
+                          <span>Featured on Homepage</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-3.5 w-3.5 mr-1.5 text-accent shrink-0" />
+                          <span>Show on Homepage</span>
+                        </>
+                      )}
                     </Button>
 
                     <Button

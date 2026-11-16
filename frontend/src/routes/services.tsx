@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Check, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PublicShell } from "@/components/site/PublicShell";
+import { BusinessCard3D } from "@/components/site/BusinessCard3D";
 import { GOOGLE_DRIVE_PHOTOS } from "@/lib/google-drive-photos";
 import { DriveImage } from "@/components/site/DriveImage";
 import { listServices, type ServiceItem } from "@/lib/public.functions";
+import { useCmsLiveSync } from "@/lib/cms-live-sync";
 
 export const Route = createFileRoute("/services")({
   component: ServicesPage,
@@ -99,32 +101,116 @@ const DEFAULT_SERVICES: ServiceItem[] = [
 ];
 
 function ServicesPage() {
+  useCmsLiveSync();
   const { data: serverServices } = useQuery({
     queryKey: ["public-services"],
     queryFn: listServices,
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const services = serverServices && serverServices.length > 0 ? serverServices : DEFAULT_SERVICES;
 
   return (
     <PublicShell>
-      {/* Editorial Header */}
-      <div className="border-b border-border bg-background pt-6 pb-6 sm:pt-8 sm:pb-8">
-        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-          <p className="eyebrow">STUDIO DISCIPLINES</p>
-          <h1 className="mt-2 font-display text-2xl sm:text-4xl lg:text-5xl font-normal text-foreground tracking-tight max-w-4xl leading-[1.12]">
-            Design that is drawn, costed, and built with integrity.
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-foreground/85 max-w-2xl leading-relaxed font-normal">
-            We provide end-to-end interior architecture and turnkey execution. Every commission is
-            engineered to eliminate ambiguity and deliver predictable excellence.
-          </p>
+      {/* 
+        ========================================================================
+        PRIMARY HERO: TWO-COLUMN STUDIO PRESENTATION WITH 3D BUSINESS CARD
+        ========================================================================
+      */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-background via-secondary/20 to-background pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24">
+        {/* Subtle architectural ambient backdrop */}
+        <div className="absolute inset-0 pointer-events-none opacity-40">
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-orange-500/10 blur-3xl" />
+          <div className="absolute top-1/2 -right-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
         </div>
-      </div>
+
+        <div className="relative mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-14 xl:gap-20 items-center">
+            {/* LEFT COLUMN: EDITORIAL DISCIPLINE INTRODUCTION */}
+            <div className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center space-y-6">
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-orange-600 dark:bg-orange-500 animate-pulse" />
+                <p className="text-xs uppercase tracking-[0.2em] font-semibold text-orange-700 dark:text-orange-400">
+                  STUDIO DISCIPLINES & TURNKEY EXECUTION
+                </p>
+              </div>
+
+              {/* Editorial Heading */}
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-normal text-foreground tracking-tight leading-[1.08]">
+                Design that is drawn, costed, and built with integrity.
+              </h1>
+
+              {/* Studio Approach Description */}
+              <p className="text-base sm:text-lg leading-relaxed text-foreground/85 font-normal max-w-2xl">
+                We provide end-to-end interior architecture and turnkey execution. Every commission is
+                engineered to eliminate contractor ambiguity through locked drawings, honest specifications,
+                and transparent milestone delivery.
+              </p>
+
+              {/* Core Pillars / Fast Navigation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 max-w-xl text-xs sm:text-sm text-foreground/85">
+                <a
+                  href="#architecture-interior-design"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-secondary/60 transition-colors group cursor-pointer"
+                >
+                  <span className="size-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                  <span className="font-medium group-hover:text-foreground">01. Architecture & Interiors</span>
+                </a>
+                <a
+                  href="#landscape-design"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-secondary/60 transition-colors group cursor-pointer"
+                >
+                  <span className="size-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                  <span className="font-medium group-hover:text-foreground">02. Landscape Planning</span>
+                </a>
+                <a
+                  href="#project-consultancy"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-secondary/60 transition-colors group cursor-pointer"
+                >
+                  <span className="size-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                  <span className="font-medium group-hover:text-foreground">03. Project Consultancy</span>
+                </a>
+                <a
+                  href="#turnkey-projects"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-secondary/60 transition-colors group cursor-pointer"
+                >
+                  <span className="size-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                  <span className="font-medium group-hover:text-foreground">04. Turnkey Execution</span>
+                </a>
+              </div>
+
+              {/* Action CTAs */}
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/contact"
+                  hash="consultation"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-md bg-foreground text-background text-xs uppercase tracking-[0.14em] font-semibold hover:bg-orange-600 hover:text-white transition-all shadow-sm cursor-pointer active:scale-95"
+                >
+                  Inquire For Project <ArrowRight className="size-3.5" />
+                </Link>
+
+                <a
+                  href="#services-catalog"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md border border-border bg-background/80 text-foreground text-xs uppercase tracking-[0.14em] font-semibold hover:bg-secondary/70 hover:text-foreground transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  Browse All Disciplines
+                </a>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: INTERACTIVE 3D BUSINESS CARD */}
+            <div className="lg:col-span-5 xl:col-span-5 flex items-center justify-center py-4 sm:py-8 lg:py-0">
+              <BusinessCard3D />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Services Catalogue with Adaptive Photo Sizing */}
-      <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 py-8 space-y-12">
+      <div id="services-catalog" className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 py-12 space-y-14">
         {services.map((service, idx) => {
           const isEven = idx % 2 === 0;
           return (
@@ -220,10 +306,10 @@ function ServicesPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Link
-              to="/process"
+              to="/contact"
               className="inline-flex items-center gap-2 border border-foreground/30 px-8 py-3.5 text-sm uppercase tracking-[0.08em] text-foreground font-semibold hover:bg-foreground hover:text-background transition-colors cursor-pointer"
             >
-              Examine Our 5-Step Process <ArrowRight className="size-3" />
+              Start Your Project Consultation <ArrowRight className="size-3" />
             </Link>
           </div>
         </div>

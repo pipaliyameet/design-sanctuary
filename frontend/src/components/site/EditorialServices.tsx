@@ -52,10 +52,15 @@ function getServicePhotos(service?: ServiceItem, index = 0): string[] {
   if (!service) return DEFAULT_GLOBAL_IMAGES;
 
   const list: string[] = [];
-  if (Array.isArray(service.images) && service.images.length > 0) {
-    list.push(...service.images.filter(Boolean));
-  } else if (service.image) {
+  if (service.image) {
     list.push(service.image);
+  }
+  if (Array.isArray(service.images) && service.images.length > 0) {
+    for (const img of service.images) {
+      if (img && !list.includes(img)) {
+        list.push(img);
+      }
+    }
   }
 
   // If fewer than 2 images, supplement from curated discipline fallbacks

@@ -256,7 +256,8 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       consultationHeading: unwrapStr(settingsMap.consultationHeading, "Ready to begin your architectural sanctuary?"),
       consultationPhone: unwrapStr(settingsMap.consultationPhone, "+91 95375 86804"),
       consultationEmail: unwrapStr(settingsMap.consultationEmail, "contact@rightangle.design"),
-      spotlightProjectSlug: settingsMap.spotlightProjectSlug || "mehta-executive-suite",
+      spotlightProjectSlug: settingsMap.spotlightProjectSlug || "altamount-penthouse",
+      spotlightPhoto: unwrapStr(settingsMap.spotlightPhoto, ""),
       architecturalFilms: Array.isArray(settingsMap.architecturalFilms) && settingsMap.architecturalFilms.length > 0 ? settingsMap.architecturalFilms : undefined,
       showServices: settingsMap.showServices !== false,
       showProcess: settingsMap.showProcess !== false,
@@ -267,7 +268,7 @@ export async function getHomeData(req: Request, res: Response, next: NextFunctio
       recentJournal,
       heroMedia,
       homepageMedia,
-      services: (Array.isArray(settingsMap.services) && settingsMap.services.length > 0 ? settingsMap.services : services).map((s: any) => ({ ...s, id: String(s._id || s.id) })),
+      services: (services.length > 0 ? services : (Array.isArray(settingsMap.services) ? settingsMap.services : [])).map((s: any) => ({ ...s, id: String(s._id || s.id) })),
       processSteps: (Array.isArray(settingsMap.processSteps) && settingsMap.processSteps.length > 0 ? settingsMap.processSteps : processSteps).map((s: any) => ({ ...s, id: String(s._id || s.id) })),
       testimonials: (Array.isArray(settingsMap.testimonials) && settingsMap.testimonials.length > 0 ? settingsMap.testimonials : testimonials).map((t: any) => ({ ...t, id: String(t._id || t.id) })),
       materials: (Array.isArray(settingsMap.materials) && settingsMap.materials.length > 0 ? settingsMap.materials : materials).map((m: any) => ({ ...m, id: String(m._id || m.id) })),
@@ -385,8 +386,14 @@ export async function listServices(req: Request, res: Response, next: NextFuncti
     const servicesCol = await getCollection<ServiceDoc>("services");
     const services = await servicesCol.find({ published: true }).sort({ sortOrder: 1 }).toArray();
 
-    setCached(cacheKey, services);
-    return sendSuccess(res, services);
+    const formatted = services.map((s) => ({
+      ...s,
+      _id: String(s._id),
+      id: String(s._id),
+    }));
+
+    setCached(cacheKey, formatted);
+    return sendSuccess(res, formatted);
   } catch (err) {
     next(err);
   }
@@ -609,15 +616,18 @@ export async function listPublicMedia(req: Request, res: Response, next: NextFun
     const allTags = ["All", ...Array.from(new Set(allDocs.flatMap((d: any) => d.tags || []).filter((t: string) => t && t !== "Google Drive Vault")))];
 
     const formattedItems = paginatedItems.map((m: any, idx: number) => {
+      const cleanDriveId = m.driveFileId
+        ? String(m.driveFileId).replace(/^drive_media_/, "").trim()
+        : (m._id ? String(m._id).replace(/^drive_media_/, "").trim() : "");
       return {
-        id: String(m._id),
+        id: cleanDriveId || String(m._id),
         _id: String(m._id),
-        driveFileId: m.driveFileId,
-        url: m.driveUrl || (m.driveFileId ? `https://lh3.googleusercontent.com/d/${m.driveFileId}` : ""),
+        driveFileId: cleanDriveId,
+        url: m.driveUrl || (cleanDriveId ? `https://lh3.googleusercontent.com/d/${cleanDriveId}` : ""),
         thumbnailUrl:
           m.thumbnailUrl ||
           m.driveUrl ||
-          (m.driveFileId ? `https://drive.google.com/thumbnail?id=${m.driveFileId}&sz=w800` : ""),
+          (cleanDriveId ? `https://drive.google.com/thumbnail?id=${cleanDriveId}&sz=w800` : ""),
         title: m.caption || m.fileName || `Architectural Work #${idx + 1}`,
         caption: m.alt || m.caption || "",
         category: m.category || "Living & Salon",

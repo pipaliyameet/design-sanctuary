@@ -6,6 +6,7 @@ import {
   Phone,
   Mail,
   Instagram,
+  Facebook,
   MapPin,
   Clock,
   ArrowUpRight,
@@ -241,20 +242,67 @@ export function ContactPage() {
                 </div>
               </div>
 
+              {/* Facebook Card */}
+              <div className="rounded-lg border border-border/80 bg-card p-4 transition-all hover:border-accent/60">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#1877F2]/15 text-[#1877F2] border border-[#1877F2]/30">
+                      <Facebook className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs uppercase tracking-[0.06em] text-foreground/70 font-semibold font-mono">
+                        Facebook
+                      </p>
+                      <p className="mt-0.5 text-sm sm:text-base font-semibold text-foreground truncate">
+                        {STUDIO_DETAILS.facebookHandle || "Right Angle Design Studio"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-foreground/60">
+                        1.3K+ community · Interior consultant & projects
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={STUDIO_DETAILS.facebookUrl || "https://www.facebook.com/rightangle919"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center gap-1 rounded bg-secondary hover:bg-[#1877F2] hover:text-white px-3 py-1.5 text-xs font-semibold text-foreground transition-colors cursor-pointer border border-border"
+                  >
+                    <span>Visit Facebook</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              </div>
+
             </div>
 
-            {/* 3. STUDIO OFFICE & GOOGLE MAPS LOCATION */}
-            <div className="rounded-lg border border-border/80 bg-card p-5 space-y-3.5">
+            {/* 3. STUDIO OFFICE & GOOGLE MAPS LOCATION (Find a Studio Target) */}
+            <div id="studios" className="rounded-lg border border-border/80 bg-card p-5 space-y-3.5 scroll-mt-28">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-accent" />
                   <p className="text-xs uppercase tracking-[0.06em] text-foreground/70 font-semibold font-mono">
-                    Studio Location
+                    Studio Locations & Hubs
                   </p>
                 </div>
-                <span className="text-xs font-mono text-accent font-semibold">HQ</span>
+                <span className="text-xs font-mono text-accent font-semibold">FIND A STUDIO</span>
               </div>
 
+              {/* Rajkot & Jetpur Studio (Gujarat HQ) */}
+              <div className="pb-3 border-b border-border/60">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">Gujarat Practice (Jetpur & Rajkot)</p>
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-accent/15 text-accent font-semibold">Active Studio</span>
+                </div>
+                <p className="mt-1 text-xs sm:text-sm text-foreground/80 leading-relaxed font-normal">
+                  Near Mayo Hospital, Jetpur, Rajkot, Gujarat 360380
+                </p>
+                <div className="mt-2 flex items-center gap-4 text-xs text-foreground/70">
+                  <a href="tel:+919537586804" className="hover:text-accent font-mono">📞 +91 95375 86804</a>
+                  <a href="tel:+919998121616" className="hover:text-accent font-mono">📞 +91 99981 21616</a>
+                </div>
+              </div>
+
+              {/* Mumbai Practice */}
               <div>
                 <p className="text-sm font-semibold text-foreground">Mumbai Practice</p>
                 <p className="mt-1 text-xs sm:text-sm text-foreground/80 leading-relaxed font-normal">

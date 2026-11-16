@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { STUDIO_DETAILS } from "@/lib/public.functions";
@@ -30,24 +31,39 @@ export function WhatsAppIcon({ className = "size-7" }: { className?: string }) {
 export function PublicShell({
   children,
   overlayHeader = false,
-  hideFloatingWhatsApp = false,
+  showFloatingWhatsApp,
+  hideFloatingWhatsApp,
 }: {
   children: ReactNode;
   overlayHeader?: boolean;
+  showFloatingWhatsApp?: boolean;
   hideFloatingWhatsApp?: boolean;
 }) {
+  const routerState = useRouterState();
+  const currentPath = routerState?.location?.pathname ?? "";
+
+  // The floating WhatsApp toggle ONLY appears on the portfolio page:
+  // "/" (Primary Portfolio page) and "/portfolio" / "/portfolio/*"
+  const isPortfolioPage = currentPath === "/" || currentPath.startsWith("/portfolio");
+  const shouldRenderWhatsApp =
+    hideFloatingWhatsApp === true
+      ? false
+      : showFloatingWhatsApp !== undefined
+        ? showFloatingWhatsApp
+        : isPortfolioPage;
+
   const whatsappUrl = `https://wa.me/${STUDIO_DETAILS.whatsappNumber}?text=${encodeURIComponent("Hello Right-Angle-Design-Studio, I would like to discuss an interior design project.")}`;
 
   return (
     <div className="flex min-h-screen w-full max-w-full flex-col bg-background text-foreground selection:bg-accent/25 selection:text-foreground overflow-x-clip">
       <SiteHeader overlay={overlayHeader} />
-      <main className={cn("w-full max-w-full overflow-x-clip", overlayHeader ? "flex-1" : "flex-1 pt-20")}>
+      <main className={cn("w-full max-w-full overflow-x-clip", overlayHeader ? "flex-1" : "flex-1 pt-[72px]")}>
         {children}
       </main>
       <SiteFooter />
 
-      {/* Floating Edge WhatsApp Action (Livspace-style flush right-edge tab) */}
-      {!hideFloatingWhatsApp && (
+      {/* Floating Edge WhatsApp Action: ONLY on Portfolio page, not any other page */}
+      {shouldRenderWhatsApp && (
         <a
           href={whatsappUrl}
           target="_blank"

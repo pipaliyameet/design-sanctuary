@@ -417,6 +417,7 @@ function GalleryPage() {
             {/* Left/Main: High-Res Image Display */}
             <div className="relative flex-1 bg-black/95 flex items-center justify-center p-4 min-h-[350px] lg:min-h-[580px]">
               <DriveImage
+                priority
                 src={lightboxPhoto.url}
                 driveId={lightboxPhoto.id}
                 fallbackUrls={[lightboxPhoto.thumbnailUrl, lightboxPhoto.driveViewUrl]}
@@ -553,12 +554,12 @@ function PhotoCardItem({
 }) {
   return (
     <div className="group relative rounded border border-border/80 bg-card overflow-hidden transition-all duration-300 hover:border-accent/80 hover:shadow-xl break-inside-avoid mb-6">
-      {/* Image Preview with Dynamic Box Sizing */}
+      {/* Image Preview with Natural or Explicit Box Sizing */}
       <div
         onClick={onOpenLightbox}
         className={cn(
-          "relative overflow-hidden cursor-pointer",
-          aspectRatio ? aspectRatio : "w-full",
+          "relative overflow-hidden cursor-pointer w-full bg-muted/20",
+          aspectRatio ? aspectRatio : "",
         )}
       >
         <DriveImage
@@ -566,18 +567,17 @@ function PhotoCardItem({
           driveId={photo.id}
           fallbackUrls={[photo.thumbnailUrl, photo.driveViewUrl]}
           alt={photo.title}
-          autoAspect={!aspectRatio}
           className={cn(
             "w-full transition-transform duration-700 ease-out group-hover:scale-105",
-            aspectRatio ? "size-full object-cover" : "h-auto w-full object-cover block",
+            aspectRatio ? "size-full object-cover" : "w-full h-auto block",
           )}
-          wrapperClassName="w-full"
+          wrapperClassName={cn("w-full", aspectRatio ? "size-full" : "")}
         />
-        {/* Subtle dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
+        {/* Subtle dark gradient overlay - revealed on hover so full photo clarity is preserved */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
           <span className="rounded bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] text-white font-medium">
             {photo.category}
           </span>
@@ -593,8 +593,8 @@ function PhotoCardItem({
           </span>
         </div>
 
-        {/* Bottom Details on Image */}
-        <div className="absolute bottom-3 left-3 right-3 text-white">
+        {/* Bottom Details on Image - revealed smoothly on hover */}
+        <div className="absolute bottom-3 left-3 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <p className="font-display text-sm font-medium leading-snug line-clamp-1">{photo.title}</p>
           <p className="text-[11px] text-white/75 mt-0.5">
             {photo.projectTitle} · {photo.location}
@@ -603,7 +603,10 @@ function PhotoCardItem({
       </div>
 
       {/* Card Details Footer */}
-      <div className="p-3.5 space-y-2.5 text-xs bg-card">
+      <div className="p-3.5 space-y-2 text-xs bg-card">
+        <h3 className="font-display text-sm font-medium leading-snug line-clamp-1 text-foreground">
+          {photo.title}
+        </h3>
         <p className="text-muted-foreground text-[11px] line-clamp-2 leading-relaxed">
           {photo.caption}
         </p>

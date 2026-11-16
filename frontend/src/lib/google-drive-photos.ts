@@ -260,27 +260,31 @@ export async function getPublicGalleryPhotos(
           !isPhotoDeleted(item.url),
       );
       return {
-        items: distinctItems.map((item: any, idx: number) => ({
-          id: item.id || item._id,
-          index: (Number(params.page || 1) - 1) * Number(params.limit || 12) + idx + 1,
-          fileName: item.fileName || item.title || "",
-          title: item.title || item.caption || `Architectural Work #${idx + 1}`,
-          caption: item.caption || item.description || item.title || "",
-          category: item.category || "Living & Salon",
-          projectId: item.projectId || "altamount-penthouse",
-          projectTitle: item.projectTitle || "The Altamount Penthouse",
-          projectCode: item.projectCode || "RA-01",
-          location: item.location || "Mumbai",
-          url: item.url || (item.driveFileId ? `https://lh3.googleusercontent.com/d/${item.driveFileId}` : ""),
-          thumbnailUrl:
-            item.thumbnailUrl ||
-            item.thumbnail_url ||
-            (item.driveFileId ? `https://drive.google.com/thumbnail?id=${item.driveFileId}&sz=w800` : ""),
-          driveViewUrl: item.driveFileId ? `https://drive.google.com/file/d/${item.driveFileId}/view` : "",
-          tags: Array.isArray(item.tags) ? item.tags : [],
-          size: item.size,
-          uploadedAt: item.createdAt,
-        })),
+        items: distinctItems.map((item: any, idx: number) => {
+          const rawId = item.driveFileId || (item._id && String(item._id).replace(/^drive_media_/, "")) || item.id;
+          const cleanId = rawId ? String(rawId).replace(/^drive_media_/, "").trim() : "";
+          return {
+            id: cleanId || (item._id ? String(item._id) : `drive-asset-${idx + 1}`),
+            index: (Number(params.page || 1) - 1) * Number(params.limit || 12) + idx + 1,
+            fileName: item.fileName || item.title || "",
+            title: item.title || item.caption || `Architectural Work #${idx + 1}`,
+            caption: item.caption || item.description || item.title || "",
+            category: item.category || "Living & Salon",
+            projectId: item.projectId || "altamount-penthouse",
+            projectTitle: item.projectTitle || "The Altamount Penthouse",
+            projectCode: item.projectCode || "RA-01",
+            location: item.location || "Mumbai",
+            url: item.url || (cleanId ? `https://lh3.googleusercontent.com/d/${cleanId}` : ""),
+            thumbnailUrl:
+              item.thumbnailUrl ||
+              item.thumbnail_url ||
+              (cleanId ? `https://drive.google.com/thumbnail?id=${cleanId}&sz=w800` : ""),
+            driveViewUrl: cleanId ? `https://drive.google.com/file/d/${cleanId}/view` : "",
+            tags: Array.isArray(item.tags) ? item.tags : [],
+            size: item.size,
+            uploadedAt: item.createdAt,
+          };
+        }),
         total: res.total !== undefined ? res.total : distinctItems.length,
         page: res.currentPage || res.page || params.page || 1,
         limit: res.pageSize || res.limit || params.limit || 12,

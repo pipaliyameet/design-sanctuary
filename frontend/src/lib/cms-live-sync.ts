@@ -52,9 +52,12 @@ export function useCmsLiveSync(passedQueryClient?: QueryClient | null, onUpdate?
     const handleSync = () => {
       client.invalidateQueries({ queryKey: ["home-content"] });
       client.invalidateQueries({ queryKey: ["public"] });
+      client.invalidateQueries({ queryKey: ["public-services"] });
       client.invalidateQueries({ queryKey: ["cms"] });
       client.invalidateQueries({ queryKey: ["media"] });
+      client.invalidateQueries({ queryKey: ["studio", "services"] });
       client.refetchQueries({ queryKey: ["home-content"] });
+      client.refetchQueries({ queryKey: ["public-services"] });
       client.refetchQueries({ queryKey: ["public"] });
       onUpdate?.();
     };
