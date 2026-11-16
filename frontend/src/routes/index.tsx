@@ -418,10 +418,6 @@ export function HomePage() {
     },
   ];
 
-  // Livspace Structure Reference:
-  // 7. "Recognised for raising the bar" (Press, Cities, Partners)
-  const cities = ["Mumbai", "Bengaluru", "Ahmedabad", "Delhi NCR", "Pune", "Hyderabad"];
-  const partners = ["Hafele", "Blum", "Saint-Gobain", "Asian Paints Royale", "Hettich", "Kohler"];
 
   const activeSlide = heroSlides[currentSlide] || heroSlides[0];
 
@@ -626,25 +622,6 @@ export function HomePage() {
               ))}
             </div>
 
-            {/* Navigation Buttons for Carousel */}
-            <div className="hidden sm:flex items-center justify-end gap-2 mt-4">
-              <button
-                type="button"
-                onClick={() => scrollCarousel(offeringsScrollRef, "left")}
-                aria-label="Previous offerings"
-                className="size-8 rounded-full border border-border bg-white dark:bg-card flex items-center justify-center text-foreground hover:bg-accent hover:text-white hover:border-accent transition-colors shadow-2xs cursor-pointer"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollCarousel(offeringsScrollRef, "right")}
-                aria-label="Next offerings"
-                className="size-8 rounded-full border border-border bg-white dark:bg-card flex items-center justify-center text-foreground hover:bg-accent hover:text-white hover:border-accent transition-colors shadow-2xs cursor-pointer"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </div>
           </div>
         </div>
       </section>
@@ -684,9 +661,9 @@ export function HomePage() {
           </div>
 
           {/* Bento Grid (Livspace Reference: 3-column layout with Living Room, Master Bedroom, Lighting, Tall Center Lounge, Kitchen, Wardrobe) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-2.5">
             {/* Left Column (4 Cols): Living Room + Master Bedroom + False Ceiling */}
-            <div className="md:col-span-4 flex flex-col gap-4 lg:gap-5">
+            <div className="md:col-span-4 flex flex-col gap-2 sm:gap-2.5">
               {/* Card 1: Living Room */}
               <div
                 onClick={() =>
@@ -707,7 +684,7 @@ export function HomePage() {
                     location: "Mumbai",
                   })
                 }
-                className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <DriveImage
                   src={designIdeas.livingRoom.image}
@@ -716,10 +693,10 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm">
+                <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.livingRoom.badge}
                 </span>
-                <span className="absolute top-3 right-3 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="size-3.5" />
                 </span>
               </div>
@@ -744,7 +721,7 @@ export function HomePage() {
                     location: "Bengaluru",
                   })
                 }
-                className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <DriveImage
                   src={designIdeas.masterBedroom.image}
@@ -753,10 +730,10 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm">
+                <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.masterBedroom.badge}
                 </span>
-                <span className="absolute top-3 right-3 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="size-3.5" />
                 </span>
               </div>
@@ -781,7 +758,7 @@ export function HomePage() {
                     location: "Ahmedabad",
                   })
                 }
-                className="group relative aspect-[16/9] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative aspect-[16/9] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <DriveImage
                   src={designIdeas.lighting.image}
@@ -790,10 +767,10 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm">
+                <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.lighting.badge}
                 </span>
-                <span className="absolute top-3 right-3 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="size-3.5" />
                 </span>
               </div>
@@ -820,7 +797,7 @@ export function HomePage() {
                     location: "Mumbai",
                   })
                 }
-                className="group relative h-full min-h-[420px] sm:min-h-[490px] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative h-full min-h-[380px] sm:min-h-[460px] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <DriveImage
                   src={designIdeas.signatureLounge.image}
@@ -829,16 +806,16 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+                <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
                   <div>
-                    <span className="inline-block bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm mb-2">
+                    <span className="inline-block bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm mb-1.5">
                       {designIdeas.signatureLounge.badge}
                     </span>
-                    <p className="text-white text-sm font-light leading-snug drop-shadow-sm max-w-xs hidden sm:block">
+                    <p className="text-white text-xs sm:text-sm font-light leading-snug drop-shadow-sm max-w-xs hidden sm:block">
                       {designIdeas.signatureLounge.caption}
                     </p>
                   </div>
-                  <span className="size-9 rounded-full bg-white/25 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shrink-0">
+                  <span className="size-8.5 rounded-full bg-white/25 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shrink-0">
                     <Maximize2 className="size-4" />
                   </span>
                 </div>
@@ -846,7 +823,7 @@ export function HomePage() {
             </div>
 
             {/* Right Column (4 Cols): Kitchen + Wardrobe & Dressing */}
-            <div className="md:col-span-4 flex flex-col gap-4 lg:gap-5">
+            <div className="md:col-span-4 flex flex-col gap-2 sm:gap-2.5">
               {/* Card 5: Kitchen */}
               <div
                 onClick={() =>
@@ -867,7 +844,7 @@ export function HomePage() {
                     location: "Pune",
                   })
                 }
-                className="group relative aspect-[16/9] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
+                className="group relative aspect-[16/9] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <DriveImage
                   src={designIdeas.kitchen.image}
@@ -876,10 +853,10 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm">
+                <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.kitchen.badge}
                 </span>
-                <span className="absolute top-3 right-3 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="size-3.5" />
                 </span>
               </div>
@@ -904,7 +881,7 @@ export function HomePage() {
                     location: "Worli, Mumbai",
                   })
                 }
-                className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex-1"
+                className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex-1"
               >
                 <DriveImage
                   src={designIdeas.wardrobe.image}
@@ -913,10 +890,10 @@ export function HomePage() {
                   wrapperClassName="size-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-3 py-1.5 rounded-sm">
+                <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.wardrobe.badge}
                 </span>
-                <span className="absolute top-3 right-3 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="size-3.5" />
                 </span>
               </div>
@@ -1215,49 +1192,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 08 — RECOGNISED FOR RAISING THE BAR (Livspace Reference: Screenshot 5 bottom)
-          ========================================================================= */}
-      <section className="py-10 sm:py-14 bg-[#FBF9F6] dark:bg-card/20 border-b border-border/60">
-        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16 text-center">
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-light text-foreground tracking-tight">
-            Recognised for raising the{" "}
-            <span className="italic font-normal text-accent font-serif">bar</span>
-          </h2>
-          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-light max-w-lg mx-auto">
-            Trusted by homeowners and premium material partners across India's leading metropolitan centers.
-          </p>
-
-          {/* Hardware & Material Brands */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 sm:gap-8 lg:gap-12 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
-            {partners.map((p, idx) => (
-              <span
-                key={idx}
-                className="font-display text-sm sm:text-base tracking-[0.14em] uppercase text-foreground/80 font-medium"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-
-          {/* Studio Experience Centers Strip */}
-          <div className="mt-8 pt-6 border-t border-border/70 max-w-4xl mx-auto">
-            <p className="text-[11px] font-mono tracking-widest uppercase text-muted-foreground mb-3">
-              STUDIO HUBS & EXPERIENCE CENTRES
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-xs uppercase tracking-wider text-foreground font-mono">
-              {cities.map((city, idx) => (
-                <span
-                  key={idx}
-                  className="bg-white dark:bg-card border border-border/80 px-3.5 py-1.5 rounded-full shadow-2xs"
-                >
-                  {city}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* =========================================================================
           SECTION 09 — FINAL CONSULTATION BANNER

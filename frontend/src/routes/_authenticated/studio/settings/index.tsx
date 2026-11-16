@@ -114,7 +114,7 @@ function StudioSettingsPage() {
     tagline: "Architecture & Bespoke Interior Sanctuary",
     gstin: "24AAACA1234F1Z5",
     pan: "AAACA1234F",
-    email: "contact@rightangle.design",
+    email: "rightangle011@gmail.com",
     phone: "+91 98200 41100",
     address: "Right-Angle-Design-Studio HQ, Racecourse Ring Road, Rajkot 360001, Gujarat",
     currency: "INR (₹)",

@@ -52,7 +52,7 @@ export function SiteFooter() {
                 <MessageSquare className="size-4" />
               </a>
               <a
-                href="mailto:contact@rightangle.design"
+                href={`mailto:${STUDIO_DETAILS.email || "rightangle011@gmail.com"}`}
                 aria-label="Email"
                 className="flex size-9 items-center justify-center border border-border/80 text-muted-foreground transition-colors hover:border-accent hover:text-accent"
               >

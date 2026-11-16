@@ -19,6 +19,26 @@ export async function loginUser({ data }: { data: { email: string; password: str
   };
 }
 
+export async function loginWithGoogle({ data }: { data: { credential?: string; token?: string; email?: string; name?: string } }) {
+  const res = await authService.loginWithGoogle(data);
+  return {
+    success: true,
+    user: res.user,
+    session: res.user,
+    token: res.token,
+  };
+}
+
+export async function directAdminLogin() {
+  const res = await authService.directAdminLogin();
+  return {
+    success: true,
+    user: res.user,
+    session: res.user,
+    token: res.token,
+  };
+}
+
 export async function signupUser({ data }: {
   data: {
     email: string;

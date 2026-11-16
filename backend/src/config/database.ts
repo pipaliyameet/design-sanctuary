@@ -23,7 +23,7 @@ function getInitialStore(name: string): any[] {
         companyName: "Right-Angle-Design-Studio",
         brandName: "Right-Angle-Design-Studio",
         tagline: "Architecture & Interior Design Atelier",
-        email: "info@rightangledesignstudio.com",
+        email: "rightangle011@gmail.com",
         phone: "+91 98765 43210",
         address: "Studio 4B, Design Sanctuary Tower, Mumbai, India",
         primaryColor: "#0D2E24",

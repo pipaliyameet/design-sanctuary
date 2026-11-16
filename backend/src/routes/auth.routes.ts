@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { login, signup, logout, getMe, updateProfile } from "../controllers/auth.controller.js";
+import { login, googleLogin, directAdminLogin, signup, logout, getMe, updateProfile } from "../controllers/auth.controller.js";
 import { requireAuth } from "../middleware/role.middleware.js";
 
 const router = Router();
 
 router.post("/login", login);
+router.post("/google", googleLogin);
+router.post("/admin-direct", directAdminLogin);
 router.post("/signup", signup);
 router.post("/register", signup);
 router.post("/logout", logout);

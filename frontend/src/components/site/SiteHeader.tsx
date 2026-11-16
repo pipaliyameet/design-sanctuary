@@ -7,6 +7,7 @@ import {
   MapPin,
   Heart,
   ShoppingBag,
+  User,
   ArrowRight,
   MessageSquare,
   Phone,
@@ -16,6 +17,7 @@ import {
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { cn } from "@/lib/utils";
 import { STUDIO_DETAILS } from "@/lib/public.functions";
+import { useSession } from "@/hooks/useSession";
 
 const STUDIO_LOCATIONS = [
   { name: "Jetpur / Rajkot", pincode: "360380", address: "Near Mayo Hospital, Jetpur, Rajkot" },
@@ -37,6 +39,9 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const routerState = useRouterState();
   const currentPath = routerState?.location?.pathname ?? "/";
   const navigate = useNavigate();
+  const { data: session } = useSession();
+  const authTarget = session?.email ? "/studio/media" : "/auth";
+  const authLabel = session?.email ? `Studio Admin Portal (${session.email})` : "Sign In / Studio Portal";
 
   // Close menus on route change
   useEffect(() => {
@@ -239,6 +244,21 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               <ShoppingBag className="size-5 stroke-[2.2]" />
             </Link>
 
+            {/* Login / Studio Portal (Livspace Style User Profile) */}
+            <Link
+              to={authTarget}
+              aria-label={authLabel}
+              title={authLabel}
+              className={cn(
+                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                session?.email
+                  ? "bg-accent/15 text-accent hover:bg-accent hover:text-white"
+                  : "text-stone-900 hover:text-accent hover:bg-stone-100"
+              )}
+            >
+              <User className="size-5 stroke-[2.2]" />
+            </Link>
+
             {/* Mobile / Tablet Menu Trigger */}
             <button
               type="button"
@@ -331,6 +351,15 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-foreground text-background px-4 py-3.5 text-xs tracking-[0.2em] uppercase font-semibold hover:bg-accent hover:text-white transition-colors rounded"
             >
               Get Free Quote & Consultation <ArrowRight className="size-3.5" />
+            </Link>
+
+            <Link
+              to={authTarget}
+              onClick={() => setOpen(false)}
+              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 border border-border bg-stone-50 text-stone-900 px-4 py-3 text-xs tracking-[0.16em] uppercase font-semibold hover:border-accent hover:text-accent transition-colors rounded"
+            >
+              <User className="size-4 text-accent" />
+              <span>{session?.email ? "Open Studio Dashboard" : "Sign In / Studio Portal"}</span>
             </Link>
 
             <div className="grid grid-cols-2 gap-2.5 pt-2">

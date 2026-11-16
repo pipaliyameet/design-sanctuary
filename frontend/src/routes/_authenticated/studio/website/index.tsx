@@ -312,7 +312,7 @@ export function LiveVisualWebsiteEditor() {
       "From structural drawings to bespoke furniture fabrication and white-glove styling, our single-source governance guarantees zero friction.",
     consultationHeading: "Ready to begin your architectural sanctuary?",
     consultationPhone: "+91 95375 86804",
-    consultationEmail: "contact@rightangle.design",
+    consultationEmail: "rightangle011@gmail.com",
     spotlightProjectSlug: "altamount-penthouse",
     spotlightPhoto: "",
     featuredProjectSlugs: [],
@@ -2045,7 +2045,7 @@ export function LiveVisualWebsiteEditor() {
                             setActiveTextSlot({
                               field: "consultationEmail",
                               label: "Studio Email",
-                              value: draftHome.consultationEmail || "contact@rightangle.design",
+                              value: draftHome.consultationEmail || "rightangle011@gmail.com",
                             });
                             setTextEditorOpen(true);
                           }
@@ -2056,7 +2056,7 @@ export function LiveVisualWebsiteEditor() {
                         )}
                       >
                         <Mail className="size-3.5 text-accent" />
-                        <span>{draftHome.consultationEmail || "contact@rightangle.design"}</span>
+                        <span>{draftHome.consultationEmail || "rightangle011@gmail.com"}</span>
                       </div>
 
                       <div className="flex items-center gap-2 text-muted-foreground">

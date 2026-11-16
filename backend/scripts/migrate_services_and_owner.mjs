@@ -136,7 +136,7 @@ async function run() {
           owner: "Ravi Pipaliya",
           tagline: "Architecture & Interior Sanctuary",
           phone: "+91 95375 86804",
-          email: "contact@rightangle.design",
+          email: "rightangle011@gmail.com",
           address: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
           bengaluruAddress: "84 Lavelle Road, Ashok Nagar, Bengaluru 560001",
           instagram: "https://www.instagram.com/right_angle_interior_design/",

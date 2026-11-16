@@ -172,7 +172,7 @@ export async function getHomepageConfig(req: Request, res: Response, next: NextF
       ),
       consultationHeading: unwrap(map.consultationHeading, "Ready to begin your architectural sanctuary?"),
       consultationPhone: unwrap(map.consultationPhone, "+91 95375 86804"),
-      consultationEmail: unwrap(map.consultationEmail, "contact@rightangle.design"),
+      consultationEmail: unwrap(map.consultationEmail, "rightangle011@gmail.com"),
       spotlightProjectSlug: unwrap(map.spotlightProjectSlug, "altamount-penthouse"),
       spotlightPhoto: unwrap(map.spotlightPhoto, ""),
     });

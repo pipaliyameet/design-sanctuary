@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated")({
     throw redirect({
       to: "/auth",
       search: {
-        redirect: location.href,
+        redirect: location.pathname || "/studio/media",
       },
     });
   },

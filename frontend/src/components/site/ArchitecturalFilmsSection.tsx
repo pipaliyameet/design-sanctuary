@@ -94,15 +94,6 @@ export function ArchitecturalFilmsSection({
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md font-light leading-relaxed">
               Continuous live documentation of crafted spaces. Filmed in natural vertical orientation to showcase vertical volume, double-height joinery, and material flow.
             </p>
-            <a
-              href={GOOGLE_DRIVE_VIDEOS_FOLDER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded border border-border bg-card/60 px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground font-medium hover:border-accent hover:text-accent transition-all"
-            >
-              <span>Drive Video Vault</span>
-              <ExternalLink className="size-3.5" />
-            </a>
           </div>
         </div>
 
@@ -234,16 +225,6 @@ export function ArchitecturalFilmsSection({
                   <span>Enquire on WhatsApp</span>
                 </a>
               </div>
-
-              <a
-                href={GOOGLE_DRIVE_VIDEOS_FOLDER_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs uppercase tracking-[0.14em] text-accent hover:underline font-medium inline-flex items-center gap-1.5"
-              >
-                <span>Drive Video Vault</span>
-                <ExternalLink className="size-3" />
-              </a>
             </div>
           </div>
         </div>
