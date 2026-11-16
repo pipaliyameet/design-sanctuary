@@ -218,7 +218,7 @@ function AuthPage() {
           .finally(() => setGoogleLoading(false));
       }
     }
-  }, [navigate, targetRedirect]);
+  }, [navigate]);
 
   async function handleGoogleLogin(payload: { credential?: string; token?: string; email?: string; name?: string }) {
     setErrorMessage(null);
