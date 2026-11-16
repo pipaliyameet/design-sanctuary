@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { loginUser, loginWithGoogle, directAdminLogin, getMySession } from "@/lib/session.functions";
+import { loginUser, loginWithGoogle } from "@/lib/session.functions";
 import { PublicShell } from "@/components/site/PublicShell";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ import {
   ShieldCheck,
   Building2,
   Loader2,
-  Zap,
 } from "lucide-react";
 
 function GoogleIcon({ className = "size-4" }: { className?: string }) {
@@ -71,9 +70,9 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const queryClient = useQueryClient();
 
-  // Login Form State pre-populated with official studio admin credentials
-  const [email, setEmail] = useState("rightangle011@gmail.com");
-  const [password, setPassword] = useState("Admin@123456");
+  // Clean form state — zero hardcoded credentials
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -104,42 +103,11 @@ function AuthPage() {
     }
   }
 
-  useEffect(() => {
-    getMySession().then((session) => {
-      if (session && session.email) {
-        goToDestination();
-      }
-    });
-  }, []);
-
-  async function handleDirectAdminClick() {
-    setErrorMessage(null);
-    setBusy(true);
-
-    try {
-      const res = await directAdminLogin();
-      if (!res.success) {
-        throw new Error("Could not log in as administrator.");
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
-      goToDestination();
-    } catch (err: any) {
-      const message =
-        err?.message ||
-        err?.response?.data?.message ||
-        "Direct admin access could not be established. Please try using the login form.";
-      setErrorMessage(message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
   // Google Identity Services (GIS) integration
   useEffect(() => {
     const clientId =
       (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
-      "598456381509-vp9b3a5go2sqd19js8avi55tnk7ec8ui.apps.googleusercontent.com";
+      "531536380503-12jdass0fglqvgkioufsfd82ifovn001.apps.googleusercontent.com";
 
     function onCredentialResponse(response: any) {
       if (!response?.credential) return;
@@ -155,20 +123,6 @@ function AuthPage() {
             auto_select: false,
             cancel_on_tap_outside: true,
           });
-
-          const container = document.getElementById("gsi-button-mount");
-          if (container) {
-            container.innerHTML = "";
-            (window as any).google.accounts.id.renderButton(container, {
-              type: "standard",
-              theme: "outline",
-              size: "large",
-              text: "continue_with",
-              shape: "rectangular",
-              logo_alignment: "left",
-              width: container.offsetWidth > 100 ? container.offsetWidth : 320,
-            });
-          }
         } catch (e) {
           console.warn("GIS initialization notice:", e);
         }
@@ -247,10 +201,60 @@ function AuthPage() {
   }
 
   function handleCustomGoogleClick() {
+    setErrorMessage(null);
+    const clientId =
+      (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
+      "531536380503-12jdass0fglqvgkioufsfd82ifovn001.apps.googleusercontent.com";
+
+    // Primary modern Google Identity Services Popup (Uses in-page popup, avoids full page redirect)
+    if (typeof window !== "undefined" && (window as any).google?.accounts?.oauth2?.initTokenClient) {
+      try {
+        setGoogleLoading(true);
+        const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: "email profile openid",
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse?.error) {
+              setGoogleLoading(false);
+              setErrorMessage(`Google Sign-In: ${tokenResponse.error_description || tokenResponse.error}`);
+              return;
+            }
+            if (tokenResponse?.access_token) {
+              try {
+                const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                const googleUser = await userRes.json();
+                if (googleUser?.email) {
+                  await handleGoogleLogin({
+                    token: tokenResponse.access_token,
+                    email: googleUser.email,
+                    name: googleUser.name,
+                  });
+                } else {
+                  throw new Error("Could not retrieve Google profile.");
+                }
+              } catch (err: any) {
+                setErrorMessage(err?.message || "Google profile retrieval failed.");
+                setGoogleLoading(false);
+              }
+            } else {
+              setGoogleLoading(false);
+            }
+          },
+        });
+
+        tokenClient.requestAccessToken({ prompt: "select_account" });
+        return;
+      } catch (e: any) {
+        console.warn("initTokenClient notice:", e);
+      }
+    }
+
+    // Fallback: If popup SDK is initializing, try GIS One-Tap prompt or direct OAuth
     if (typeof window !== "undefined" && (window as any).google?.accounts?.id) {
       (window as any).google.accounts.id.prompt((notification: any) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // If One Tap is blocked or dismissed, launch Google OAuth popup/redirect
           launchDirectGoogleOAuth();
         }
       });
@@ -262,7 +266,7 @@ function AuthPage() {
   function launchDirectGoogleOAuth() {
     const clientId =
       (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
-      "598456381509-vp9b3a5go2sqd19js8avi55tnk7ec8ui.apps.googleusercontent.com";
+      "531536380503-12jdass0fglqvgkioufsfd82ifovn001.apps.googleusercontent.com";
     const redirectUri = window.location.origin + "/auth";
     const scope = "email profile openid";
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=select_account`;
@@ -292,7 +296,7 @@ function AuthPage() {
       const message =
         err?.message ||
         err?.response?.data?.message ||
-        "Incorrect email or password. Please verify your credentials and try again.";
+        "Incorrect email address or password. Please verify your credentials.";
       setErrorMessage(message);
     } finally {
       setBusy(false);
@@ -327,37 +331,8 @@ function AuthPage() {
                 </p>
               </div>
 
-              {/* 1-Click Direct Admin Access Card */}
-              <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-stone-900 to-stone-950 text-white border border-stone-800 shadow-lg">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 text-amber-400 font-mono text-[10px] font-bold tracking-widest uppercase">
-                      <Zap className="size-3.5 fill-amber-400 text-amber-400" />
-                      <span>1-Click Owner & Admin Access</span>
-                    </div>
-                    <p className="mt-1 font-display text-base font-medium text-white truncate">
-                      Ravi Pipaliya (Principal Architect)
-                    </p>
-                    <p className="text-[11px] text-stone-400 font-mono truncate">
-                      rightangle011@gmail.com
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={handleDirectAdminClick}
-                    disabled={busy || googleLoading}
-                    className="shrink-0 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs uppercase tracking-wider h-9 px-3.5 rounded shadow cursor-pointer flex items-center gap-1.5"
-                  >
-                    <span>Open Admin</span>
-                    <ArrowRight className="size-3.5" />
-                  </Button>
-                </div>
-              </div>
-
               {/* Google Authentication */}
               <div className="mt-6 space-y-3">
-                <div id="gsi-button-mount" className="w-full flex justify-center min-h-[44px]" />
-
                 <button
                   type="button"
                   onClick={handleCustomGoogleClick}
@@ -393,7 +368,7 @@ function AuthPage() {
                     type="email"
                     required
                     autoComplete="email"
-                    placeholder="rightangle011@gmail.com"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -413,7 +388,7 @@ function AuthPage() {
                       type={showPassword ? "text" : "password"}
                       required
                       autoComplete="current-password"
-                      placeholder="••••••••••••"
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);

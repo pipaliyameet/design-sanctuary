@@ -28,19 +28,6 @@ export const authService = {
     return data;
   },
 
-  async directAdminLogin(): Promise<{ user: SessionUser; token: string }> {
-    const data = await api.post<{ user: SessionUser; token: string }>("/auth/admin-direct", {});
-    if (data?.token) {
-      api.setToken(data.token);
-    }
-    if (data?.user && typeof window !== "undefined") {
-      try {
-        localStorage.setItem("studio_user", JSON.stringify(data.user));
-      } catch {}
-    }
-    return data;
-  },
-
   async signup(payload: {
     email: string;
     password: string;

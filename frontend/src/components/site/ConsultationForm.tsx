@@ -18,6 +18,7 @@ export function ConsultationForm({ className }: ConsultationFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     contact: "", // Phone Number or Email
+    city: "Jetpur",
     message: "",
   });
 
@@ -79,7 +80,8 @@ export function ConsultationForm({ className }: ConsultationFormProps) {
         contact: contactVal,
         email: isEmail ? contactVal : "",
         phone: !isEmail ? contactVal : "",
-        notes: formData.message.trim(),
+        city: formData.city,
+        notes: `[Location: ${formData.city}] ${formData.message.trim()}`,
         message: formData.message.trim(),
       };
 
@@ -238,33 +240,57 @@ export function ConsultationForm({ className }: ConsultationFormProps) {
           )}
         </div>
 
-        {/* Message */}
-        <div>
-          <label
-            htmlFor="contact-message"
-            className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
-          >
-            Message <span className="text-destructive">*</span>
-          </label>
-          <textarea
-            id="contact-message"
-            name="message"
-            rows={4}
-            required
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Tell us about the space (e.g. 4BHK apartment in Mumbai, 4,500 sq ft villa in Surat), target possession date, or design vision..."
-            className={cn(
-              "w-full rounded border bg-background px-4 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none resize-none leading-relaxed",
-              errors.message ? "border-destructive focus:border-destructive" : "border-border/80",
+        {/* Field 3 & 4: Preferred Studio / Location and Message (In One Row) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div>
+            <label
+              htmlFor="contact-city"
+              className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+            >
+              Preferred Studio / Location
+            </label>
+            <select
+              id="contact-city"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full rounded border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+            >
+              <option value="Jetpur">Jetpur (HQ Studio)</option>
+              <option value="Rajkot">Rajkot (Design Studio)</option>
+              <option value="Ahmedabad">Ahmedabad (On-Site Booking)</option>
+              <option value="Other Gujarat">Other Gujarat City</option>
+              <option value="Pan-India">Pan-India Commission</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="contact-message"
+              className="block text-xs uppercase tracking-[0.06em] font-semibold text-foreground mb-1.5"
+            >
+              Message <span className="text-destructive">*</span>
+            </label>
+            <textarea
+              id="contact-message"
+              name="message"
+              rows={3}
+              required
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Tell us about the space (e.g. 4BHK apartment, villa), target possession date, or design vision..."
+              className={cn(
+                "w-full rounded border bg-background px-3.5 py-2.5 text-sm text-foreground transition-colors focus:border-accent focus:outline-none resize-none leading-relaxed",
+                errors.message ? "border-destructive focus:border-destructive" : "border-border/80",
+              )}
+            />
+            {errors.message && (
+              <p className="mt-1 flex items-center gap-1 text-xs text-destructive font-medium">
+                <AlertCircle className="size-3 shrink-0" />
+                <span>{errors.message}</span>
+              </p>
             )}
-          />
-          {errors.message && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-destructive font-medium">
-              <AlertCircle className="size-3 shrink-0" />
-              <span>{errors.message}</span>
-            </p>
-          )}
+          </div>
         </div>
 
         {/* Action Button & Reassurance */}

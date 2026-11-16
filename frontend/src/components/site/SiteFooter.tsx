@@ -20,7 +20,7 @@ export function SiteFooter() {
               bespoke commercial venues around daylight, natural stone and quiet craft.
             </p>
             <p className="text-xs text-muted-foreground/80 tracking-wide font-light">
-              Mumbai · Bengaluru · Pan-India
+              Jetpur · Rajkot · Ahmedabad
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -94,17 +94,53 @@ export function SiteFooter() {
               <p className="eyebrow text-foreground/80">Studios</p>
               <div className="mt-3 space-y-4 text-xs leading-relaxed text-muted-foreground">
                 <div>
-                  <p className="font-semibold text-foreground">Mumbai Studio</p>
-                  <p>14 Sun Mill Compound, Lower Parel, Mumbai 400013</p>
-                  <a href={`tel:${STUDIO_DETAILS.phone}`} className="mt-0.5 inline-block text-accent hover:underline">
-                    {STUDIO_DETAILS.phone}
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-foreground">Jetpur Studio (HQ)</p>
+                    <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-accent/15 text-accent font-semibold">HQ</span>
+                  </div>
+                  <p>
+                    <a
+                      href="https://www.google.com/maps/place/Right+Angle+Design+Studio/@21.7478479,70.6124044,17z/data=!4m14!1m7!3m6!1s0x3957f3217145c5a9:0x5511871d3726d602!2sRight+Angle+Design+Studio!8m2!3d21.7478479!4d70.6149793!16s%2Fg%2F11svbd8k13!3m5!1s0x3957f3217145c5a9:0x5511871d3726d602!8m2!3d21.7478479!4d70.6149793!16s%2Fg%2F11svbd8k13?entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-accent transition-colors"
+                      title="Open Jetpur Studio on Google Maps"
+                    >
+                      1st Floor, Shree Nathji Complex, Junagadh Road, Jetpur ↗
+                    </a>
+                  </p>
+                  <a href={`tel:${STUDIO_DETAILS.phone}`} className="mt-0.5 inline-block text-accent font-mono font-semibold hover:underline">
+                    📞 {STUDIO_DETAILS.phone}
                   </a>
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">Bengaluru Studio</p>
-                  <p>84 Lavelle Road, Ashok Nagar, Bengaluru 560001</p>
-                  <a href="tel:+918041207800" className="mt-0.5 inline-block text-accent hover:underline">
-                    +91 80 4120 7800
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-foreground">Rajkot Studio</p>
+                    <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-stone-200 dark:bg-stone-800 text-foreground font-semibold">Studio</span>
+                  </div>
+                  <p>
+                    <a
+                      href={STUDIO_DETAILS.rajkotMapsUrl || "https://www.google.com/maps/place/RK+Empire/@22.2627491,70.7839947,17z/data=!3m1!4b1!4m6!3m5!1s0x3959ca5dbe7afda3:0x6d8e1af5be0f4126!8m2!3d22.2627491!4d70.7865696!16s%2Fg%2F11gd7l319v?entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-accent transition-colors"
+                      title="Open Rajkot Studio on Google Maps"
+                    >
+                      919, RK Empire, Near Mavdi Bridge, 150 Ft. Ring Road, Rajkot - 360004 ↗
+                    </a>
+                  </p>
+                  <a href={`tel:${STUDIO_DETAILS.phone}`} className="mt-0.5 inline-block text-accent font-mono font-semibold hover:underline">
+                    📞 {STUDIO_DETAILS.phone}
+                  </a>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-foreground">Ahmedabad</p>
+                    <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 font-semibold">Site Bookings Only</span>
+                  </div>
+                  <p>On-Site Client Consultations & Project Bookings (By Appointment · No Office)</p>
+                  <a href={`tel:${STUDIO_DETAILS.phone}`} className="mt-0.5 inline-block text-accent font-mono font-semibold hover:underline">
+                    📞 {STUDIO_DETAILS.phone}
                   </a>
                 </div>
               </div>

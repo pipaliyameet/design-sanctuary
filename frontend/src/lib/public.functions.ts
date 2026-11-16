@@ -98,8 +98,14 @@ export const STUDIO_DETAILS = {
   phone: "+91 95375 86804",
   email: "rightangle011@gmail.com",
   emailAddress: "rightangle011@gmail.com",
-  address: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
-  officeAddress: "Studio 4B, The Mill District, Lower Parel, Mumbai 400013",
+  address: "1st Floor, Shree Nathji Complex, Junagadh Road, Jetpur, Gujarat",
+  officeAddress: "1st Floor, Shree Nathji Complex, Junagadh Road, Jetpur, Gujarat",
+  jetpurMapsUrl:
+    "https://www.google.com/maps/place/Right+Angle+Design+Studio/@21.7478479,70.6124044,17z/data=!4m14!1m7!3m6!1s0x3957f3217145c5a9:0x5511871d3726d602!2sRight+Angle+Design+Studio!8m2!3d21.7478479!4d70.6149793!16s%2Fg%2F11svbd8k13!3m5!1s0x3957f3217145c5a9:0x5511871d3726d602!8m2!3d21.7478479!4d70.6149793!16s%2Fg%2F11svbd8k13?entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D",
+  rajkotAddress: "919, RK Empire, Near Mavdi Bridge, 150 Ft. Ring Road, Rajkot - 360004, Gujarat",
+  rajkotMapsUrl:
+    "https://www.google.com/maps/place/RK+Empire/@22.2627491,70.7839947,17z/data=!3m1!4b1!4m6!3m5!1s0x3959ca5dbe7afda3:0x6d8e1af5be0f4126!8m2!3d22.2627491!4d70.7865696!16s%2Fg%2F11gd7l319v?entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D",
+  ahmedabadAddress: "On-Site Project Consultations & Bookings, Ahmedabad (By Appointment · No Office)",
   instagram: "https://www.instagram.com/right_angle_interior_design/",
   instagramHandle: "@right_angle_interior_design",
   instagramUrl: "https://www.instagram.com/right_angle_interior_design/",
@@ -547,7 +553,7 @@ export async function getHomeContent() {
       afterPhoto,
       ctaText,
       ctaLink,
-      ribbonText1: unwrapStr(rawData.ribbonText1 || rawData.settings?.ribbonText1, "Mumbai · Bengaluru · Pan India · 12+ Years Practice"),
+      ribbonText1: unwrapStr(rawData.ribbonText1 || rawData.settings?.ribbonText1, "Jetpur · Rajkot · Ahmedabad · Gujarat · 12+ Years Practice"),
       ribbonText2: unwrapStr(rawData.ribbonText2 || rawData.settings?.ribbonText2, "28+ Architectural Commissions · Single-Source Turnkey Accountability"),
       statementTitle: unwrapStr(
         rawData.statementTitle || rawData.settings?.statementTitle,
@@ -559,7 +565,7 @@ export async function getHomeContent() {
       ),
       statementText2: unwrapStr(
         rawData.statementText2 || rawData.settings?.statementText2,
-        "Operating across Mumbai and Bengaluru, our practice provides single-source turnkey accountability from measured drawing sets through to final white-glove styling."
+        "Operating across Jetpur, Rajkot and Ahmedabad, our practice provides single-source turnkey accountability from measured drawing sets through to final white-glove styling."
       ),
       stat1Value: unwrapStr(rawData.stat1Value || rawData.settings?.stat1Value, "28+"),
       stat1Label: unwrapStr(rawData.stat1Label || rawData.settings?.stat1Label, "Commissions"),

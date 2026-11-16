@@ -191,13 +191,6 @@ function ServicesPage() {
                 >
                   Inquire For Project <ArrowRight className="size-3.5" />
                 </Link>
-
-                <a
-                  href="#services-catalog"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md border border-border bg-background/80 text-foreground text-xs uppercase tracking-[0.14em] font-semibold hover:bg-secondary/70 hover:text-foreground transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  Browse All Disciplines
-                </a>
               </div>
             </div>
 

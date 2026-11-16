@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
+import { BottomMobileNav } from "./BottomMobileNav";
 import { STUDIO_DETAILS } from "@/lib/public.functions";
 import { cn } from "@/lib/utils";
 
@@ -57,10 +58,13 @@ export function PublicShell({
   return (
     <div className="flex min-h-screen w-full max-w-full flex-col bg-background text-foreground selection:bg-accent/25 selection:text-foreground overflow-x-clip">
       <SiteHeader overlay={overlayHeader} />
-      <main className={cn("w-full max-w-full overflow-x-clip", overlayHeader ? "flex-1" : "flex-1 pt-[72px]")}>
+      <main className={cn("w-full max-w-full overflow-x-clip pb-20 lg:pb-0", overlayHeader ? "flex-1" : "flex-1 pt-[54px] lg:pt-[72px]")}>
         {children}
       </main>
       <SiteFooter />
+
+      {/* Livspace Style Fixed Bottom Mobile Navigation Dock */}
+      <BottomMobileNav />
 
       {/* Floating Edge WhatsApp Action: ONLY on Portfolio page, not any other page */}
       {shouldRenderWhatsApp && (

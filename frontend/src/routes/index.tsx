@@ -18,7 +18,6 @@ import {
   Layers,
   Award,
   Building2,
-  Maximize2,
 } from "lucide-react";
 import {
   getHomeContent,
@@ -72,7 +71,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "End-to-end luxury interiors, modular kitchens, wardrobes, and architectural execution across Mumbai, Bengaluru, and Pan-India.",
+          "End-to-end luxury interiors, modular kitchens, wardrobes, and architectural execution across Jetpur, Rajkot, Ahmedabad, and Gujarat.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -430,7 +429,7 @@ export function HomePage() {
       <section
         onMouseEnter={() => setHeroPaused(true)}
         onMouseLeave={() => setHeroPaused(false)}
-        className="group/hero relative isolate h-[calc(100vh-130px)] min-h-[480px] max-h-[700px] overflow-hidden flex flex-col justify-end pt-4 pb-4 sm:pb-6 select-none"
+        className="group/hero relative isolate w-full aspect-[4/5] min-h-[460px] max-h-[580px] sm:aspect-[16/10] lg:h-[calc(100vh-140px)] lg:min-h-[540px] lg:max-h-[740px] overflow-hidden flex flex-col justify-end pt-4 pb-5 sm:pb-8 select-none"
       >
         {/* Background Images with Smooth Crossfade */}
         {heroSlides.map((slide, idx) => (
@@ -461,23 +460,37 @@ export function HomePage() {
                   projectId: "",
                   projectTitle: "Right Angle Design Studio",
                   projectCode: "RADS",
-                  location: "Mumbai",
+                  location: "Jetpur / Rajkot",
                 })
               }
             />
           </div>
         ))}
 
+        {/* Livspace Style Corner Badges on Hero */}
+        <div className="absolute top-3 sm:top-5 left-3 sm:left-6 z-20 flex flex-col gap-1.5 pointer-events-none">
+          <div className="inline-flex items-center gap-1.5 bg-black/70 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-sm border border-white/10 shadow-sm">
+            <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+            <span>10-Yr Warranty · 45-Day Handover</span>
+          </div>
+        </div>
+
+        <div className="absolute top-3 sm:top-5 right-3 sm:right-6 z-20 pointer-events-none">
+          <div className="inline-flex items-center gap-1 bg-black/70 backdrop-blur-md text-amber-300 text-[9px] sm:text-[10px] font-mono tracking-wider px-2.5 py-1 rounded-sm border border-white/10 shadow-sm">
+            <span>#1 Choice across Gujarat*</span>
+          </div>
+        </div>
+
         {/* Ambient Gradient Overlays for High-Contrast Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10 z-1 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 via-55% to-black/10 z-1 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-transparent to-black/35 z-1 pointer-events-none" />
 
         {/* Hero Content Box (Centered, Livspace Style with Animated Transitions) */}
-        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-5 sm:px-8 text-center flex flex-col items-center">
+        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 sm:px-8 text-center flex flex-col items-center">
           {/* Main Headline with Highlight */}
           <h1
             key={`title-${currentSlide}`}
-            className="animate-in fade-in slide-in-from-bottom-3 duration-600 font-display text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight font-light leading-[1.12] max-w-4xl drop-shadow-md"
+            className="animate-in fade-in slide-in-from-bottom-3 duration-600 font-display text-2xl sm:text-4xl lg:text-6xl text-white tracking-tight font-light leading-[1.15] max-w-4xl drop-shadow-md"
           >
             {activeSlide.titleLine1}{" "}
             <span className="italic font-normal text-amber-200/95 font-serif block sm:inline">
@@ -488,24 +501,24 @@ export function HomePage() {
           {/* Positioning Statement */}
           <p
             key={`sub-${currentSlide}`}
-            className="animate-in fade-in slide-in-from-bottom-4 duration-700 mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-stone-200/90 font-light drop-shadow-sm"
+            className="animate-in fade-in slide-in-from-bottom-4 duration-700 mt-2 sm:mt-4 max-w-2xl text-xs sm:text-base leading-relaxed text-stone-200/90 font-light drop-shadow-sm line-clamp-2 sm:line-clamp-none"
           >
             {activeSlide.subtitle}
           </p>
 
-          {/* Centered CTA Button (Single Primary Button, Livspace Style: Rectangular with subtle rounded corners) */}
-          <div className="mt-5 sm:mt-6 flex items-center justify-center">
+          {/* Centered White Pill CTA Button (Livspace Style) */}
+          <div className="mt-4 sm:mt-6 flex items-center justify-center">
             <Link
               to={activeSlide.ctaLink}
               hash="consultation"
-              className="inline-flex items-center justify-center bg-white text-stone-900 px-7 sm:px-9 py-2.5 sm:py-3 text-xs font-semibold tracking-[0.18em] uppercase rounded-sm shadow-md hover:bg-stone-100 hover:text-black transition-all duration-200 cursor-pointer active:scale-95"
+              className="inline-flex items-center justify-center bg-white text-stone-900 px-7 sm:px-9 py-2.5 sm:py-3 text-xs font-bold tracking-[0.16em] uppercase rounded-full shadow-lg hover:bg-stone-100 hover:text-black transition-all duration-200 cursor-pointer active:scale-95"
             >
               <span>{activeSlide.ctaText}</span>
             </Link>
           </div>
 
           {/* Interactive Carousel Slide Indicators with Livspace Styling */}
-          <div className="mt-3.5 sm:mt-4 flex items-center justify-center gap-1.5 z-20">
+          <div className="mt-3 sm:mt-4 flex items-center justify-center gap-1.5 z-20">
             {heroSlides.map((_, idx) => {
               const isActive = currentSlide === idx;
               return (
@@ -518,7 +531,7 @@ export function HomePage() {
                     "h-1.5 transition-all duration-300 cursor-pointer rounded-full",
                     isActive
                       ? "w-6 bg-accent"
-                      : "w-2 bg-white/60 hover:bg-white hover:w-3"
+                      : "w-1.5 bg-white/60 hover:bg-white hover:w-3"
                   )}
                 />
               );
@@ -536,31 +549,31 @@ export function HomePage() {
         onMouseLeave={() => setOfferingsPaused(false)}
         className="pt-6 sm:pt-8 pb-10 sm:pb-14 bg-[#FBF9F6] dark:bg-card/40 border-b border-border/60"
       >
-        <div className="mx-auto max-w-[1720px] px-5 sm:px-8 lg:px-12 xl:px-16">
-          {/* Centered Eyebrow & Section Header (Livspace Reference: img2 bottom peek) */}
-          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-            <p className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-accent/90 font-medium mb-2.5">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-8 lg:px-12 xl:px-16">
+          {/* Centered Eyebrow & Section Header (Livspace Reference: img2) */}
+          <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-10">
+            <p className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-accent font-semibold mb-2">
               YOUR HOME, ENDLESS POSSIBILITIES
             </p>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-foreground tracking-tight leading-tight">
-              One-stop shop for{" "}
-              <span className="italic font-normal text-accent font-serif">all things interiors</span>
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-light text-foreground tracking-tight leading-tight">
+              Design your home or upgrade{" "}
+              <span className="italic font-normal text-accent font-serif">one space</span> at a time
             </h2>
-            <p className="mt-2.5 text-sm sm:text-base text-muted-foreground font-light leading-relaxed">
-              Be it end-to-end interiors, renovation or modular solutions, we have it all for your home or office. With a wide range of furniture & decor, we have your back from start to finish.
+            <p className="mt-2 text-xs sm:text-base text-muted-foreground font-light leading-relaxed">
+              Begin your home interior journey or choose bespoke modular solutions crafted for modern living. Whatever your space needs, at one place.
             </p>
           </div>
 
-          {/* Offerings 4-Card Horizontal Carousel with Controls */}
+          {/* Offerings 4-Card Horizontal Carousel with Livspace Peek on Mobile */}
           <div className="relative">
             <div
               ref={offeringsScrollRef}
-              className="flex gap-5 overflow-x-auto pb-3 scrollbar-none snap-x snap-mandatory scroll-smooth"
+              className="flex gap-4 sm:gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
             >
               {offerings.map((item, idx) => (
                 <div
                   key={idx}
-                  className="w-[280px] sm:w-[320px] lg:w-[calc(25%-18px)] shrink-0 snap-start bg-white dark:bg-card rounded-2xl overflow-hidden border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col group"
+                  className="w-[270px] sm:w-[320px] lg:w-[calc(25%-18px)] shrink-0 snap-start bg-white dark:bg-card rounded-2xl overflow-hidden border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col group"
                 >
                   {/* Photo Container */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-stone">
@@ -660,8 +673,96 @@ export function HomePage() {
             </Link>
           </div>
 
-          {/* Bento Grid (Livspace Reference: 3-column layout with Living Room, Master Bedroom, Lighting, Tall Center Lounge, Kitchen, Wardrobe) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-2.5">
+          {/* Mobile Bento Layout (< md): 1 Featured Hero Card + 4 Square/Compact Grid Cards */}
+          <div className="flex flex-col gap-2.5 md:hidden">
+            {/* Featured Card: Living Room */}
+            <div
+              onClick={() =>
+                setActiveLightboxPhoto({
+                  id: "bento-lr-m",
+                  index: 1,
+                  fileName: "living-room.jpg",
+                  title: designIdeas.livingRoom.title,
+                  caption: designIdeas.livingRoom.caption,
+                  url: designIdeas.livingRoom.image,
+                  thumbnailUrl: designIdeas.livingRoom.image,
+                  driveViewUrl: designIdeas.livingRoom.image,
+                  category: "Living",
+                  tags: ["Living Room"],
+                  projectId: "",
+                  projectTitle: "Right Angle Design Studio",
+                  projectCode: "RADS",
+                  location: "Jetpur / Rajkot",
+                })
+              }
+              className="group relative aspect-[16/10] rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs cursor-pointer"
+            >
+              <DriveImage
+                src={designIdeas.livingRoom.image}
+                alt={designIdeas.livingRoom.title}
+                className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                wrapperClassName="size-full"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                <div>
+                  <span className="inline-block bg-black/75 backdrop-blur-md text-white text-[10px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm mb-1">
+                    {designIdeas.livingRoom.badge}
+                  </span>
+                  <p className="text-white text-xs font-light leading-snug line-clamp-1 drop-shadow-sm">
+                    {designIdeas.livingRoom.caption}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 2x2 Grid for Other Rooms */}
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { data: designIdeas.masterBedroom, tag: "Bedroom" },
+                { data: designIdeas.kitchen, tag: "Kitchen" },
+                { data: designIdeas.lighting, tag: "Lighting" },
+                { data: designIdeas.wardrobe, tag: "Wardrobe" },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={() =>
+                    setActiveLightboxPhoto({
+                      id: `bento-m-${idx}`,
+                      index: idx + 2,
+                      fileName: `${item.data.title}.jpg`,
+                      title: item.data.title,
+                      caption: item.data.caption,
+                      url: item.data.image,
+                      thumbnailUrl: item.data.image,
+                      driveViewUrl: item.data.image,
+                      category: item.tag,
+                      tags: [item.data.badge],
+                      projectId: "",
+                      projectTitle: "Right Angle Design Studio",
+                      projectCode: "RADS",
+                      location: "Gujarat",
+                    })
+                  }
+                  className="group relative aspect-square rounded-lg overflow-hidden bg-stone border border-border/80 shadow-xs cursor-pointer"
+                >
+                  <DriveImage
+                    src={item.data.image}
+                    alt={item.data.title}
+                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    wrapperClassName="size-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+                  <span className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md text-white text-[9px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-sm">
+                    {item.data.badge}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop Bento Grid (Livspace Reference: 3-column layout with Living Room, Master Bedroom, Lighting, Tall Center Lounge, Kitchen, Wardrobe) */}
+          <div className="hidden md:grid md:grid-cols-12 gap-2 sm:gap-2.5">
             {/* Left Column (4 Cols): Living Room + Master Bedroom + False Ceiling */}
             <div className="md:col-span-4 flex flex-col gap-2 sm:gap-2.5">
               {/* Card 1: Living Room */}
@@ -681,7 +782,7 @@ export function HomePage() {
                     projectId: "",
                     projectTitle: "Right Angle Design Studio",
                     projectCode: "RADS",
-                    location: "Mumbai",
+                    location: "Jetpur",
                   })
                 }
                 className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
@@ -695,9 +796,6 @@ export function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.livingRoom.badge}
-                </span>
-                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="size-3.5" />
                 </span>
               </div>
 
@@ -718,7 +816,7 @@ export function HomePage() {
                     projectId: "",
                     projectTitle: "Right Angle Design Studio",
                     projectCode: "RADS",
-                    location: "Bengaluru",
+                    location: "Rajkot",
                   })
                 }
                 className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
@@ -732,9 +830,6 @@ export function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.masterBedroom.badge}
-                </span>
-                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="size-3.5" />
                 </span>
               </div>
 
@@ -770,9 +865,6 @@ export function HomePage() {
                 <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.lighting.badge}
                 </span>
-                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="size-3.5" />
-                </span>
               </div>
             </div>
 
@@ -794,7 +886,7 @@ export function HomePage() {
                     projectId: "",
                     projectTitle: "Right Angle Design Studio",
                     projectCode: "RADS",
-                    location: "Mumbai",
+                    location: "Jetpur",
                   })
                 }
                 className="group relative h-full min-h-[380px] sm:min-h-[460px] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
@@ -815,9 +907,6 @@ export function HomePage() {
                       {designIdeas.signatureLounge.caption}
                     </p>
                   </div>
-                  <span className="size-8.5 rounded-full bg-white/25 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all shrink-0">
-                    <Maximize2 className="size-4" />
-                  </span>
                 </div>
               </div>
             </div>
@@ -841,7 +930,7 @@ export function HomePage() {
                     projectId: "",
                     projectTitle: "Right Angle Design Studio",
                     projectCode: "RADS",
-                    location: "Pune",
+                    location: "Rajkot",
                   })
                 }
                 className="group relative aspect-[16/9] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer"
@@ -855,9 +944,6 @@ export function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.kitchen.badge}
-                </span>
-                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="size-3.5" />
                 </span>
               </div>
 
@@ -878,7 +964,7 @@ export function HomePage() {
                     projectId: "",
                     projectTitle: "Right Angle Design Studio",
                     projectCode: "RADS",
-                    location: "Worli, Mumbai",
+                    location: "Ahmedabad",
                   })
                 }
                 className="group relative aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-stone border border-border/80 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer flex-1"
@@ -892,9 +978,6 @@ export function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-mono tracking-[0.16em] uppercase px-2.5 py-1 rounded-sm">
                   {designIdeas.wardrobe.badge}
-                </span>
-                <span className="absolute top-2.5 right-2.5 size-7 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="size-3.5" />
                 </span>
               </div>
             </div>
@@ -942,12 +1025,12 @@ export function HomePage() {
           <div className="relative">
             <div
               ref={deliveredScrollRef}
-              className="flex gap-5 overflow-x-auto pb-3 scrollbar-none snap-x snap-mandatory scroll-smooth"
+              className="flex gap-4 sm:gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
             >
               {deliveredHomes.map((home, idx) => (
                 <div
                   key={idx}
-                  className="w-[280px] sm:w-[320px] lg:w-[calc(25%-18px)] shrink-0 snap-start group relative aspect-[3/4] rounded-2xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-2xl transition-all duration-500 cursor-pointer"
+                  className="w-[270px] sm:w-[320px] lg:w-[calc(25%-18px)] shrink-0 snap-start group relative aspect-[3/4] rounded-2xl overflow-hidden bg-stone border border-border shadow-xs hover:shadow-2xl transition-all duration-500 cursor-pointer"
                   onClick={() =>
                     setActiveLightboxPhoto({
                       id: `delivered-${idx}`,

@@ -23,71 +23,6 @@ const signupSchema = z.object({
   role: z.enum(["admin", "designer", "project_manager", "accounts", "client"]).default("admin"),
 });
 
-export async function directAdminLogin(req: Request, res: Response, next: NextFunction) {
-  try {
-    const usersCol = await getCollection<UserDoc>("users");
-    const adminEmail = "rightangle011@gmail.com";
-    let user = await usersCol.findOne({ email: adminEmail });
-
-    if (!user) {
-      const passwordHash = await hashPassword("Admin@123456");
-      const now = new Date();
-      const newUserDoc: UserDoc = {
-        email: adminEmail,
-        passwordHash,
-        fullName: "Ravi Pipaliya",
-        title: "Principal Architect & Founder",
-        phone: "+91 95375 86804",
-        roles: ["admin", "designer", "project_manager"],
-        isStaff: true,
-        clientIds: [],
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      };
-      const insertRes = await usersCol.insertOne(newUserDoc as any);
-      user = await usersCol.findOne({ _id: insertRes.insertedId });
-    }
-
-    if (!user) {
-      return sendError(res, "Could not initialize admin session.", 500, "AUTH_ERROR");
-    }
-
-    const token = signToken({
-      userId: String(user._id),
-      email: user.email,
-      fullName: user.fullName,
-      roles: user.roles,
-      isStaff: user.isStaff,
-      clientIds: user.clientIds,
-    });
-
-    res.cookie(env.COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
-
-    return sendSuccess(res, {
-      token,
-      user: {
-        userId: String(user._id),
-        id: String(user._id),
-        email: user.email,
-        fullName: user.fullName,
-        title: user.title ?? "Principal Architect & Founder",
-        roles: user.roles,
-        isStaff: user.isStaff,
-        clientIds: user.clientIds ?? [],
-      },
-    }, "Direct admin login successful.");
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = loginSchema.parse(req.body);
@@ -97,14 +32,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const isOwnerEmail =
       emailNorm === "rightangle011@gmail.com" ||
       emailNorm === "admin@rightangle.design" ||
-      emailNorm === "owner@rightangle.design" ||
-      emailNorm.includes("rightangle");
+      emailNorm === "owner@rightangle.design";
 
     let user = await usersCol.findOne({ email: emailNorm });
     
-    // Seed default admin account on demand if database is fresh and owner tries to log in
+    // Seed default admin account on demand if database is fresh and owner logs in for first time
     if (!user && isOwnerEmail) {
-      const passwordHash = await hashPassword("Admin@123456");
+      const passwordHash = await hashPassword(password);
       const now = new Date();
       const newUserDoc: UserDoc = {
         email: emailNorm,
@@ -136,27 +70,10 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       return sendError(res, "This account is inactive. Please contact studio support.", 403, "ACCOUNT_INACTIVE");
     }
 
-    let isValid = await verifyPassword(password, user.passwordHash);
-
-    // Fallback passkeys for studio owner in local/dev environments
-    if (!isValid && isOwnerEmail) {
-      if (
-        password === "Admin@123456" ||
-        password === "admin" ||
-        password === "admin123" ||
-        password === "rightangle" ||
-        password === "123456"
-      ) {
-        isValid = true;
-      }
-    }
+    const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
       return sendError(res, "Incorrect password. Please verify your password and try again.", 401, "INVALID_CREDENTIALS");
-    }
-
-    if (!user) {
-      return sendError(res, "Authentication failed. Could not locate user profile.", 500, "AUTH_ERROR");
     }
 
     const token = signToken({
@@ -220,6 +137,7 @@ export async function googleLogin(req: Request, res: Response, next: NextFunctio
           idToken,
           audience: [
             process.env.GOOGLE_CLIENT_ID || "",
+            "531536380503-12jdass0fglqvgkioufsfd82ifovn001.apps.googleusercontent.com",
             "598456381509-vp9b3a5go2sqd19js8avi55tnk7ec8ui.apps.googleusercontent.com",
           ].filter(Boolean),
         });
@@ -245,11 +163,6 @@ export async function googleLogin(req: Request, res: Response, next: NextFunctio
       }
     }
 
-    if (!googleEmail && body.email) {
-      googleEmail = body.email.toLowerCase().trim();
-      googleName = body.fullName || body.name;
-    }
-
     if (!googleEmail) {
       return sendError(
         res,
@@ -267,8 +180,7 @@ export async function googleLogin(req: Request, res: Response, next: NextFunctio
       const isOwner =
         googleEmail === "rightangle011@gmail.com" ||
         googleEmail === "admin@rightangle.design" ||
-        googleEmail === "owner@rightangle.design" ||
-        googleEmail.includes("rightangle");
+        googleEmail === "owner@rightangle.design";
 
       const now = new Date();
       const randomPassword = Math.random().toString(36).slice(-8) + "Aa1!";
